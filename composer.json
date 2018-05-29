@@ -18,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "hangar\\api\\": "src/app/phpbob"
+            "phpbob\\": "src/app/phpbob"
         }
     }
 }
