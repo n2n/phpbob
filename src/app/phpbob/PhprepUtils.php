@@ -14,16 +14,16 @@ use n2n\reflection\annotation\AnnotationSet;
 use phpbob\analyze\PhpAnnoAnalyzer;
 use phpbob\representation\PhpInterface;
 use phpbob\representation\PhpTrait;
-use n2n\core\TypeLoader;
 use n2n\util\ex\NotYetImplementedException;
 use phpbob\analyze\PhpSourceAnalyzingException;
 
 class PhprepUtils {
 	const NAMESPACE_SEPERATOR = '\\';
+	const PHP_FILE_EXTENSION = '.php';
 	
 	public static function typeNameToPath($typeName) {
 		return str_replace(self::NAMESPACE_SEPERATOR, DIRECTORY_SEPARATOR, trim($typeName, self::NAMESPACE_SEPERATOR)) 
-				. TypeLoader::SCRIPT_FILE_EXTENSION;
+				. self::PHP_FILE_EXTENSION;
 	}
 	
 	public static function extractClassName($typeName) {
@@ -39,7 +39,10 @@ class PhprepUtils {
 	}
 	
 	public static function extractNamespace($typeName) {
-		return TypeLoader::namespaceOfTypeName($typeName);
+		$lastPos = strrpos($typeName, '\\');
+		if (false === $lastPos) return null;
+		
+		return mb_substr($typeName, 0, $lastPos);
 	}
 	
 	public static function extractTypeNames($string) {
