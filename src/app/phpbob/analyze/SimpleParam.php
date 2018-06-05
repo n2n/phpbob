@@ -12,4 +12,13 @@ class SimpleParam implements CallParam {
 	public function __toString() {
 		return $this->string;
 	}
+	
+	public function isScalar() {
+		
+	}
+	
+	public function getType() {
+		
+	}
+	
 }

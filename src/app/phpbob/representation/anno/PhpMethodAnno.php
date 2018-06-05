@@ -1,5 +1,5 @@
 <?php
-namespace phpbob\representation;
+namespace phpbob\representation\anno;
 
 class PhpMethodAnno extends PhpAnno {
 	private $methodName;

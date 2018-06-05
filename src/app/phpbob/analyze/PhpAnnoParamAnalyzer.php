@@ -1,7 +1,7 @@
 <?php
 namespace phpbob\analyze;
 
-use phpbob\PhpKeyword;
+use phpbob\Phpbob;
 use n2n\util\StringUtils;
 use n2n\reflection\ArgUtils;
 use phpbob\representation\PhpAnnoParam;
@@ -40,10 +40,10 @@ class PhpAnnoParamAnalyzer {
 		
 		foreach (str_split((string) $paramString) as $char) {
 			switch ($char) {
-				case PhpKeyword::PARAMETER_GROUP_START:
+				case Phpbob::PARAMETER_GROUP_START:
 					$level++;
 					break;
-				case PhpKeyword::PARAMETER_GROUP_END:
+				case Phpbob::PARAMETER_GROUP_END:
 					$level--;
 					break;
 				default:
@@ -53,7 +53,7 @@ class PhpAnnoParamAnalyzer {
 				throw new PhpSourceAnalyzingException('Invalid param String: ' . $paramString . '. Too many closing groups.');
 			}
 			
-			if ($level === 0 && $char === PhpKeyword::PARAMETER_SEPERATOR) {
+			if ($level === 0 && $char === Phpbob::PARAMETER_SEPERATOR) {
 				$annoParamStrings[] = trim($annoParamString);
 				$annoParamString = '';
 				continue;
@@ -74,13 +74,13 @@ class PhpAnnoParamAnalyzer {
 		$constructorString = null;
 		$level = 0;
 		
-		$newClassString = preg_replace('/^' . PhpKeyword::KEYWORD_NEW . '\s+/', '', $newClassString);
+		$newClassString = preg_replace('/^' . Phpbob::KEYWORD_NEW . '\s+/', '', $newClassString);
 		foreach (str_split((string) $newClassString) as $char) {
 			switch ($char) {
-				case PhpKeyword::PARAMETER_GROUP_START:
+				case Phpbob::PARAMETER_GROUP_START:
 					$level++;
 					break;
-				case PhpKeyword::PARAMETER_GROUP_END:
+				case Phpbob::PARAMETER_GROUP_END:
 					$level--;
 					break;
 				default:
@@ -92,7 +92,7 @@ class PhpAnnoParamAnalyzer {
 			}
 			
 			if ($level === 0) {
-				if ($char === PhpKeyword::PARAMETER_GROUP_END) continue;
+				if ($char === Phpbob::PARAMETER_GROUP_END) continue;
 
 				if (null !== $constructorString) {
 					throw new PhpSourceAnalyzingException('invalid new Class statement:' . $newClassString);
@@ -102,7 +102,7 @@ class PhpAnnoParamAnalyzer {
 				continue;
 			}
 			
-			if ($level === 1 && $char == PhpKeyword::PARAMETER_GROUP_START) continue;
+			if ($level === 1 && $char == Phpbob::PARAMETER_GROUP_START) continue;
 			
 			$constructorString .= $char;
 		}
@@ -122,10 +122,10 @@ class PhpAnnoParamAnalyzer {
 	}
 	
 	private function isNewClass($string) {
-		return StringUtils::startsWith(PhpKeyword::KEYWORD_NEW, ltrim($string));
+		return StringUtils::startsWith(Phpbob::KEYWORD_NEW, ltrim($string));
 	}
 	
 	private function isVariable($string) {
-		return StringUtils::startsWith(PhpKeyword::VARIABLE_PREFIX, ltrim($string));
+		return StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, ltrim($string));
 	}
 }

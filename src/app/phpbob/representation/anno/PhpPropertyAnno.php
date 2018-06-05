@@ -1,5 +1,5 @@
 <?php
-namespace phpbob\representation;
+namespace phpbob\representation\anno;
 
 class PhpPropertyAnno extends PhpAnno {
 	

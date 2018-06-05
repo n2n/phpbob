@@ -1,7 +1,7 @@
 <?php
 namespace phpbob\analyze;
 
-use phpbob\PhpKeyword;
+use phpbob\Phpbob;
 
 class NewClassParam implements AnnoParam, CallParam {
 	
@@ -25,8 +25,8 @@ class NewClassParam implements AnnoParam, CallParam {
 	}
 
 	public function __toString() {
-		return PhpKeyword::KEYWORD_NEW . ' ' . $this->typeName . 
-				PhpKeyword::PARAMETER_GROUP_START . implode(PhpKeyword::PARAMETER_SEPERATOR . ' ',  
-						$this->constructorParams) . PhpKeyword::PARAMETER_GROUP_END; 
+		return Phpbob::KEYWORD_NEW . ' ' . $this->typeName . 
+				Phpbob::PARAMETER_GROUP_START . implode(Phpbob::PARAMETER_SEPERATOR . ' ',  
+						$this->constructorParams) . Phpbob::PARAMETER_GROUP_END; 
 	}
 }

@@ -18,16 +18,13 @@ use n2n\util\ex\NotYetImplementedException;
 use phpbob\analyze\PhpSourceAnalyzingException;
 
 class PhprepUtils {
-	const NAMESPACE_SEPERATOR = '\\';
-	const PHP_FILE_EXTENSION = '.php';
-	
 	public static function typeNameToPath($typeName) {
-		return str_replace(self::NAMESPACE_SEPERATOR, DIRECTORY_SEPARATOR, trim($typeName, self::NAMESPACE_SEPERATOR)) 
-				. self::PHP_FILE_EXTENSION;
+		return str_replace(Phpbob::NAMESPACE_SEPERATOR, DIRECTORY_SEPARATOR, trim($typeName, Phpbob::NAMESPACE_SEPERATOR)) 
+				. Phpbob::PHP_FILE_EXTENSION;
 	}
 	
 	public static function extractClassName($typeName) {
-		if (false === $pos = mb_strrpos($typeName, self::NAMESPACE_SEPERATOR)) {
+		if (false === $pos = mb_strrpos($typeName, Phpbob::NAMESPACE_SEPERATOR)) {
 			return $typeName;
 		}
 		
@@ -35,11 +32,11 @@ class PhprepUtils {
 	}
 	
 	public static function isInRootNamespace($typeName) {
-		return mb_strrpos($typeName, self::NAMESPACE_SEPERATOR) === 0;
+		return mb_strrpos($typeName, Phpbob::NAMESPACE_SEPERATOR) === 0;
 	}
 	
 	public static function extractNamespace($typeName) {
-		$lastPos = strrpos($typeName, '\\');
+		$lastPos = strrpos($typeName, Phpbob::NAMESPACE_SEPERATOR);
 		if (false === $lastPos) return null;
 		
 		return mb_substr($typeName, 0, $lastPos);
@@ -48,7 +45,7 @@ class PhprepUtils {
 	public static function extractTypeNames($string) {
 		$typeNames = array();
 		foreach (preg_split('/(\s+|\||,|::)/', $string, null, PREG_SPLIT_NO_EMPTY) as $possibleTypeName) {
-			if (false === mb_strpos($possibleTypeName, self::NAMESPACE_SEPERATOR)) continue;
+			if (false === mb_strpos($possibleTypeName, Phpbob::NAMESPACE_SEPERATOR)) continue;
 			$typeNames[$possibleTypeName] = preg_replace('/^\\\\/', '', $possibleTypeName);
 		}
 		
@@ -58,9 +55,9 @@ class PhprepUtils {
 	public static function isClassStatement(PhpStatement $phpStatement) {
 		if (!($phpStatement instanceof StatementGroup)) return false;
 		
-		return preg_match('/^(' . preg_quote(PhpKeyword::KEYWORD_FINAL) .  '\s+)?(' 
-				. preg_quote(PhpKeyword::KEYWORD_ABSTRACT) . '\s+)?'
-				. preg_quote(PhpKeyword::KEYWORD_CLASS). '/i', ltrim($phpStatement->getCode()));
+		return preg_match('/^(' . preg_quote(Phpbob::KEYWORD_FINAL) .  '\s+)?(' 
+				. preg_quote(Phpbob::KEYWORD_ABSTRACT) . '\s+)?'
+				. preg_quote(Phpbob::KEYWORD_CLASS). '/i', ltrim($phpStatement->getCode()));
 	}
 	
 	public static function isTypeStatement(PhpStatement $phpStatement) {
@@ -71,29 +68,29 @@ class PhprepUtils {
 	public static function isInterfaceStatement(PhpStatement $phpStatement) {
 		if (!($phpStatement instanceof StatementGroup)) return false;
 		
-		return StringUtils::startsWith(PhpKeyword::KEYWORD_INTERFACE, 
+		return StringUtils::startsWith(Phpbob::KEYWORD_INTERFACE, 
 				ltrim(strtolower($phpStatement->getCode())));
 	}
 	
 	public static function isTraitStatement(PhpStatement $phpStatement) {
 		if (!($phpStatement instanceof StatementGroup)) return false;
 		
-		return StringUtils::startsWith(PhpKeyword::KEYWORD_TRAIT, 
+		return StringUtils::startsWith(Phpbob::KEYWORD_TRAIT, 
 				ltrim(strtolower($phpStatement->getCode())));
 	}
 	
 	public static function isPropertyStatement(PhpStatement $phpStatement) {
 		return $phpStatement instanceof SingleStatement 
-				&& preg_match('/(' . preg_quote(PhpKeyword::CLASSIFIER_PRIVATE) . 
-						'|' . preg_quote(PhpKeyword::CLASSIFIER_PROTECTED) .
-						'|' . preg_quote(PhpKeyword::CLASSIFIER_PUBLIC) . ')\s+(' 
-						. preg_quote(PhpKeyword::KEYWORD_STATIC) . '\s+)?' . 
-						preg_quote(PhpKeyword::VARIABLE_PREFIX) . '/i', $phpStatement->getCode());
+				&& preg_match('/(' . preg_quote(Phpbob::CLASSIFIER_PRIVATE) . 
+						'|' . preg_quote(Phpbob::CLASSIFIER_PROTECTED) .
+						'|' . preg_quote(Phpbob::CLASSIFIER_PUBLIC) . ')\s+(' 
+						. preg_quote(Phpbob::KEYWORD_STATIC) . '\s+)?' . 
+						preg_quote(Phpbob::VARIABLE_PREFIX) . '/i', $phpStatement->getCode());
 	}
 	
 	public static function isConstStatement(PhpStatement $phpStatement) {
 		return $phpStatement instanceof SingleStatement 
-				&& StringUtils::startsWith(PhpKeyword::KEYWORD_CONST, ltrim(strtolower($phpStatement->getCode())));
+				&& StringUtils::startsWith(Phpbob::KEYWORD_CONST, ltrim(strtolower($phpStatement->getCode())));
 	}
 	
 	public static function isAnnotationStatement(PhpStatement $phpStatement) {
@@ -103,27 +100,27 @@ class PhprepUtils {
 	}
 	
 	public static function isMethodStatement(PhpStatement $phpStatement) {
-		return !!preg_match('/' . preg_quote(PhpKeyword::KEYWORD_FUNCTION) 
+		return !!preg_match('/' . preg_quote(Phpbob::KEYWORD_FUNCTION) 
 				. '.*\(.*\)/i', $phpStatement->getCode());
 	}
 	
 	public static function isNamespaceStatement(PhpStatement $phpStatement) {
 		return $phpStatement instanceof SingleStatement 
-				&& preg_match('/^\s*' . preg_quote(PhpKeyword::KEYWORD_NAMESPACE) . '\s+/i', $phpStatement->getCode());
+				&& preg_match('/^\s*' . preg_quote(Phpbob::KEYWORD_NAMESPACE) . '\s+/i', $phpStatement->getCode());
 	}
 	
 	public static function isUseStatement(PhpStatement $phpStatement) {
 		return $phpStatement instanceof SingleStatement 
-				&& StringUtils::startsWith(PhpKeyword::KEYWORD_USE, ltrim(strtolower(implode(' ', $phpStatement->getCodeLines()))));
+				&& StringUtils::startsWith(Phpbob::KEYWORD_USE, ltrim(strtolower(implode(' ', $phpStatement->getCodeLines()))));
 	}
 	
 	public static function isTraitUseStatement(PhpStatement $phpStatement) {
-		return StringUtils::startsWith(PhpKeyword::KEYWORD_USE, ltrim(strtolower($phpStatement->getCode())));
+		return StringUtils::startsWith(Phpbob::KEYWORD_USE, ltrim(strtolower($phpStatement->getCode())));
 	}
 	
 	public static function isString($value) {
-		return StringUtils::startsWith(PhpKeyword::STRING_LITERAL_SEPERATOR, $value) 
-				|| StringUtils::startsWith(PhpKeyword::STRING_LITERAL_ALTERNATIVE_SEPERATOR, $value);
+		return StringUtils::startsWith(Phpbob::STRING_LITERAL_SEPERATOR, $value) 
+				|| StringUtils::startsWith(Phpbob::STRING_LITERAL_ALTERNATIVE_SEPERATOR, $value);
 	}
 	
 	public static function createPhpClass(PhpStatement $phpStatement, 
@@ -140,13 +137,13 @@ class PhprepUtils {
 		
 		while (true) {
 			$codePart = strtolower(array_shift($codeParts));
-			if ($codePart == PhpKeyword::KEYWORD_CLASS) break;
+			if ($codePart == Phpbob::KEYWORD_CLASS) break;
 			
 			switch ($codePart) {
-				case PhpKeyword::KEYWORD_FINAL:
+				case Phpbob::KEYWORD_FINAL:
 					$isFinal = true;
 					break;
-				case PhpKeyword::KEYWORD_ABSTRACT:
+				case Phpbob::KEYWORD_ABSTRACT:
 					$isAbstract = true;
 					break;
 				case false:
@@ -182,10 +179,10 @@ class PhprepUtils {
 			}
 			
 			switch (strtolower($codePart)) {
-				case PhpKeyword::KEYWORD_EXTENDS:
+				case Phpbob::KEYWORD_EXTENDS:
 					$inExtendsClause = true;
 					break;
-				case PhpKeyword::KEYWORD_IMPLEMENTS:
+				case Phpbob::KEYWORD_IMPLEMENTS:
 					$inImplementsClause = true;
 					break;
 			}
@@ -203,7 +200,7 @@ class PhprepUtils {
 				$phpClass->addProperty(self::createPhpProperty($childPhpStatement));
 				continue;
 			} elseif (self::isMethodStatement($childPhpStatement)) {
-				if (self::isAnnotationStatement($childPhpStatement) && null !== $as) {
+				if (self::isAnnotationStatement($childPhpStatement)) {
 					$phpClass->setAnnotationSet(self::applyAnnotationSet($phpClass, $childPhpStatement, $as));
 				} else {
 					$phpClass->addMethod(self::createPhpMethod($childPhpStatement));
@@ -253,7 +250,7 @@ class PhprepUtils {
 			}
 				
 			switch (strtolower($codePart)) {
-				case PhpKeyword::KEYWORD_EXTENDS:
+				case Phpbob::KEYWORD_EXTENDS:
 					$inExtendsClause = true;
 					continue;
 			}
@@ -294,7 +291,7 @@ class PhprepUtils {
 		$phpTrait = new PhpTrait($traitName);
 
 		$phpTrait->setPrependingCode(implode('', (array) $statmentsBefore) . 
-		    (string) self::createPrependingCode($phpStatement));
+				(string) self::createPrependingCode($phpStatement));
 		
 		if (null !== $namespaceStatement) {
 			$phpTrait->setNamespace(self::createPhpNamespace($namespaceStatement));
@@ -358,7 +355,7 @@ class PhprepUtils {
 			}
 			
 			if (null === $name) {
-				if (strtolower($codePart) == PhpKeyword::KEYWORD_STATIC) {
+				if (strtolower($codePart) == Phpbob::KEYWORD_STATIC) {
 					$isStatic = true;
 				} else {
 					$name = self::purifyPropertyName($codePart);
@@ -415,20 +412,20 @@ class PhprepUtils {
 		foreach (self::explodeByWhiteSpaces($signaturePart) as $part) {
 			if (null !== $methodName) break;
 			switch (strtolower($part)) {
-				case PhpKeyword::KEYWORD_FUNCTION:
+				case Phpbob::KEYWORD_FUNCTION:
 					break;
-				case PhpKeyword::CLASSIFIER_PRIVATE:
-				case PhpKeyword::CLASSIFIER_PROTECTED:
-				case PhpKeyword::CLASSIFIER_PUBLIC:
+				case Phpbob::CLASSIFIER_PRIVATE:
+				case Phpbob::CLASSIFIER_PROTECTED:
+				case Phpbob::CLASSIFIER_PUBLIC:
 					$classifier = $part;
 					break;
-				case PhpKeyword::KEYWORD_ABSTRACT:
+				case Phpbob::KEYWORD_ABSTRACT:
 					$abstract = true;
 					break;
-				case PhpKeyword::KEYWORD_FINAL:
+				case Phpbob::KEYWORD_FINAL:
 					$final = true;
 					break;
-				case PhpKeyword::KEYWORD_STATIC:
+				case Phpbob::KEYWORD_STATIC:
 					$static = true;
 					break;
 				default:
@@ -451,13 +448,13 @@ class PhprepUtils {
 			$splat = false;
 			
 			foreach ($parameterParts as $parameterPart) {
-				if (StringUtils::startsWith(PhpKeyword::SPLAT_INDICATOR, $parameterPart)) {
+				if (StringUtils::startsWith(Phpbob::SPLAT_INDICATOR, $parameterPart)) {
 					$splat = true;
-					if (StringUtils::endsWith(PhpKeyword::SPLAT_INDICATOR, $parameterPart)) continue;
+					if (StringUtils::endsWith(Phpbob::SPLAT_INDICATOR, $parameterPart)) continue;
 					
-					$parameterPart = substr($parameterPart, strlen(PhpKeyword::SPLAT_INDICATOR));
+					$parameterPart = substr($parameterPart, strlen(Phpbob::SPLAT_INDICATOR));
 				}
-				if (StringUtils::startsWith(PhpKeyword::VARIABLE_PREFIX, $parameterPart)) {
+				if (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $parameterPart)) {
 					$parameterName = $parameterPart;
 					continue;
 				}
@@ -489,7 +486,7 @@ class PhprepUtils {
 		return $phpMethod;
 	}
 	
-	public static function applyAnnotationSet(PhpClass $phpClass, PhpStatement $phpStatement, AnnotationSet $as) {
+	public static function applyAnnotationSet(PhpClass $phpClass, PhpStatement $phpStatement, AnnotationSet $as = null) {
 		ArgUtils::assertTrue(self::isAnnotationStatement($phpStatement));
 		$annoAnalyzer = new PhpAnnoAnalyzer();
 		return $annoAnalyzer->analyze($phpStatement, $phpClass, $as);
@@ -518,9 +515,9 @@ class PhprepUtils {
 	}
 	
 	private static function determineCodeParts(PhpStatement $phpStatement, bool $replaceAssignment = false) {
-		$str = trim(str_replace(PhpKeyword::SINGLE_STATEMENT_STOP, '', implode(' ', $phpStatement->getCodeLines())));
+		$str = trim(str_replace(Phpbob::SINGLE_STATEMENT_STOP, '', implode(' ', $phpStatement->getCodeLines())));
 		if ($replaceAssignment) {
-			$str = str_replace(PhpKeyword::ASSIGNMENT, '', $str);
+			$str = str_replace(Phpbob::ASSIGNMENT, '', $str);
 		}
 		
 		return self::determineCodePartsForString($str);
@@ -566,7 +563,7 @@ class PhprepUtils {
 	}
 	
 	public static function purifyPropertyName($propertyName) {
-		return str_replace(PhpKeyword::VARIABLE_PREFIX, '', $propertyName);
+		return str_replace(Phpbob::VARIABLE_PREFIX, '', $propertyName);
 	}
 	
 	public static function removeLeadingWhiteSpaces($string) {

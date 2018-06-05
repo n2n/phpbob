@@ -38,8 +38,8 @@ class StatementGroup extends PhpStatementAdapter {
 			return $this->getStatementsString();
 		}
 		
-		return $this->startCode . PhpKeyword::GROUP_STATEMENT_OPEN . 
-				$this->getStatementsString() . $this->endCode . PhpKeyword::GROUP_STATEMENT_CLOSE;
+		return $this->startCode . Phpbob::GROUP_STATEMENT_OPEN . 
+				$this->getStatementsString() . $this->endCode . Phpbob::GROUP_STATEMENT_CLOSE;
 	}
 	
 	public function getStatementsString() {

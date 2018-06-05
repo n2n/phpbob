@@ -1,7 +1,7 @@
 <?php
-namespace phpbob\representation;
+namespace phpbob\representation\anno;
 
-use phpbob\PhpKeyword;
+use phpbob\Phpbob;
 use n2n\reflection\annotation\Annotation;
 use n2n\util\StringUtils;
 
@@ -81,7 +81,7 @@ class PhpAnnoParam {
 	}
 	
 	public function __toString() {
-		return PhpKeyword::KEYWORD_NEW . ' ' . $this->typeName . '(' . implode(', ', $this->constructorParams) . ')';
+		return Phpbob::KEYWORD_NEW . ' ' . $this->typeName . '(' . implode(', ', $this->constructorParams) . ')';
 	}
 	
 	public function escapeConstructorParams() {
@@ -91,13 +91,13 @@ class PhpAnnoParam {
 	}
 	
 	public static function escapeConstructorParam($constructorParam) {
-		if (StringUtils::startsWith(PhpKeyword::VARIABLE_PREFIX, $constructorParam)
-				|| mb_strpos($constructorParam, PhpKeyword::CONST_SEPERATOR) !== false
-				|| StringUtils::startsWith($constructorParam, PhpKeyword::STRING_LITERAL_SEPERATOR)
-				|| StringUtils::startsWith($constructorParam, PhpKeyword::STRING_LITERAL_ALTERNATIVE_SEPERATOR)) {
+		if (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $constructorParam)
+				|| mb_strpos($constructorParam, Phpbob::CONST_SEPERATOR) !== false
+				|| StringUtils::startsWith($constructorParam, Phpbob::STRING_LITERAL_SEPERATOR)
+				|| StringUtils::startsWith($constructorParam, Phpbob::STRING_LITERAL_ALTERNATIVE_SEPERATOR)) {
 			return $constructorParam;
 		}
 			
-		return PhpKeyword::STRING_LITERAL_SEPERATOR . $constructorParam . PhpKeyword::STRING_LITERAL_SEPERATOR;
+		return Phpbob::STRING_LITERAL_SEPERATOR . $constructorParam . Phpbob::STRING_LITERAL_SEPERATOR;
 	}
 }

@@ -1,7 +1,10 @@
+
 <?php
 namespace phpbob;
 
-class PhpKeyword {
+class Phpbob {
+	const NAMESPACE_SEPERATOR = '\\';
+	const KEYWORD_USE = 'use';
 	const CONST_SEPERATOR = '::';
 	const PHP_BLOCK_BEGIN = '<?php';
 	const ASSIGNMENT = '=';
@@ -15,7 +18,6 @@ class PhpKeyword {
 	const KEYWORD_CLASS = 'class';
 	const KEYWORD_INTERFACE = 'interface';
 	const KEYWORD_TRAIT = 'trait';
-	const KEYWORD_USE = 'use';
 	const KEYWORD_EXTENDS = 'extends';
 	const KEYWORD_IMPLEMENTS = 'implements';
 	const KEYWORD_STATIC = 'static';
@@ -41,4 +43,9 @@ class PhpKeyword {
 	const MULTILINE_COMMENT_START = '/*';
 	const MULTILINE_COMMENT_END = '*/';
 	const SINGLE_COMMENT_START = '//';
+	const PHP_FILE_EXTENSION = '.php';
+	
+	public static function getClassifiers() {
+		return array(self::CLASSIFIER_PRIVATE, self::CLASSIFIER_PROTECTED, self::CLASSIFIER_PUBLIC);
+	}
 }

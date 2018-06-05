@@ -1,7 +1,7 @@
 <?php
 namespace phpbob\representation;
 
-use phpbob\PhpKeyword;
+use phpbob\Phpbob;
 
 class PhpProperty extends PhpVariable {
 
@@ -34,6 +34,6 @@ class PhpProperty extends PhpVariable {
 		if (null !== $this->classifier) {
 			$string .= $this->classifier . ' ';
 		}
-		return $string .  $this->getNameValueString(true) . PhpKeyword::SINGLE_STATEMENT_STOP;
+		return $string .  $this->getNameValueString(true) . Phpbob::SINGLE_STATEMENT_STOP;
 	}
 }

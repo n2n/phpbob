@@ -1,5 +1,5 @@
 <?php
-namespace phpbob\representation;
+namespace phpbob\representation\traits;
 
 use phpbob\PhprepUtils;
 use n2n\util\StringUtils;
@@ -12,7 +12,7 @@ trait PrependingCodeTrait {
 		return $this->prependingCode;
 	}
 	
-	public function setPrependingCode($prependingCode) {
+	public function setPrependingCode(string $prependingCode = null) {
 		$this->prependingCode = $prependingCode;
 	}
 	

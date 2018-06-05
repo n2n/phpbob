@@ -13,6 +13,6 @@ class SingleStatement extends PhpStatementAdapter {
 	}
 	
 	public function __toString() {
-		return $this->content . PhpKeyword::SINGLE_STATEMENT_STOP; 
+		return $this->content . Phpbob::SINGLE_STATEMENT_STOP; 
 	}
 }

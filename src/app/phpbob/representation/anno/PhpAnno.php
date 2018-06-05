@@ -1,5 +1,7 @@
 <?php
-namespace phpbob\representation;
+namespace phpbob\representation\anno;
+
+use phpbob\representation\traits\PrependingCodeTrait;
 
 abstract class PhpAnno {
 	use PrependingCodeTrait;

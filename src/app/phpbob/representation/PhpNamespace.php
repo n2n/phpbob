@@ -1,30 +1,34 @@
 <?php
 namespace phpbob\representation;
 
-use phpbob\PhpKeyword;
+use phpbob\Phpbob;
+use phpbob\representation\traits\PrependingCodeTrait;
 
 class PhpNamespace {
 	use PrependingCodeTrait;
 	
-	private $namespace;
+	private $name;
+	private $bracketedSyntax;
 	
-	public function __construct($namespace = null, $prependingCode = null) {
-		$this->namespace = $namespace;
+	public function __construct(PhpFile $phpFile, 
+			string $name = null, string $prependingCode = null, bool $bracketedSyntax = false) {
+		$this->name = $name;
 		$this->prependingCode = $prependingCode;
+		$this->bracketedSyntax = $bracketedSyntax;
 	}
 	
 	public function getNamespace() {
-		return $this->namespace;
+		return $this->name;
 	}
 
 	public function setNamespace($namespace) {
-		$this->namespace = $namespace;
+		$this->name = $namespace;
 	}
 
 	public function __toString() {
-		if (null === $this->namespace) return '';
+		if (null === $this->name) return '';
 		
-		return $this->getPrependingString() . PhpKeyword::KEYWORD_NAMESPACE . ' ' . $this->namespace 
-				. PhpKeyword::SINGLE_STATEMENT_STOP;
+		return $this->getPrependingString() . Phpbob::KEYWORD_NAMESPACE . ' ' . $this->name 
+				. Phpbob::SINGLE_STATEMENT_STOP;
 	}
 }

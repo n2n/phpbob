@@ -5,7 +5,7 @@ use phpbob\PhpStatement;
 use phpbob\PhprepUtils;
 use phpbob\StatementGroup;
 use phpbob\SingleStatement;
-use phpbob\PhpKeyword;
+use phpbob\Phpbob;
 use phpbob\representation\PhpMethodAnno;
 use phpbob\representation\PhpClassAnno;
 use phpbob\representation\PhpPropertyAnno;
@@ -157,7 +157,7 @@ class PhpAnnoAnalyzer {
 			}
 			
 			$matches = array();
-			if (!preg_match('/\s*(\$\S+)\s*=\s*(\s*' . preg_quote(PhpKeyword::KEYWORD_NEW). '\s+.*);/', 
+			if (!preg_match('/\s*(\$\S+)\s*=\s*(\s*' . preg_quote(Phpbob::KEYWORD_NEW). '\s+.*);/', 
 					$phpStatement->getCode(), $matches) || count($matches) !== 3) continue;
 
 			$this->variableDefinitions[$matches[1]] = $this->paramAnalyzer->createNewClassAnnoParam($matches[2]);

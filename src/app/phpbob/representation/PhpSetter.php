@@ -1,7 +1,7 @@
 <?php
 namespace phpbob\representation;
 
-use phpbob\PhpKeyword;
+use phpbob\Phpbob;
 
 class PhpSetter extends PhpMethod {
 	
@@ -9,9 +9,9 @@ class PhpSetter extends PhpMethod {
 			bool $required = false, string $prependingCode = null) {
 		parent::__construct('set' . ucfirst((string) $propertyName), 
 				array(new PhpParam('$' . $propertyName, (null !== $typeName && !$required) ? 'null' : null , $typeName)), 
-				PhpKeyword::CLASSIFIER_PUBLIC,  $prependingCode);
+				Phpbob::CLASSIFIER_PUBLIC,  $prependingCode);
 		$this->setMethodCode("\t\t" . '$this->' . $propertyName . ' ' .  
-				PhpKeyword::ASSIGNMENT . ' ' . ($boolean ? '(bool) ' : '')
-				. PhpKeyword::VARIABLE_PREFIX . $propertyName . PhpKeyword::SINGLE_STATEMENT_STOP. PHP_EOL);
+				Phpbob::ASSIGNMENT . ' ' . ($boolean ? '(bool) ' : '')
+				. Phpbob::VARIABLE_PREFIX . $propertyName . Phpbob::SINGLE_STATEMENT_STOP. PHP_EOL);
 	}
 }

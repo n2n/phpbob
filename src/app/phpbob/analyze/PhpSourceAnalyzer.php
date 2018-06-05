@@ -4,7 +4,7 @@ namespace phpbob\analyze;
 use phpbob\StatementGroup;
 use phpbob\SingleStatement;
 use phpbob\PhprepUtils;
-use phpbob\PhpKeyword;
+use phpbob\Phpbob;
 use n2n\reflection\annotation\AnnotationSet;
 
 class PhpSourceAnalyzer {
@@ -111,12 +111,12 @@ class PhpSourceAnalyzer {
 			}
 			
 			switch ($token[0]) {
-				case PhpKeyword::SINGLE_STATEMENT_STOP:
+				case Phpbob::SINGLE_STATEMENT_STOP:
 					$currentGroup->addStatement(new SingleStatement($content));
 					$content = null;
 					break;
 						
-				case PhpKeyword::GROUP_STATEMENT_OPEN:
+				case Phpbob::GROUP_STATEMENT_OPEN:
 					$newGroup = new StatementGroup($content);
 					$currentGroup->addStatement($newGroup);
 					$groupStack[] = $currentGroup;
@@ -124,7 +124,7 @@ class PhpSourceAnalyzer {
 					$content = null;
 					break;
 						
-				case PhpKeyword::GROUP_STATEMENT_CLOSE:
+				case Phpbob::GROUP_STATEMENT_CLOSE:
 					if (count($groupStack) === 0) {
 						throw new PhpSourceAnalyzingException('Invalid PHP File asdasdf');
 					}

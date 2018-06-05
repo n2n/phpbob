@@ -1,8 +1,11 @@
 <?php
-namespace phpbob\representation;
+namespace phpbob\representation\anno;
 
-use phpbob\PhpKeyword;
+use phpbob\Phpbob;
 use phpbob\PhprepUtils;
+use phpbob\representation\traits\PrependingCodeTrait;
+use phpbob\representation\PhpClass;
+use phpbob\representation\PhpProperty;
 
 class PhpAnnotationSet {
 	use PrependingCodeTrait;
@@ -40,6 +43,7 @@ class PhpAnnotationSet {
 	
 	public function getPropertyAnnoForProperty(PhpProperty $property) {
 		if (!$this->hasPropertyAnnoForProperty($property)) return null;
+		
 		return $this->propertyAnnos[$property->getName()];
 	}
 	
@@ -119,9 +123,11 @@ class PhpAnnotationSet {
 		foreach ($this->propertyAnnos as $anno) {
 			$this->checkTypeNames($anno);
 		}
+		
 		foreach ($this->methodAnnos as $anno) {
 			$this->checkTypeNames($anno);
 		}
+		
 		if (null !== $this->classAnno) {
 			$this->checkTypeNames($this->classAnno);
 		}
@@ -130,30 +136,30 @@ class PhpAnnotationSet {
 	public function __toString() {
 		if ($this->isEmpty()) return $this->getPrependingString();
 		$string = "\t" . self::ANNO_METHOD_SIGNATURE . $this->aiVariableName . ') ' 
-				. PhpKeyword::GROUP_STATEMENT_OPEN . PHP_EOL;
+				. Phpbob::GROUP_STATEMENT_OPEN . PHP_EOL;
 		if (null !== $this->classAnno) {
 			$string .= "\t\t" . $this->aiVariableName . '->c(' . $this->classAnno->getAnnotationString() . ')' 
-					. PhpKeyword::SINGLE_STATEMENT_STOP . PHP_EOL; 
+					. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL; 
 		}
 		
 		foreach ($this->methodAnnos as $methodAnno) {
 			$string .= "\t\t" . $this->aiVariableName . '->m(\'' . $methodAnno->getMethodName() . '\', ' 
 					. $methodAnno->getAnnotationString() . ')' 
-					. PhpKeyword::SINGLE_STATEMENT_STOP . PHP_EOL; 
+					. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL; 
 		}
 		
 		foreach ($this->propertyAnnos as $propertyAnno) {
 			$string .= "\t\t" . $this->aiVariableName . '->p(\'' . $propertyAnno->getPropertyName() . '\', ' 
 					. $propertyAnno->getAnnotationString() . ')' 
-					. PhpKeyword::SINGLE_STATEMENT_STOP . PHP_EOL; 
+					. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL; 
 		}
 		
-		return $string . "\t" . PhpKeyword::GROUP_STATEMENT_CLOSE . PHP_EOL;
+		return $string . "\t" . Phpbob::GROUP_STATEMENT_CLOSE . PHP_EOL;
 	}
 	
-	public static function createAnnoInitUse() {
-		return new PhpUse('n2n\reflection\annotation\AnnoInit');
-	}
+// 	public static function createAnnoInitUse() {
+// 		return new PhpUse('n2n\reflection\annotation\AnnoInit');
+// 	}
 	
 	private function checkTypeNames(PhpAnno $phpAnno) {
 		foreach ($phpAnno->getParams() as $annoParam) {
