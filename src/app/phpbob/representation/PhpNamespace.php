@@ -3,27 +3,48 @@ namespace phpbob\representation;
 
 use phpbob\Phpbob;
 use phpbob\representation\traits\PrependingCodeTrait;
+use phpbob\representation\traits\NameChangeSubjectTrait;
 
-class PhpNamespace {
+class PhpNamespace extends PhpNamespaceElementCreator {
 	use PrependingCodeTrait;
+	use NameChangeSubjectTrait;
 	
-	private $name;
+	private $phpFile;
 	private $bracketedSyntax;
 	
 	public function __construct(PhpFile $phpFile, 
-			string $name = null, string $prependingCode = null, bool $bracketedSyntax = false) {
+			string $name, string $prependingCode = null, bool $bracketedSyntax = false) {
+		parent::__construct(new PhpElementFactory($phpFile, $this));
+		$this->phpFile = $phpFile;
 		$this->name = $name;
 		$this->prependingCode = $prependingCode;
 		$this->bracketedSyntax = $bracketedSyntax;
 	}
 	
-	public function getNamespace() {
-		return $this->name;
+	/**
+	 * @return PhpNamespaceElement []
+	 */
+	public function getPhpNamespaceElements() {
+		return $this->PhpElementFactory->getPhpFileElements();
 	}
-
-	public function setNamespace($namespace) {
-		$this->name = $namespace;
+	
+	/**
+	 * @return \phpbob\representation\PhpFile
+	 */
+	public function getPhpFile() {
+		return $this->phpFile;
 	}
+	
+	public function hasBracketedSyntax() {
+		return $this->bracketedSyntax;
+	}
+	
+	public function setBracketedSyntax(bool $bracketedSyntax) {
+		$this->bracketedSyntax = $bracketedSyntax;
+		
+		return $this;
+	}
+	
 
 	public function __toString() {
 		if (null === $this->name) return '';
@@ -31,4 +52,5 @@ class PhpNamespace {
 		return $this->getPrependingString() . Phpbob::KEYWORD_NAMESPACE . ' ' . $this->name 
 				. Phpbob::SINGLE_STATEMENT_STOP;
 	}
+	
 }

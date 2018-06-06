@@ -58,4 +58,8 @@ class PhpConst implements PhpNamespaceElement {
 		return $this->getPrependingString() . 
 				"\t" . Phpbob::KEYWORD_CONST . ' ' . $this->getNameValueString() . Phpbob::SINGLE_STATEMENT_STOP;
 	}
+	
+	public function getPhpTypeDefs() : array {
+		return null;
+	}
 }

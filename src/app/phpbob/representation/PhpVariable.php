@@ -7,7 +7,6 @@ use phpbob\representation\traits\PrependingCodeTrait;
 abstract class PhpVariable {
 	use PrependingCodeTrait;
 	
-	private $valueNullable;
 	protected $name;
 	protected $value;
 	

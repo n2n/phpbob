@@ -22,6 +22,10 @@ trait InterfacesTrait {
 		return isset($this->interfacePhpTypeDefs[$typeName]);
 	}
 	
+	public function generateInterfacesStr() {
+		return implode(', ', $this->interfacePhpTypeDefs);
+	}
+	
 
 // 	public function getInterfaceTypeNames() {
 // 		$interfaceTypeNames = array();

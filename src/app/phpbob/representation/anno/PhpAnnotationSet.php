@@ -6,6 +6,8 @@ use phpbob\PhprepUtils;
 use phpbob\representation\traits\PrependingCodeTrait;
 use phpbob\representation\PhpClass;
 use phpbob\representation\PhpProperty;
+use phpbob\representation\PhpTypeDef;
+use n2n\reflection\annotation\AnnoInit;
 
 class PhpAnnotationSet {
 	use PrependingCodeTrait;
@@ -160,6 +162,10 @@ class PhpAnnotationSet {
 // 	public static function createAnnoInitUse() {
 // 		return new PhpUse('n2n\reflection\annotation\AnnoInit');
 // 	}
+	
+	public function getPhpTypeDefs() {
+		return [new PhpTypeDef('AnnoInit', AnnoInit::class)];
+	}
 	
 	private function checkTypeNames(PhpAnno $phpAnno) {
 		foreach ($phpAnno->getParams() as $annoParam) {

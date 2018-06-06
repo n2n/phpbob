@@ -3,29 +3,32 @@ namespace phpbob\representation;
 
 use phpbob\Phpbob;
 use n2n\reflection\ArgUtils;
+use phpbob\representation\traits\PrependingCodeTrait;
+use phpbob\representation\traits\PhpNamespaceElementTrait;
 
 class PhpUse {
 	use PrependingCodeTrait;
+	use PhpNamespaceElementTrait;
 	
 	const TYPE_FUNCTION = 'function';
 	const TYPE_CONST = 'const';
 	
 	private $typeName;
 	private $type;
-	private $asName;
-	private $phpNamespace;
+	private $alias;
 	
-	public function __construct(string $typeName, PhpNamespace $phpNamespace = null) {
+	public function __construct(PhpFile $phpFile, string $typeName, PhpNamespace $phpNamespace = null) {
+		$this->phpFile = $phpFile;
 		$this->typeName = $typeName;
 		$this->phpNamespace = $phpNamespace;
 	}
 	
+	public function getPhpFile() {
+		return $this->phpFile;
+	}
+	
 	public function getTypeName() {
 		return $this->typeName;
-	}
-
-	public function setTypeName($typeName) {
-		$this->typeName = $typeName;
 	}
 
 	public function getType() {
@@ -36,19 +39,40 @@ class PhpUse {
 		ArgUtils::valEnum($type, self::getTypes(), null, true);
 		
 		$this->type = $type;
+		
+		return $this;
 	}
 
-	public function getAsName() {
-		return $this->asName;
+	public function getAlias() {
+		return $this->alias;
 	}
 
-	public function setAsName(string $asName = null) {
-		$this->asName = $asName;
+	public function setAlias(string $alias = null) {
+		if (null !== $alias && 
+				$this->determinePhpNamespaceElementCreator()->hasPhpUseAlias($alias)) {
+			throw new \InvalidArgumentException('alias with name ' . $alias . ' already defined.');
+		}
+		
+		$this->alias = $alias;
+		
+		
+		return $this;
 	}
 
 	public function __toString() {
-		return $this->getPrependingString() . Phpbob::KEYWORD_USE . ' ' . $this->typeName
-				. Phpbob::SINGLE_STATEMENT_STOP;
+		$string = $this->getPrependingString() . Phpbob::KEYWORD_USE;
+		
+		if (null !== $this->type) {
+			$string .= ' ' . $this->type;
+		}
+		
+		$string .= ' ' . $this->typeName;
+		
+		if (null !== $this->alias) {
+			$string .= ' ' . Phpbob::KEYWORD_AS . ' ' . $this->alias;
+		}
+		
+		return $string . Phpbob::SINGLE_STATEMENT_STOP;
 	}
 	
 	public static function getTypes() {

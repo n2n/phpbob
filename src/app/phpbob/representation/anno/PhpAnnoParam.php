@@ -4,17 +4,17 @@ namespace phpbob\representation\anno;
 use phpbob\Phpbob;
 use n2n\reflection\annotation\Annotation;
 use n2n\util\StringUtils;
+use phpbob\representation\PhpAnno;
 
 class PhpAnnoParam {
+	private $phpAnno;
 	private $constructorParams = array();
 	private $typeName;
 	private $annotation;
 	
-	public function __construct($typeName, array $constructorParams = null) {
+	public function __construct(PhpAnno $phpAnno, string $typeName) {
+		$this->phpAnno = $phpAnno;
 		$this->typeName = $typeName;
-		if (null !== $constructorParams) {
-			$this->constructorParams = $constructorParams;
-		}
 	}
 	
 	public function getConstructorParams() {

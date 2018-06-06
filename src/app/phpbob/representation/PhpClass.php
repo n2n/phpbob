@@ -2,9 +2,7 @@
 namespace phpbob\representation;
 
 use phpbob\Phpbob;
-use phpbob\PhprepUtils;
 use phpbob\representation\traits\InterfacesTrait;
-use n2n\reflection\annotation\AnnotationSet;
 use phpbob\representation\anno\PhpAnnotationSet;
 
 class PhpClass extends PhpClassLikeAdapter {
@@ -15,7 +13,7 @@ class PhpClass extends PhpClassLikeAdapter {
 	private $static = false;
 	
 	private $superClassTypeDef;
-	private $annotationSet = null;
+	private $phpAnnotationSet;
 
 	public function isFinal() {
 		return $this->final;
@@ -52,15 +50,15 @@ class PhpClass extends PhpClassLikeAdapter {
 	/**
 	 * @return PhpAnnotationSet
 	 */
-	public function getAnnotationSet() {
-		if (null === $this->annotationSet) {
-			$this->annotationSet = new AnnotationSet();
+	public function getPhpAnnotationSet() {
+		if (null === $this->phpAnnotationSet) {
+			$this->phpAnnotationSet = new PhpAnnotationSet($this);
 		}
-		return $this->annotationSet;
+		return $this->phpAnnotationSet;
 	}
 	
 	public function setAnnotationSet(PhpAnnotationSet $annotationSet) {
-		$this->annotationSet = $annotationSet;
+		$this->phpAnnotationSet = $annotationSet;
 		
 		return $this;
 	}
@@ -70,33 +68,19 @@ class PhpClass extends PhpClassLikeAdapter {
 	}
 
 	public function __toString() {
-		$this->annotationSet->applyTypeNames();
-		return $this->generateHeader() . $this->generateClassDefinition() . Phpbob::GROUP_STATEMENT_OPEN . 
-				PHP_EOL . $this->annotationSet . PHP_EOL .  $this->generateBody() . Phpbob::GROUP_STATEMENT_CLOSE;	
-	}
-
-	private function generateHeader() {
-		if (!$this->annotationSet->isEmpty()) {
-			$this->addUse(PhpAnnotationSet::createAnnoInitUse());
+		$str = $this->getPrependingString() . $this->generateClassDefinition() . Phpbob::GROUP_STATEMENT_OPEN . PHP_EOL;
+		if (null !== $this->phpAnnotationSet) {
+			$str .= $this->phpAnnotationSet . PHP_EOL;
 		}
 		
-		$string = Phpbob::PHP_BLOCK_BEGIN . PHP_EOL;
-		if (null !== $this->namespace) {
-			$string .= PhprepUtils::removeTrailingWhiteSpaces($this->namespace) . PHP_EOL . PHP_EOL;
-		}
 		
-		if (count($this->uses) > 0) {
-			$string .= PhprepUtils::removeTrailingWhiteSpaces(implode(PHP_EOL, $this->uses)) 
-					. PHP_EOL . PHP_EOL;
-		}
-
-		return $string . $this->getPrependingString();
+		return $str .  $this->generateBody() . Phpbob::GROUP_STATEMENT_CLOSE;	
 	}
 
 	private function generateClassDefinition() {
 		$extendsClause = '';
-		if (strlen($this->superClassName) > 0) {
-			$extendsClause .= ' ' . Phpbob::KEYWORD_EXTENDS . ' ' . $this->superClassName;
+		if (null !== $this->superClassTypeDef) {
+			$extendsClause .= ' ' . Phpbob::KEYWORD_EXTENDS . ' ' . $this->superClassTypeDef;
 		}
 		
 		$implementsClause = '';
@@ -107,22 +91,17 @@ class PhpClass extends PhpClassLikeAdapter {
 		return ($this->abstract ? Phpbob::KEYWORD_ABSTRACT . ' ' : '') . Phpbob::KEYWORD_CLASS . ' ' . $this->name . $extendsClause . $implementsClause . ' ';
 	}
 	
-	private function generateBody() {
-		$string = '';
-		if (count($this->constants) > 0) {
-			$string .= PhprepUtils::removeTrailingWhiteSpaces(implode(PHP_EOL, $this->constants)) . PHP_EOL . PHP_EOL;
+	public function getPhpTypeDefs() : array {
+		$phpTypeDefs = parent::getPhpTypeDefs() + $this->interfacePhpTypeDefs;
+		
+		if (null !== $this->superClassTypeDef) {
+			$phpTypeDefs[] = $this->superClassTypeDef;
 		}
 		
-		if (count($this->properties) > 0) {
-			$string .= "\t" . trim(implode(PHP_EOL, $this->properties)) . PHP_EOL . PHP_EOL;
+		if (null !== $this->phpAnnotationSet) {
+			$phpTypeDefs += $this->phpAnnotationSet->getPhpTypeDefs();
 		}
 		
-		if (count($this->methods) > 0) {
-			foreach ($this->methods as $method) {
-				$string .=  "\t" . trim((string) $method) . PHP_EOL . PHP_EOL ;
-			}
-		}
-		
-		return rtrim($string) . PHP_EOL;
+		return $phpTypeDefs;
 	}
 }

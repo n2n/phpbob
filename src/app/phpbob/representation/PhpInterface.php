@@ -34,6 +34,13 @@ class PhpInterface extends PhpTypeAdapter {
 		
 		return $this->phpInterfaceMethods[$name];
 	}
+	
+	/**
+	 * @return PhpInterfaceMethod []
+	 */
+	public function getPhpInterfaceMethods() {
+		return $this->phpInterfaceMethods;
+	}
 
 	/**
 	 * @param string $name
@@ -45,7 +52,7 @@ class PhpInterface extends PhpTypeAdapter {
 		
 		$phpInterfaceMethod = new PhpInterfaceMethod($name);
 		$that = $this;
-		$phpInterfaceMethod->onNameChange(function($oldName, $newName) {
+		$phpInterfaceMethod->onNameChange(function($oldName, $newName) use ($that) {
 			$that->checkPhpInterfaceMethodName($newName);
 			
 			$tmpPhpInterfaceMethod = $that->phpInterfaceMethods[$oldName];
@@ -54,6 +61,16 @@ class PhpInterface extends PhpTypeAdapter {
 		});
 		
 		return $phpInterfaceMethod;
+	}
+	
+	public function getPhpTypeDefs() : array {
+		$typeDefs = $this->interfacePhpTypeDefs;
+		
+		foreach ($this->phpInterfaceMethods as $phpInterfaceMethod) {
+			$typeDefs += $phpInterfaceMethod->getPhpTypeDefs();
+		}
+		
+		return $typeDefs;
 	}
 	
 	/**

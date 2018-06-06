@@ -23,6 +23,7 @@ class Phpbob {
 	const KEYWORD_STATIC = 'static';
 	const KEYWORD_FINAL = 'final';
 	const KEYWORD_ABSTRACT = 'abstract';
+	const KEYWORD_AS = 'as';
 	const KEYWORD_CONST = 'const';
 	const KEYWORD_NEW = 'new';
 	const KEYWORD_NAMESPACE = 'namespace';

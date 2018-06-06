@@ -100,6 +100,9 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		return $this->phpProperties[$name];
 	}
 	
+	/**
+	 * @return PhpProperty []
+	 */
 	public function getPhpProperties() {
 		return $this->phpProperties;
 	}
@@ -209,5 +212,41 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		if (isset($this->phpTraitUses[$typeName])) {
 			throw new IllegalStateException('Trait use ' . $typeName . ' already defined.');
 		}
+	}
+	
+	public function getPhpTypeDefs() : array {
+		$typeDefs = [];
+		
+		foreach ($this->phpMethods as $phpMethod) {
+			$typeDefs += $phpMethod->getPhpTypeDefs();
+		}
+		
+		foreach ($this->phpTraitUses as $phpTraitUse) {
+			$typeDefs += $phpTraitUse->getPhpTypeDefs();
+		}
+		
+		return $typeDefs;
+	}
+	
+	protected function generateBody() {
+		return rtrim($this->generateConstStr() . $this->generatePropertiesStr() 
+				. $this->generateMethodStr()) . PHP_EOL;
+	}
+	
+	protected function generatePropertiesStr() {
+		if (empty($this->phpProperties)) return '';
+		
+		return "\t" . trim(implode(PHP_EOL, $this->properties)) . PHP_EOL . PHP_EOL;
+	}
+	
+	protected function generateMethodStr() {
+		if (empty($this->methods)) return '';
+		
+		$str = '';
+		foreach ($this->methods as $method) {
+			$str .=  "\t" . trim((string) $method) . PHP_EOL . PHP_EOL ;
+		}
+		
+		return $str;
 	}
 }

@@ -5,6 +5,7 @@ use phpbob\representation\traits\PrependingCodeTrait;
 use phpbob\representation\traits\NameChangeSubjectTrait;
 use n2n\util\ex\IllegalStateException;
 use phpbob\representation\ex\UnknownElementException;
+use phpbob\PhprepUtils;
 
 class PhpTypeAdapter implements PhpType {
 	use PrependingCodeTrait;
@@ -42,6 +43,13 @@ class PhpTypeAdapter implements PhpType {
 	}
 	
 	/**
+	 * @return PhpConst[]
+	 */
+	public function getPhpConsts() {
+		return $this->phpConsts;
+	}
+	
+	/**
 	 * @param string $name
 	 * @return \phpbob\representation\PhpConst
 	 */
@@ -50,7 +58,7 @@ class PhpTypeAdapter implements PhpType {
 		
 		$phpConst = new PhpConst($name);
 		$that = $this;
-		$phpConst->onNameChange(function($oldName, $newName) {
+		$phpConst->onNameChange(function($oldName, $newName) use ($that) {
 			$that->checkPhpConstName($newName);
 			
 			$tmpPhpConst = $that->phpConsts[$oldName];
@@ -61,9 +69,21 @@ class PhpTypeAdapter implements PhpType {
 		return $phpConst;
 	}
 	
+	public function removePhpConst(string $name) {
+		unset($this->phpConsts[$name]);
+		
+		return $this;
+	}
+	
 	private function checkPhpConstName(string $name) {
 		if (isset($this->phpConsts[$name])) {
 			throw new IllegalStateException('Constant with name ' . $name . ' already defined.');
 		}
+	}
+	
+	protected function buildConstStr() {
+		if (empty($this->phpConsts)) return '';
+		
+		return PhprepUtils::removeTrailingWhiteSpaces(implode(PHP_EOL, $this->phpConsts)) . PHP_EOL . PHP_EOL;
 	}
  }

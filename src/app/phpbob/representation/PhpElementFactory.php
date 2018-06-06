@@ -5,7 +5,7 @@ use n2n\util\ex\IllegalStateException;
 use phpbob\representation\ex\UnknownElementException;
 use n2n\util\StringUtils;
 
-class PhpFileElementFactory {
+class PhpElementFactory {
 	const FUNCTION_PREFIX = 'func-';
 	const CONST_PREFIX = 'const-';
 	const TYPE_PREFIX = 'type-';
@@ -14,10 +14,27 @@ class PhpFileElementFactory {
 	private $phpNamespace;
 	private $namespacesOnly = false;
 	private $phpFileElements = array();
+	private $phpUses = array();
 	
 	public function __construct(PhpFile $phpFile, PhpNamespace $phpNamespace = null) {
 		$this->phpFile = $phpFile;
 		$this->phpNamespace = $phpNamespace;
+	}
+	
+	public function getPhpFileElements() {
+		return $this->phpFileElements;
+	}
+	
+	/**
+	 * @return PhpTypeDef []
+	 */
+	public function getPhpTypeDefs() {
+		$phpTypeDefs = [];
+		foreach ($this->phpFileElements as $phpFileElement) {
+			$phpTypeDefs += $phpFileElement->getTypeDefs();
+		}
+		
+		return $phpTypeDefs;
 	}
 	
 	public function hasNamespaces() {
@@ -37,15 +54,15 @@ class PhpFileElementFactory {
 	 * @return PhpFunction
 	 */
 	public function getPhpNamespace(string $name) {
-		if (!$this->namespacesOnly || !isset($this->phpFileElements[$key])) {
-			throw new UnknownElementException('No function with name "' . $name . '" given.');
+		if (!$this->namespacesOnly || !isset($this->phpFileElements[$name])) {
+			throw new UnknownElementException('No namespace with name "' . $name . '" given.');
 		}
 		
 		return $this->phpFileElements[$name];
 	}
 	
 	/**
-	 * @return PhpFunction []
+	 * @return PhpNamespace []
 	 */
 	public function getPhpNameSpaces() {
 		if (!$this->namespacesOnly) return [];
@@ -64,36 +81,38 @@ class PhpFileElementFactory {
 			throw new IllegalStateException('Nested namespaces are not allowed');
 		}
 		
-		if (!$this->namespacesOnly && !empty($this->phpFileElements)) {
+		if (!$this->namespacesOnly && !empty($this->phpFileElements) || !empty($this->phpUses)) {
 			throw new IllegalStateException('Namespace must be the first element in a php file');
 		}
 		
-// 		$phpNamespace = new PhpNamespace();
+		$this->namespacesOnly = true;
 		
-// 		$phpFunction = new PhpFunction($this->phpFile, $name, $this->phpNamespace);
-// 		$phpFunction->setReturnPhpTypeDef($returnPhpTypeDef);
-		
-// 		$that = $this;
-// 		$phpFunction->onNameChange(function($oldName, $newName) use ($that) {
-// 			$that->checkPhpFunctionName($newName);
-// 			$that->changePhpFileElementsKey($that->buildFunctionKey($oldName),
-// 					$that->buildFunctionKey($newName));
-// 		});
+ 		$phpNamespace = new PhpNamespace($this->phpFile, $name);
+				
+		$that = $this;
+		$phpNamespace->onNameChange(function($oldName, $newName) use ($that) {
+			$that->checkNamespaceName($newName);
+			$that->changePhpFileElementsKey($oldName, $newName);
+		});
 			
-// 			$this->phpFileElemets[$this->buildFunctionKey($name)] = $phpFunction;
-// 			return $phpFunction;
+ 		$this->phpFileElemets[$name] = $phpNamespace;
+ 		return $phpNamespace;
 	}
 	
 	/**
 	 * @param string $name
 	 */
-	public function removePhpFunction(string $name) {
-		unset($this->phpFileElements[$this->buildFunctionKey($name)]);
+	public function removePhpNamespace(string $name) {
+		if (!$this->namespacesOnly) return;
+		
+		unset($this->phpFileElements[$name]);
+		
+		return $this;
 	}
 	
-	private function checkPhpFunctionName(string $name) {
-		if ($this->hasPhpFunction($name)) {
-			throw new IllegalStateException('Function with name ' . $name . ' already defined.');
+	private function checkNamespaceName(string $name) {
+		if ($this->hasPhpNamespace($name)) {
+			throw new IllegalStateException('Namespace with name ' . $name . ' already defined.');
 		}
 	}
 	
@@ -154,6 +173,8 @@ class PhpFileElementFactory {
 	 */
 	public function removePhpFunction(string $name) {
 		unset($this->phpFileElements[$this->buildFunctionKey($name)]);
+		
+		return $this;
 	}
 	
 	private function checkPhpFunctionName(string $name) {
@@ -213,6 +234,12 @@ class PhpFileElementFactory {
 		$this->phpFileElements[$this->buildConstKey($name)] = $phpConst;
 		
 		return $phpConst;
+	}
+	
+	public function removePhpConst(string $name) {
+		unset($this->phpFileElements[$this->buildConstKey($name)]);
+		
+		return $this;
 	}
 	
 	/**
@@ -286,6 +313,11 @@ class PhpFileElementFactory {
 		return $phpTrait;
 	}
 	
+	/**
+	 * @param string $name
+	 * @throws IllegalStateException
+	 * @return \phpbob\representation\PhpClass
+	 */
 	public function createPhpClass(string $name) {
 		$this->checkNamespaceOnly();
 		$this->checkPhpTypeName($name);
@@ -297,10 +329,113 @@ class PhpFileElementFactory {
 		return $phpTrait;
 	}
 	
+	/**
+	 * @param string $code
+	 * @return \phpbob\representation\UnknownPhpCode
+	 */
+	public function createUnknownPhpCode(string $code) {
+		$unknownPhpCode = new UnknownPhpCode($code);
+		$this->phpFileElements[] = $unknownPhpCode;
+		
+		return $unknownPhpCode;
+	}
+	
+	/**
+	 * @param string $name
+	 * @return \phpbob\representation\PhpElementFactory
+	 */
 	public function removePhpType(string $name) {
 		unset($this->phpFileElements[$this->buildTypeKey($name)]);
 		
 		return $this;
+	}
+	
+	/**
+	 * @param string $typeName
+	 * @return bool
+	 */
+	public function hasPhpUse(string $typeName) {
+		return isset($this->phpUses[$typeName]);
+	}
+	
+	/**
+	 * @param string $typeName
+	 * @throws UnknownElementException
+	 * @return PhpUse
+	 */
+	public function getPhpUse(string $typeName) {
+		if (!isset($this->phpUses[$typeName])) {
+			throw new UnknownElementException('No use for type name "' . $typeName . '" available.');
+		}
+		
+		return $this->phpUses[$typeName];
+	}
+	
+	/**
+	 * @return PhpUse []
+	 */
+	public function getPhpUses() {
+		return $this->phpUses;
+	}
+	
+	/**
+	 * @param string $typeName
+	 * @param string $alias
+	 * @param string $type
+	 * @throws IllegalStateException
+	 * @return \phpbob\representation\PhpUse
+	 */
+	public function createPhpUse(string $typeName, 
+			string $alias = null, string $type = null) {
+		if ($this->hasPhpUse($typeName)) {
+			throw new IllegalStateException('Use for typename ' . $typeName . ' already defined.');
+		}
+		
+		$phpUse = (new PhpUse($typeName))->setAlias($alias)->setType($type);
+		
+		$this->phpUses[$typeName] = $phpUse;
+		
+		return $phpUse;
+	}
+	
+	/**
+	 * @param string $alias
+	 * @return boolean
+	 */
+	public function hasPhpUseAlias(string $alias) {
+		foreach ($this->phpUses as $phpUse) {
+			if ($phpUse->getAlias() === $alias) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @param string $alias
+	 * @return PhpUse
+	 */
+	public function getPhpUseForAlias(string $alias) {
+		foreach ($this->phpUses as $phpUse) {
+			if ($phpUse->getAlias() === $alias) return $phpUse;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * @param unknown $typeName
+	 * @return \phpbob\representation\PhpElementFactory
+	 */
+	public function removePhpUse(string $typeName) {
+		unset($this->phpUses[$typeName]);
+		
+		return $this;
+	}
+	
+	public function resetPhpUses() {
+		$this->phpUses = [];
 	}
 	
 	private function getElementsWithPrefix(string $prefix) {

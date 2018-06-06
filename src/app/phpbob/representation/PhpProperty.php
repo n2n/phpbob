@@ -2,14 +2,18 @@
 namespace phpbob\representation;
 
 use phpbob\Phpbob;
+use n2n\reflection\ArgUtils;
 
 class PhpProperty extends PhpVariable {
 
+	private $phpClassLike;
 	private $classifier;
 	private $static;
 	
-	public function __construct(string $classifier, string $name, string $value = null, string $prependingCode = null) {
+	public function __construct(PhpClassLike $phpClassLike, string $classifier, 
+			string $name, string $value = null, string $prependingCode = null) {
 		parent::__construct($name, $value, $prependingCode);
+		$this->phpClassLike = $phpClassLike;
 		$this->classifier = $classifier;
 	}
 	
@@ -26,6 +30,8 @@ class PhpProperty extends PhpVariable {
 	}
 
 	public function setClassifier(string $classifier) {
+		ArgUtils::valEnum($classifier, Phpbob::getClassifiers());
+		
 		$this->classifier = $classifier;
 	}
 
@@ -34,6 +40,7 @@ class PhpProperty extends PhpVariable {
 		if (null !== $this->classifier) {
 			$string .= $this->classifier . ' ';
 		}
+		
 		return $string .  $this->getNameValueString(true) . Phpbob::SINGLE_STATEMENT_STOP;
 	}
 }

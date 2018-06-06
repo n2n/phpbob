@@ -2,5 +2,6 @@
 namespace phpbob\representation;
 
 interface PhpFileElement {
-	public function onNameChange(\Closure $closure);
+	public function __toString();
+	public function getPhpTypeDefs() : array;
 }
