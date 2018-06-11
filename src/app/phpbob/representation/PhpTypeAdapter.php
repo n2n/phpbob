@@ -7,7 +7,7 @@ use n2n\util\ex\IllegalStateException;
 use phpbob\representation\ex\UnknownElementException;
 use phpbob\PhprepUtils;
 
-class PhpTypeAdapter implements PhpType {
+abstract class PhpTypeAdapter implements PhpType {
 	use PrependingCodeTrait;
 	use NameChangeSubjectTrait;
 	
@@ -19,6 +19,14 @@ class PhpTypeAdapter implements PhpType {
 		$this->phpFile = $phpFile;
 		$this->phpNamespace = $phpNamespace;
 		$this->name = $name;
+	}
+	
+	public function getPhpFile() {
+		return $this->phpFile;
+	}
+	
+	public function getPhpNamespace() {
+		return $this->phpNamespace;
 	}
 	
 	/**
@@ -81,9 +89,9 @@ class PhpTypeAdapter implements PhpType {
 		}
 	}
 	
-	protected function buildConstStr() {
+	protected function generateConstStr() {
 		if (empty($this->phpConsts)) return '';
 		
-		return PhprepUtils::removeTrailingWhiteSpaces(implode(PHP_EOL, $this->phpConsts)) . PHP_EOL . PHP_EOL;
+		return implode('', $this->phpConsts) . PHP_EOL;
 	}
  }

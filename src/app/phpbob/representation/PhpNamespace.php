@@ -5,7 +5,7 @@ use phpbob\Phpbob;
 use phpbob\representation\traits\PrependingCodeTrait;
 use phpbob\representation\traits\NameChangeSubjectTrait;
 
-class PhpNamespace extends PhpNamespaceElementCreator {
+class PhpNamespace extends PhpNamespaceElementCreator implements PhpFileElement {
 	use PrependingCodeTrait;
 	use NameChangeSubjectTrait;
 	
@@ -25,7 +25,7 @@ class PhpNamespace extends PhpNamespaceElementCreator {
 	 * @return PhpNamespaceElement []
 	 */
 	public function getPhpNamespaceElements() {
-		return $this->PhpElementFactory->getPhpFileElements();
+		return $this->phpElementFactory->getPhpFileElements();
 	}
 	
 	/**
@@ -45,12 +45,13 @@ class PhpNamespace extends PhpNamespaceElementCreator {
 		return $this;
 	}
 	
+	public function getPhpTypeDefs(): array {
+		return $this->phpElementFactory->getPhpTypeDefs();
+	}
 
 	public function __toString() {
-		if (null === $this->name) return '';
-		
 		return $this->getPrependingString() . Phpbob::KEYWORD_NAMESPACE . ' ' . $this->name 
-				. Phpbob::SINGLE_STATEMENT_STOP;
+				. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL . PHP_EOL .  $this->phpElementFactory;
 	}
 	
 }

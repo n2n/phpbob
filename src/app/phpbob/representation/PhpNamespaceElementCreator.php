@@ -5,8 +5,8 @@ abstract class PhpNamespaceElementCreator {
 
 	protected $phpElementFactory;
 	
-	public function __construct(PhpElementFactory $PhpElementFactory) {
-		$this->phpElementFactory = $PhpElementFactory;
+	public function __construct(PhpElementFactory $phpElementFactory) {
+		$this->phpElementFactory = $phpElementFactory;
 	}
 	
 	/**
@@ -39,7 +39,7 @@ abstract class PhpNamespaceElementCreator {
 	 * @return \phpbob\representation\PhpFunction
 	 */
 	public function createPhpFunction(string $name, PhpTypeDef $returnPhpTypeDef = null) {
-		$this->phpElementFactory->createPhpFunction($name, $returnPhpTypeDef);
+		return $this->phpElementFactory->createPhpFunction($name, $returnPhpTypeDef);
 	}
 	
 	/**

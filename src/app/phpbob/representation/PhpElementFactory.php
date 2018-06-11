@@ -31,7 +31,7 @@ class PhpElementFactory {
 	public function getPhpTypeDefs() {
 		$phpTypeDefs = [];
 		foreach ($this->phpFileElements as $phpFileElement) {
-			$phpTypeDefs += $phpFileElement->getTypeDefs();
+			$phpTypeDefs += $phpFileElement->getPhpTypeDefs();
 		}
 		
 		return $phpTypeDefs;
@@ -95,7 +95,7 @@ class PhpElementFactory {
 			$that->changePhpFileElementsKey($oldName, $newName);
 		});
 			
- 		$this->phpFileElemets[$name] = $phpNamespace;
+ 		$this->phpFileElements[$name] = $phpNamespace;
  		return $phpNamespace;
 	}
 	
@@ -164,7 +164,7 @@ class PhpElementFactory {
 					$that->buildFunctionKey($newName));
 		});
 		
-		$this->phpFileElemets[$this->buildFunctionKey($name)] = $phpFunction;
+		$this->phpFileElements[$this->buildFunctionKey($name)] = $phpFunction;
 		return $phpFunction;
 	}
 	
@@ -222,7 +222,7 @@ class PhpElementFactory {
 		$this->checkNamespaceOnly();
 		$this->checkPhpConstName($name);
 		
-		$phpConst = new PhpConst($this, $name, $value);
+		$phpConst = new PhpConst($this->phpFile, $name, $value, $this->phpNamespace);
 		
 		$that = $this;
 		$phpConst->onNameChange(function($oldName, $newName) use ($that) {
@@ -322,11 +322,11 @@ class PhpElementFactory {
 		$this->checkNamespaceOnly();
 		$this->checkPhpTypeName($name);
 		
-		$phpTrait = new PhpClass($this->phpFile, $name, $this->phpNamespace);
-		$this->applyPhpTypeOnNameChange($phpTrait);
-		$this->phpFileElements[$this->buildTypeKey($name)] = $phpTrait;
+		$phpClass = new PhpClass($this->phpFile, $name, $this->phpNamespace);
+		$this->applyPhpTypeOnNameChange($phpClass);
+		$this->phpFileElements[$this->buildTypeKey($name)] = $phpClass;
 		
-		return $phpTrait;
+		return $phpClass;
 	}
 	
 	/**
@@ -334,7 +334,7 @@ class PhpElementFactory {
 	 * @return \phpbob\representation\UnknownPhpCode
 	 */
 	public function createUnknownPhpCode(string $code) {
-		$unknownPhpCode = new UnknownPhpCode($code);
+		$unknownPhpCode = new UnknownPhpCode($this->phpFile, $code, $this->phpNamespace);
 		$this->phpFileElements[] = $unknownPhpCode;
 		
 		return $unknownPhpCode;
@@ -391,7 +391,7 @@ class PhpElementFactory {
 			throw new IllegalStateException('Use for typename ' . $typeName . ' already defined.');
 		}
 		
-		$phpUse = (new PhpUse($typeName))->setAlias($alias)->setType($type);
+		$phpUse = (new PhpUse($this->phpFile, $typeName, $this->phpNamespace))->setAlias($alias)->setType($type);
 		
 		$this->phpUses[$typeName] = $phpUse;
 		
@@ -485,5 +485,19 @@ class PhpElementFactory {
 	
 	private function buildTypeKey(string $name) {
 		return self::TYPE_PREFIX . $name;
+	}
+	
+	public function __toString() {
+		$str = '';
+		
+		if (count($this->phpUses) > 0) {
+			$str .= implode('', $this->phpUses) . PHP_EOL;
+		}
+		
+		if (count($this->phpFileElements) > 0) {
+			$str .= implode(PHP_EOL, $this->phpFileElements);
+		}
+		
+		return $str;
 	}
 }

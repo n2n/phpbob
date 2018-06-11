@@ -45,7 +45,7 @@ class PhpFile extends PhpNamespaceElementCreator {
 	 * @param string $name
 	 * @param PhpTypeDef $returnPhpTypeDef
 	 * @throws IllegalStateException
-	 * @return \phpbob\representation\PhpFunction
+	 * @return PhpNamespace
 	 */
 	public function createPhpNamespace(string $name) {
 		return $this->phpElementFactory->createPhpNamespace($name);
@@ -64,17 +64,7 @@ class PhpFile extends PhpNamespaceElementCreator {
 		$phpNamespaceResolver = new PhpNamespaceResolver($this->phpElementFactory);
 		$phpNamespaceResolver->resolveNamespaces();
 
-		$str = Phpbob::PHP_BLOCK_BEGIN;
-		
-		foreach ($this->phpElementFactory->getPhpUses() as $phpUse) {
-			$str .= $phpUse . PHP_EOL; 
-		}
-		
-		foreach ($this->phpElementFactory->getPhpFileElements() as $phpFileElement) {
-			$str .= $phpFileElement . PHP_EOL;
-		}
-		
-		return $str;
+		return Phpbob::PHP_BLOCK_BEGIN . PHP_EOL . $this->phpElementFactory;
 	}
 	
 	public function save(FsPath $fsPath) {

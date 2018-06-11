@@ -4,8 +4,10 @@ namespace phpbob\representation;
 use phpbob\Phpbob;
 use n2n\reflection\ArgUtils;
 use phpbob\representation\traits\NameChangeSubjectTrait;
+use phpbob\representation\traits\PrependingCodeTrait;
 class PhpConst implements PhpNamespaceElement {
 	use NameChangeSubjectTrait;
+	use PrependingCodeTrait;
 	
 	private $phpFile;
 	private $value;
@@ -55,11 +57,11 @@ class PhpConst implements PhpNamespaceElement {
 	}
 
 	public function __toString() {
-		return $this->getPrependingString() . 
-				"\t" . Phpbob::KEYWORD_CONST . ' ' . $this->getNameValueString() . Phpbob::SINGLE_STATEMENT_STOP;
+		return $this->getPrependingString() . Phpbob::KEYWORD_CONST . ' ' . $this->name . ' ' 
+				. Phpbob::ASSIGNMENT . ' ' . $this->value . Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL;
 	}
 	
 	public function getPhpTypeDefs() : array {
-		return null;
+		return [];
 	}
 }

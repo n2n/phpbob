@@ -15,7 +15,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @param string $name
 	 * @return bool
 	 */
-	public function hasPhpMethod(string $name) {
+	public function hasPhpMethod(string $name): bool {
 		return isset($this->phpMethods[$name]);
 	}
 	
@@ -24,7 +24,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws UnknownElementException
 	 * @return PhpConst
 	 */
-	public function getPhpMethod(string $name) {
+	public function getPhpMethod(string $name): PhpMethod {
 		if (!isset($this->phpMethods[$name])) {
 			throw new UnknownElementException('No method with name "' . $name . '" given.');
 		}
@@ -35,7 +35,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	/**
 	 * @return PhpMethod []
 	 */
-	public function getPhpMethods() {
+	public function getPhpMethods(): array {
 		return $this->phpMethods;
 	}
 	
@@ -44,10 +44,10 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpMethod
 	 */
-	public function createPhpMethod(string $name) {
+	public function createPhpMethod(string $name): PhpMethod {
 		$this->checkPhpMethodName($name);
 		
-		$phpMethod = new PhpMethod($name);
+		$phpMethod = new PhpMethod($this, $name);
 		$that = $this;
 		$phpMethod->onNameChange(function($oldName, $newName) use ($that) {
 			$that->checkPhpMethodName($newName);
@@ -56,6 +56,8 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 			unset($that->phpMethods[$oldName]);
 			$that->phpMethods[$newName] = $tmpPhpMethod;
 		});
+		
+		$this->phpMethods[$name] = $phpMethod;
 			
 		return $phpMethod;
 	}
@@ -64,7 +66,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @param string $name
 	 * @return \phpbob\representation\PhpClassLikeAdapter
 	 */
-	public function removePhpMethod(string $name) {
+	public function removePhpMethod(string $name): PhpClassLike {
 		unset($this->phpMethods[$name]);
 		
 		return $this;
@@ -83,7 +85,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @param string $name
 	 * @return bool
 	 */
-	public function hasPhpProperty(string $name) {
+	public function hasPhpProperty(string $name): bool {
 		return isset($this->phpProperties[$name]);
 	}
 	
@@ -92,7 +94,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws UnknownElementException
 	 * @return PhpConst
 	 */
-	public function getPhpProperty(string $name) {
+	public function getPhpProperty(string $name): PhpProperty {
 		if (!isset($this->phpProperties[$name])) {
 			throw new UnknownElementException('No property with name "' . $name . '" given.');
 		}
@@ -103,7 +105,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	/**
 	 * @return PhpProperty []
 	 */
-	public function getPhpProperties() {
+	public function getPhpProperties(): array {
 		return $this->phpProperties;
 	}
 	
@@ -112,7 +114,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpProperty
 	 */
-	public function createPhpProperty(string $name) {
+	public function createPhpProperty(string $name): PhpProperty {
 		$this->checkPhpPropertyName($name);
 		
 		$phpProperty = new PhpProperty($name);
@@ -124,6 +126,8 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 			unset($that->phpProperties[$oldName]);
 			$that->phpProperties[$newName] = $tmpPhpProperty;
 		});
+		
+		$this->phpProperties[$name] = $phpProperty;
 			
 		return $phpProperty;
 	}
@@ -133,7 +137,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @param string $name
 	 * @return \phpbob\representation\PhpClassLikeAdapter
 	 */
-	public function removePhpProperty(string $name) {
+	public function removePhpProperty(string $name): PhpClassLike {
 		unset($this->phpProperties[$name]);
 		
 		return $this;
@@ -153,7 +157,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @param string $name
 	 * @return bool
 	 */
-	public function hasPhpTraitUse(string $typeName) {
+	public function hasPhpTraitUse(string $typeName): bool {
 		return isset($this->phpTraitUses[$typeName]);
 	}
 	
@@ -162,7 +166,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws UnknownElementException
 	 * @return PhpConst
 	 */
-	public function getPhpTraitUse(string $typeName) {
+	public function getPhpTraitUse(string $typeName): PhpTraitUse {
 		if (!isset($this->phpTraitUses[$typeName])) {
 			throw new UnknownElementException('No php trait use with typename "' . $typeName . '" given.');
 		}
@@ -170,7 +174,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		return $this->phpProperties[$typeName];
 	}
 	
-	public function getPhpTraitUses() {
+	public function getPhpTraitUses(): array {
 		return $this->phpTraitUses;
 	}
 	
@@ -180,11 +184,11 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpTraitUse
 	 */
-	public function createPhpTraitUse(string $typeName, string $localName = null) {
+	public function createPhpTraitUse(string $typeName, string $localName = null): PhpTraitUse {
 		$this->checkPhpTraitUseTypeName($typeName);
 		
-		if (null !== $localName) {
-			$localName = PhprepUtils::extractClassName($typeName);
+		if (null === $localName) {
+			$localName = $typeName;
 		}
 		
 		$phpTypeDef = new PhpTypeDef($localName, $typeName);
@@ -200,7 +204,6 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		
 		$phpTraitUse = new PhpTraitUse($this, $phpTypeDef);
 		$this->phpTraitUses[$typeName] = $phpTraitUse;
-			
 		return $phpTraitUse;
 	}
 	
@@ -222,31 +225,32 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		}
 		
 		foreach ($this->phpTraitUses as $phpTraitUse) {
-			$typeDefs += $phpTraitUse->getPhpTypeDefs();
+			$typeDefs[] = $phpTraitUse->getPhpTypeDef();
 		}
 		
 		return $typeDefs;
 	}
 	
 	protected function generateBody() {
-		return rtrim($this->generateConstStr() . $this->generatePropertiesStr() 
-				. $this->generateMethodStr()) . PHP_EOL;
+		return $this->generateTraitsStr() . $this->generateConstStr() . $this->generatePropertiesStr()  
+				. $this->generateMethodStr() . PHP_EOL;
+	}
+	
+	protected function generateTraitsStr() {
+		if (empty($this->phpTraitUses)) return '';
+		
+		return implode('', $this->phpTraitUses) . PHP_EOL; 
 	}
 	
 	protected function generatePropertiesStr() {
 		if (empty($this->phpProperties)) return '';
 		
-		return "\t" . trim(implode(PHP_EOL, $this->properties)) . PHP_EOL . PHP_EOL;
+		return implode('', $this->phpProperties) . PHP_EOL;
 	}
 	
 	protected function generateMethodStr() {
-		if (empty($this->methods)) return '';
+		if (empty($this->phpMethods)) return '';
 		
-		$str = '';
-		foreach ($this->methods as $method) {
-			$str .=  "\t" . trim((string) $method) . PHP_EOL . PHP_EOL ;
-		}
-		
-		return $str;
+		return implode('', $this->phpMethods)  . PHP_EOL;
 	}
 }

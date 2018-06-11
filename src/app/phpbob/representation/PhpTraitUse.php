@@ -1,6 +1,8 @@
 <?php
 namespace phpbob\representation;
 
+use phpbob\Phpbob;
+
 class PhpTraitUse {
 	private $phpClassLike;
 	private $phpTypeDef;
@@ -12,5 +14,9 @@ class PhpTraitUse {
 	
 	public function getPhpTypeDef() {
 		return $this->phpTypeDef;
+	}
+	
+	public function __toString() {
+		return "\t" . Phpbob::KEYWORD_USE . ' ' . $this->phpTypeDef . Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL;
 	}
 }

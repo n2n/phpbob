@@ -1,11 +1,12 @@
 <?php
 namespace phpbob\representation;
 
+use phpbob\Phpbob;
+
 abstract class PhpParamContainerAdapter implements PhpParamContainer {
 	
 	private $returnPhpTypeDef;
-	private $methodCode;
-	private $phpParams;
+	private $phpParams = [];
 
 	public function getReturnPhpTypeDef() {
 		return $this->returnPhpTypeDef;
@@ -16,17 +17,7 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 		
 		return $this;
 	}
-
-	public function getMethodCode() {
-		return $this->methodCode;
-	}
-
-	public function setMethodCode(string $methodCode = null) {
-		$this->methodCode = (string) $methodCode;
-		
-		return $this;
-	}
-
+	
 	public function getPhpParams() {
 		return $this->phpParams;
 	}
@@ -73,5 +64,14 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 		}
 		
 		return $typeDefs;
+	}
+	
+	public function generateParamContainerStr() {
+		$str = Phpbob::PARAMETER_GROUP_START . implode(', ', $this->phpParams) . Phpbob::PARAMETER_GROUP_END;
+		if (null !== $this->returnPhpTypeDef) {
+			$str . ': ' . $this->returnPhpTypeDef;
+		}
+		
+		return $str;
 	}
 }

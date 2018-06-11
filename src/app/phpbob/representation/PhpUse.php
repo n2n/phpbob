@@ -72,7 +72,7 @@ class PhpUse {
 			$string .= ' ' . Phpbob::KEYWORD_AS . ' ' . $this->alias;
 		}
 		
-		return $string . Phpbob::SINGLE_STATEMENT_STOP;
+		return $string . Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL;
 	}
 	
 	public static function getTypes() {

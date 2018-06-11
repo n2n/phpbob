@@ -18,7 +18,7 @@ class PhpTypeDef {
 		$this->valNameAssociationCorrect($localName, $typeName);
 		
 		$this->localName = $localName;
-		if ($this->typeName !== $typeName) {
+		if (null !== $this->typeName && $this->typeName !== $typeName) {
 			$this->triggerTypeNameChange($this->typeName, $typeName);
 		}
 		
@@ -41,7 +41,7 @@ class PhpTypeDef {
 		$this->typeNameChangeClosures[] = $typeNameChangeClosure;
 	}
 	
-	private function triggerTypeNameChange(string $oldTypeName, string $newTypeName) {
+	private function triggerTypeNameChange(string $oldTypeName = null, string $newTypeName = null) {
 		foreach ($this->typeNameChangeClosures as $typeNameChangeClosure) {
 			$typeNameChangeClosure($oldTypeName, $newTypeName);
 		}
@@ -59,7 +59,7 @@ class PhpTypeDef {
 		
 		array_shift($localNameParts);
 		
-		if (StringUtils::endsWith(implode(Phpbob::NAMESPACE_SEPERATOR, $localNameParts))) return;
+		if (StringUtils::endsWith(implode(Phpbob::NAMESPACE_SEPERATOR, $localNameParts), $typeName)) return;
 		
 		throw new \InvalidArgumentException('Invalid local name ' . $localName . ' for typename ' . $typeName);
 	}

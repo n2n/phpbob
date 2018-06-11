@@ -5,9 +5,13 @@ use phpbob\Phpbob;
 use phpbob\PhprepUtils;
 use phpbob\representation\traits\PrependingCodeTrait;
 use n2n\reflection\ArgUtils;
+use phpbob\representation\traits\NameChangeSubjectTrait;
+use phpbob\representation\traits\MethodCodeTrait;
 
 class PhpMethod extends PhpParamContainerAdapter {
 	use PrependingCodeTrait;
+	use NameChangeSubjectTrait;
+	use MethodCodeTrait;
 
 	private $phpClassLike;
 	
@@ -21,8 +25,12 @@ class PhpMethod extends PhpParamContainerAdapter {
 
 	public function __construct(PhpClassLike $phpClassLike, string $name, PhpTypeDef $returnPhpTypeDef = null) {
 		$this->phpClassLike = $phpClassLike;
-		$this->setName($name);
+		$this->name = $name;
 		$this->setReturnPhpTypeDef($returnPhpTypeDef);
+	}
+	
+	public function getPhpClassLike() {
+		return $this->phpClassLike;
 	}
 
 	public function getClassifier() {
@@ -116,7 +124,7 @@ class PhpMethod extends PhpParamContainerAdapter {
 		}
 
 		$string = $this->appendToString($string, Phpbob::KEYWORD_FUNCTION)
-				. ' ' . $this->name . '(' . implode(', ', $this->params) . ')'; 
+				. ' ' . $this->name . $this->generateParamContainerStr(); 
 		
 		if (null !== ($typeDef = $this->getReturnPhpTypeDef())) {
 			$string .= Phpbob::RETURN_TYPE_INDICATOR . ' ' . $typeDef;
@@ -126,14 +134,8 @@ class PhpMethod extends PhpParamContainerAdapter {
 			$string .= ' ' . Phpbob::GROUP_STATEMENT_OPEN;
 		}
 
-		if (strlen($this->methodCode) > 0) {
-			$string .= PHP_EOL . "\t\t" . PhprepUtils::removeTrailingWhiteSpaces(
-					PhprepUtils::removeLeadingWhiteSpaces($this->methodCode)) . PHP_EOL;
-			
-			$string .= "\t";	
-		}
 		
-		return $string . (!$this->abstract ? Phpbob::GROUP_STATEMENT_CLOSE : ';') . PHP_EOL;
+		return $string . $this->generateMethodCodeStr(2) . "\t" . (!$this->abstract ? Phpbob::GROUP_STATEMENT_CLOSE : ';') . PHP_EOL;
 	}
 
 	private function appendToString($string, $append) {

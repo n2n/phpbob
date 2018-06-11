@@ -73,7 +73,6 @@ class PhpClass extends PhpClassLikeAdapter {
 			$str .= $this->phpAnnotationSet . PHP_EOL;
 		}
 		
-		
 		return $str .  $this->generateBody() . Phpbob::GROUP_STATEMENT_CLOSE;	
 	}
 
@@ -84,11 +83,11 @@ class PhpClass extends PhpClassLikeAdapter {
 		}
 		
 		$implementsClause = '';
-		if (count($this->interfaceNames) > 0) {
-			$implementsClause .= ' ' . Phpbob::KEYWORD_IMPLEMENTS . ' ' . implode(', ', $this->interfaceNames);
+		if (count($this->interfacePhpTypeDefs) > 0) {
+			$implementsClause .= ' ' . Phpbob::KEYWORD_IMPLEMENTS . ' ' . $this->generateInterfacesStr();
 		}
 		
-		return ($this->abstract ? Phpbob::KEYWORD_ABSTRACT . ' ' : '') . Phpbob::KEYWORD_CLASS . ' ' . $this->name . $extendsClause . $implementsClause . ' ';
+		return ($this->abstract ? Phpbob::KEYWORD_ABSTRACT . ' ' : '') . Phpbob::KEYWORD_CLASS . ' ' . $this->getName() . $extendsClause . $implementsClause . ' ';
 	}
 	
 	public function getPhpTypeDefs() : array {

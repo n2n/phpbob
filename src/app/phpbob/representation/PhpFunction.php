@@ -2,9 +2,14 @@
 namespace phpbob\representation;
 
 use phpbob\representation\traits\NameChangeSubjectTrait;
+use phpbob\representation\traits\PrependingCodeTrait;
+use phpbob\Phpbob;
+use phpbob\representation\traits\MethodCodeTrait;
 
 class PhpFunction extends PhpParamContainerAdapter implements PhpNamespaceElement {
 	use NameChangeSubjectTrait;
+	use PrependingCodeTrait;
+	use MethodCodeTrait;
 	
 	private $phpFile;
 	private $phpNamespace;
@@ -21,5 +26,10 @@ class PhpFunction extends PhpParamContainerAdapter implements PhpNamespaceElemen
 
 	public function getPhpNamespace() {
 		return $this->phpNamespace;
+	}
+	
+	public function __toString() {
+		return $this->getPrependingString() . Phpbob::KEYWORD_FUNCTION . ' ' . $this->name . $this->generateParamContainerStr()
+				. Phpbob::GROUP_STATEMENT_OPEN . $this->generateMethodCodeStr(1) . Phpbob::GROUP_STATEMENT_CLOSE . PHP_EOL;
 	}
 }

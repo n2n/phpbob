@@ -4,6 +4,7 @@ namespace phpbob\representation;
 use phpbob\representation\traits\InterfacesTrait;
 use phpbob\representation\ex\UnknownElementException;
 use n2n\util\ex\IllegalStateException;
+use phpbob\Phpbob;
 
 class PhpInterface extends PhpTypeAdapter {
 	use InterfacesTrait;
@@ -71,6 +72,32 @@ class PhpInterface extends PhpTypeAdapter {
 		}
 		
 		return $typeDefs;
+	}
+	
+	public function __toString() {
+		$interfacesStr = '';
+		if (count($this->interfacePhpTypeDefs) > 0) {
+			$interfacesStr = ' extends ' . $this->generateInterfacesStr();
+		}
+		
+		return $this->getPrependingCode() . Phpbob::KEYWORD_INTERFACE . $interfacesStr 
+				. Phpbob::GROUP_STATEMENT_OPEN . PHP_EOL . $this->generateBody() ;
+	}
+	
+	protected function generateBody() {
+		return rtrim($this->generateConstStr() . $this->generateMethodStr()) . PHP_EOL;
+	}
+	
+	
+	protected function generateMethodStr() {
+		if (empty($this->phpInterfaceMethods)) return '';
+		
+		$str = '';
+		foreach ($this->phpInterfaceMethods as $phpInterfaceMethod) {
+			$str .=  "\t" . trim((string) $phpInterfaceMethod) . PHP_EOL . PHP_EOL ;
+		}
+		
+		return $str;
 	}
 	
 	/**

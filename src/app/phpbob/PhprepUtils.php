@@ -574,6 +574,10 @@ class PhprepUtils {
 		return preg_replace('/\s*$/', '', (string) $string);
 	}
 	
+	public static function trimWhiteSpaces($string) {
+		return preg_replace('/(^\s*|^\s*)/', '', (string) $string);
+	}
+	
 	private static function explodeByWhiteSpaces($string) {
 		return preg_split('/\s+/', $string, null, PREG_SPLIT_NO_EMPTY);
 	}

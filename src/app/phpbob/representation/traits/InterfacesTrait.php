@@ -22,7 +22,7 @@ trait InterfacesTrait {
 		return isset($this->interfacePhpTypeDefs[$typeName]);
 	}
 	
-	public function generateInterfacesStr() {
+	protected function generateInterfacesStr() {
 		return implode(', ', $this->interfacePhpTypeDefs);
 	}
 	
