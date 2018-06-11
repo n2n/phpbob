@@ -2,12 +2,12 @@
 namespace phpbob\representation\anno;
 
 use phpbob\Phpbob;
-use phpbob\PhprepUtils;
 use phpbob\representation\traits\PrependingCodeTrait;
 use phpbob\representation\PhpClass;
-use phpbob\representation\PhpProperty;
 use phpbob\representation\PhpTypeDef;
 use n2n\reflection\annotation\AnnoInit;
+use phpbob\representation\ex\UnknownElementException;
+use n2n\util\ex\IllegalStateException;
 
 class PhpAnnotationSet {
 	use PrependingCodeTrait;
@@ -17,15 +17,9 @@ class PhpAnnotationSet {
 	
 	private $phpClass;
 	private $aiVariableName = '$ai';
-	/**
-	 * @var PhpPropertyAnno[]
-	 */
-	private $propertyAnnos = array();
-	/**
-	 * @var PhpMethodAnno[]
-	 */
-	private $methodAnnos = array();
-	private $classAnno;
+	private $phpPropertyAnnoCollections = array();
+	private $phpMethodAnnoCollections = array();
+	private $classAnnoCollection;
 	
 	public function __construct(PhpClass $phpClass) {
 		$this->phpClass = $phpClass;
@@ -35,122 +29,180 @@ class PhpAnnotationSet {
 		return $this->aiVariableName;
 	}
 
-	public function setAiVariableName($aiVariableName) {
+	public function setAiVariableName(string $aiVariableName) {
 		$this->aiVariableName = $aiVariableName;
-	}
-
-	public function getPropertyAnnos() {
-		return $this->propertyAnnos;
-	}
-	
-	public function getPropertyAnnoForProperty(PhpProperty $property) {
-		if (!$this->hasPropertyAnnoForProperty($property)) return null;
-		
-		return $this->propertyAnnos[$property->getName()];
-	}
-	
-	public function hasPropertyAnnoForProperty(PhpProperty $property) {
-		return isset($this->propertyAnnos[$property->getName()]);
-	}
-	
-	public function hasPropertyAnnoParam(string $propertyName, string $typeName) {
-		if (!isset($this->propertyAnnos[$propertyName])) return false;
-		
-		return $this->propertyAnnos[$propertyName]->hasParam($typeName);
-	}
-	
-	public function removePropertyAnno(string $propertyName) {
-		if (!isset($this->propertyAnnos[$propertyName])) return;
-		unset($this->propertyAnnos[$propertyName]);
-	}
-	
-	public function addPropertyAnno(PhpPropertyAnno $propertyAnno) {
-		$propertyName = $propertyAnno->getPropertyName();
-		if (isset($this->propertyAnnos[$propertyName])) {
-			$this->propertyAnnos[$propertyName]->mergeWith($propertyAnno); 
-		} else {
-			$this->propertyAnnos[$propertyName] = $propertyAnno;
-		}
-		return $this;
-	}
-
-	public function getMethodAnnos() {
-		return $this->methodAnnos;
-	}
-
-	public function setMethodAnnos(array $methodAnnos) {
-		$this->methodAnnos = $methodAnnos;
-	}
-	
-	public function removeMethodAnno(string $methodName) {
-		if (!isset($this->methodAnnos[$methodName])) return;
-		unset($this->methodAnnos[$methodName]);
-	}
-	
-	public function addMethodAnno(PhpMethodAnno $methodAnno) {
-		$methodName = $methodAnno->getMethodName();
-		if (isset($this->methodAnnos[$methodName])) {
-			$this->methodAnnos[$methodName]->mergeWith($methodAnno);
-		} else {
-			$this->methodAnnos[$methodName] = $methodAnno;
-		}
-		return $this;
-	}
-	/**
-	 * @return PhpClassAnno
-	 */
-	public function getClassAnno() {
-		return $this->classAnno;
-	}
-	/**
-	 * @return PhpClassAnno
-	 */
-	public function getOrCreateClassAnno() {
-		if (null === $this->classAnno) {
-			$this->classAnno = new PhpClassAnno();
-		}
-		
-		return $this->classAnno;
-	}
-
-	public function setClassAnno(PhpClassAnno $classAnno = null) {
-		$this->classAnno = $classAnno;
 	}
 	
 	public function isEmpty() {
-		return null === $this->classAnno && empty($this->propertyAnnos) && empty($this->methodAnnos); 
+		return null === $this->classAnnoCollection && empty($this->phpPropertyAnnoCollections) 
+				&& empty($this->phpMethodAnnoCollections); 
 	}
 	
-	public function applyTypeNames() {
-		foreach ($this->propertyAnnos as $anno) {
-			$this->checkTypeNames($anno);
+	/**
+	 * @param string $methodName
+	 * @return bool
+	 */
+	public function hasPhpMethodAnnoCollection(string $methodName) {
+		return isset($this->phpMethodAnnoCollections[$methodName]);
+	}
+	
+	/**
+	 * @param string $name
+	 * @return PhpMethodAnnoCollection
+	 */
+	public function getPhpMethodAnnoCollection(string $methodName) {
+		if (!isset($this->phpMethodAnnoCollections[$methodName])) {
+			throw new UnknownElementException('No function with name "' . $methodName . '" given.');
 		}
 		
-		foreach ($this->methodAnnos as $anno) {
-			$this->checkTypeNames($anno);
-		}
+		return $this->phpMethodAnnoCollections[$methodName];
+	}
+	
+	/**
+	 * @return PhpMethodAnnoCollection []
+	 */
+	public function getPhpMethodAnnoCollections() {
+		return $this->phpMethodAnnoCollections;
+	}
+	
+	/**
+	 * @param string $methodName
+	 * @param PhpTypeDef $returnPhpTypeDef
+	 * @throws IllegalStateException
+	 * @return \phpbob\representation\PhpMethodAnnoCollection
+	 */
+	public function createPhpMethodAnnoCollection(string $methodName) {
+		$this->checkPhpMethodName($methodName);
 		
-		if (null !== $this->classAnno) {
-			$this->checkTypeNames($this->classAnno);
+		$phpMethodAnnoCollection = new PhpMethodAnnoCollection($this, $methodName);
+		
+		$that = $this;
+		$phpMethodAnnoCollection->onMethodNameChange(function($oldMethodName, $newMethodName) use ($that) {
+			$that->checkPhpMethodName($newMethodName);
+			
+			$tmpPhpMethodAnnoCollection = $that->phpMethodAnnoCollections[$oldMethodName];
+			unset($that->phpMethodAnnoCollections[$oldMethodName]);
+			$that->phpMethodAnnoCollections[$newMethodName] = $tmpPhpMethodAnnoCollection;
+			
+		});
+			
+		$this->phpMethodAnnoCollections[$methodName] = $phpMethodAnnoCollection;
+		return $phpMethodAnnoCollection;
+	}
+	
+	/**
+	 * @param string $methodName
+	 */
+	public function removePhpMethodAnnoCollection(string $methodName) {
+		unset($this->phpMethodAnnoCollections[$methodName]);
+		
+		return $this;
+	}
+	
+	private function checkPhpMethodName(string $methodName) {
+		if ($this->hasPhpMethodAnnoCollection($methodName)) {
+			throw new IllegalStateException('Method Anno Collection with name ' . $methodName . ' already defined.');
 		}
 	}
+	
+	
+	/**
+	 * @param string $propertyName
+	 * @return bool
+	 */
+	public function hasPhpPropertyAnnoCollection(string $propertyName) {
+		return isset($this->phpPropertyAnnoCollections[$propertyName]);
+	}
+	
+	/**
+	 * @param string $propertyName
+	 * @return PhpPropertyAnnoCollection
+	 */
+	public function getPhpPropertyAnnoCollection(string $propertyName) {
+		if (!isset($this->phpPropertyAnnoCollections[$propertyName])) {
+			throw new UnknownElementException('No function with name "' . $propertyName . '" given.');
+		}
+		
+		return $this->phpPropertyAnnoCollections[$propertyName];
+	}
+	
+	/**
+	 * @return PhpPropertyAnnoCollection []
+	 */
+	public function getPhpPropertyAnnoCollections() {
+		return $this->phpPropertyAnnoCollections;
+	}
+	
+	/**
+	 * @param string $methodName
+	 * @param PhpTypeDef $returnPhpTypeDef
+	 * @throws IllegalStateException
+	 * @return \phpbob\representation\PhpPropertyAnnoCollection
+	 */
+	public function createPhpPropertyAnnoCollection(string $propertyName) {
+		$this->checkPhpPropetyName($propertyName);
+		
+		$phpPropertyAnnoCollection = new PhpPropertyAnnoCollection($this, $propertyName);
+		
+		$that = $this;
+		$phpPropertyAnnoCollection->onPropertyNameChange(function($oldPropertyName, $newPropertyName) use ($that) {
+			$that->checkPhpPropetyName($newPropertyName);
+			
+			$tmpPhpPropertyAnnoCollection = $that->phpPropertyAnnoCollections[$oldPropertyName];
+			unset($that->phpPropertyAnnoCollections[$oldPropertyName]);
+			$that->phpPropertyAnnoCollections[$newPropertyName] = $tmpPhpPropertyAnnoCollection;
+			
+		});
+			
+		$this->phpPropertyAnnoCollections[$propertyName] = $phpPropertyAnnoCollection;
+		return $phpPropertyAnnoCollection;
+	}
+	
+	/**
+	 * @param string $methodName
+	 */
+	public function removePhpPropertyAnnoCollection(string $propertyName) {
+		unset($this->phpPropertyAnnoCollections[$propertyName]);
+		
+		return $this;
+	}
+	
+	private function checkPhpPropetyName(string $propertyName) {
+		if ($this->hasPhpPropertyAnnoCollection($propertyName)) {
+			throw new IllegalStateException('Method Collection with name ' . $propertyName . ' already defined.');
+		}
+	}
+	
+// 	public function applyTypeNames() {
+// 		foreach ($this->propertyAnnoCollections as $anno) {
+// 			$this->checkTypeNames($anno);
+// 		}
+		
+// 		foreach ($this->methodAnnoCollections as $anno) {
+// 			$this->checkTypeNames($anno);
+// 		}
+		
+// 		if (null !== $this->classAnnoCollection) {
+// 			$this->checkTypeNames($this->classAnnoCollection);
+// 		}
+// 	}
 	
 	public function __toString() {
 		if ($this->isEmpty()) return $this->getPrependingString();
 		$string = "\t" . self::ANNO_METHOD_SIGNATURE . $this->aiVariableName . ') ' 
 				. Phpbob::GROUP_STATEMENT_OPEN . PHP_EOL;
-		if (null !== $this->classAnno) {
-			$string .= "\t\t" . $this->aiVariableName . '->c(' . $this->classAnno->getAnnotationString() . ')' 
+		if (null !== $this->classAnnoCollection) {
+			$string .= "\t\t" . $this->aiVariableName . '->c(' . $this->classAnnoCollection->getAnnotationString() . ')' 
 					. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL; 
 		}
 		
-		foreach ($this->methodAnnos as $methodAnno) {
+		foreach ($this->phpMethodAnnoCollections as $methodAnno) {
 			$string .= "\t\t" . $this->aiVariableName . '->m(\'' . $methodAnno->getMethodName() . '\', ' 
 					. $methodAnno->getAnnotationString() . ')' 
 					. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL; 
 		}
 		
-		foreach ($this->propertyAnnos as $propertyAnno) {
+		foreach ($this->phpPropertyAnnoCollections as $propertyAnno) {
 			$string .= "\t\t" . $this->aiVariableName . '->p(\'' . $propertyAnno->getPropertyName() . '\', ' 
 					. $propertyAnno->getAnnotationString() . ')' 
 					. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL; 
@@ -167,12 +219,12 @@ class PhpAnnotationSet {
 		return [new PhpTypeDef('AnnoInit', AnnoInit::class)];
 	}
 	
-	private function checkTypeNames(PhpAnno $phpAnno) {
-		foreach ($phpAnno->getParams() as $annoParam) {
-			$typeName = $annoParam->getTypeName();
-			if (null === PhprepUtils::extractNamespace($typeName)) return;
-			$this->phpClass->addUse(new PhpUse($typeName));
-			$annoParam->setTypeName(PhprepUtils::extractClassName($typeName));
-		}
-	} 
+// 	private function checkTypeNames(PhpAnno $phpAnno) {
+// 		foreach ($phpAnno->getParams() as $annoParam) {
+// 			$typeName = $annoParam->getTypeName();
+// 			if (null === PhprepUtils::extractNamespace($typeName)) return;
+// 			$this->phpClass->addUse(new PhpUse($typeName));
+// 			$annoParam->setTypeName(PhprepUtils::extractClassName($typeName));
+// 		}
+// 	} 
 }

@@ -4,8 +4,9 @@ namespace phpbob\representation\anno;
 use phpbob\representation\traits\PrependingCodeTrait;
 use phpbob\representation\ex\UnknownElementException;
 use n2n\util\ex\IllegalStateException;
+use phpbob\representation\PhpAnnoCollection;
 
-abstract class PhpAnnoAdapter {
+abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	use PrependingCodeTrait;
 	
 	protected $phpAnnotationSet;
@@ -20,16 +21,16 @@ abstract class PhpAnnoAdapter {
 	 * @param string $typeName
 	 * @return bool
 	 */
-	public function hasPhpAnnoParam(string $typeName) {
+	public function hasPhpAnno(string $typeName) {
 		return isset($this->phpAnnoParams[$typeName]);
 	}
 	
 	/**
 	 * @param string $typeName
 	 * @throws UnknownElementException
-	 * @return PhpAnnoParam
+	 * @return PhpAnno
 	 */
-	public function getPhpAnnoParam(string $typeName) {
+	public function getPhpAnno(string $typeName) {
 		if (!isset($this->phpAnnoParams[$typeName])) {
 			throw new UnknownElementException('No Anno Param with name "' . $typeName . '" given.');
 		}
@@ -38,9 +39,9 @@ abstract class PhpAnnoAdapter {
 	}
 	
 	/**
-	 * @return PhpAnnoParam []
+	 * @return PhpAnno []
 	 */
-	public function getPhpAnnoParams() {
+	public function getPhpAnnos() {
 		return $this->phpAnnoParams;
 	}
 	
@@ -48,12 +49,12 @@ abstract class PhpAnnoAdapter {
 	 * @param string $typeName
 	 * @param string $value
 	 * @throws IllegalStateException
-	 * @return \phpbob\representation\PhpAnnoParam
+	 * @return \phpbob\representation\PhpAnno
 	 */
-	public function createPhpAnnoParam(string $typeName) {
-		$this->checkPhpAnnoParamName($typeName);
+	public function createPhpAnno(string $typeName) {
+		$this->checkPhpAnnoName($typeName);
 	
-		$phpAnnoParam = new PhpAnnoParam($this, $typeName);
+		$phpAnnoParam = new PhpAnno($this, $typeName);
 	
 		$this->phpAnnoParams[$this->buildConstKey($typeName)] = $phpAnnoParam;
 
@@ -64,24 +65,28 @@ abstract class PhpAnnoAdapter {
 	 * @param string $typeName
 	 * @return \phpbob\representation\anno\PhpAnnoAdapter
 	 */
-	public function removePhpAnnoParam(string $typeName) {
+	public function removePhpAnno(string $typeName) {
 		unset($this->phpAnnoParams);
 		
 		return $this;
 	}
 	
-	public function resetPhpAnnoParams() {
+	public function resetPhpAnnos() {
 		$this->phpAnnoParams = [];
 		
 		return $this;
 	}
 	
-	private function checkAnnoParamName(string $typeName) {
+	private function checkAnnoName(string $typeName) {
 		if (!isset($this->phpAnnoParams[$typeName])) return;
 		
 		throw new IllegalStateException('Anno Param with tyename ' . $typeName . ' already defined.');
  	}
 	
+ 	public function getPhpAnnotationSet(): PhpAnnotationSet {
+ 		return $this->phpAnnotationSet;
+ 	}
+ 	
 	public function getAnnotationString() {
 		return implode(', ', $this->phpAnnoParams);
  	}

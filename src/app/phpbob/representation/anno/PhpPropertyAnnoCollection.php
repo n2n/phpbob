@@ -2,7 +2,7 @@
 namespace phpbob\representation\anno;
 
 
-class PhpPropertyAnno extends PhpAnnoAdapter {
+class PhpPropertyAnnoCollection extends PhpAnnoCollectionAdapter {
 	private $propertyName;
 	private $propertyNameChangeClosures = [];
 	

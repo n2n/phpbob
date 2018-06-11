@@ -1,7 +1,8 @@
 <?php
 namespace phpbob\representation\anno;
 
-class PhpMethodAnno extends PhpAnnoAdapter {
+class PhpMethodAnnoCollection extends PhpAnnoCollectionAdapter {
+	
 	private $methodName;
 	private $methodNameChangeClosures = [];
 	
