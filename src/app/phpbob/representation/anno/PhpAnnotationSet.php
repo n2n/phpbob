@@ -19,7 +19,7 @@ class PhpAnnotationSet {
 	private $aiVariableName = '$ai';
 	private $phpPropertyAnnoCollections = array();
 	private $phpMethodAnnoCollections = array();
-	private $classAnnoCollection;
+	private $phpClassAnnoCollection;
 	
 	public function __construct(PhpClass $phpClass) {
 		$this->phpClass = $phpClass;
@@ -34,7 +34,7 @@ class PhpAnnotationSet {
 	}
 	
 	public function isEmpty() {
-		return null === $this->classAnnoCollection && empty($this->phpPropertyAnnoCollections) 
+		return null === $this->phpClassAnnoCollection && empty($this->phpPropertyAnnoCollections) 
 				&& empty($this->phpMethodAnnoCollections); 
 	}
 	
@@ -173,6 +173,49 @@ class PhpAnnotationSet {
 		}
 	}
 	
+	/**
+	 * @param string $propertyName
+	 * @return bool
+	 */
+	public function hasPhpClassAnnoCollection() {
+		return null !== $this->phpClassAnnoCollection;
+	}
+	
+	/**
+	 * @param string $propertyName
+	 * @return PhpPropertyAnnoCollection
+	 */
+	public function getPhpClassAnnoCollection() {
+		if (null === $this->phpClassAnnoCollection) {
+			throw new UnknownElementException('No class anno Collection given.');
+		}
+		
+		return $this->phpClassAnnoCollection;
+	}
+	
+	/**
+	 * @param string $methodName
+	 * @param PhpTypeDef $returnPhpTypeDef
+	 * @throws IllegalStateException
+	 * @return \phpbob\representation\PhpPropertyAnnoCollection
+	 */
+	public function createPhpClassAnnoCollection() {
+		if (null !== $this->phpClassAnnoCollection) {
+			throw new IllegalStateException('Duplicate class annotation');
+		}
+		
+		return $this->phpClassAnnoCollection = new PhpClassAnnotationCollection($this);
+	}
+	
+	/**
+	 * @param string $methodName
+	 */
+	public function removePhpClassAnnoCollection() {
+		$this->phpClassAnnoCollection = null;
+		
+		return $this;
+	}
+	
 // 	public function applyTypeNames() {
 // 		foreach ($this->propertyAnnoCollections as $anno) {
 // 			$this->checkTypeNames($anno);
@@ -191,8 +234,8 @@ class PhpAnnotationSet {
 		if ($this->isEmpty()) return $this->getPrependingString();
 		$string = "\t" . self::ANNO_METHOD_SIGNATURE . $this->aiVariableName . ') ' 
 				. Phpbob::GROUP_STATEMENT_OPEN . PHP_EOL;
-		if (null !== $this->classAnnoCollection) {
-			$string .= "\t\t" . $this->aiVariableName . '->c(' . $this->classAnnoCollection->getAnnotationString() . ')' 
+		if (null !== $this->phpClassAnnoCollection) {
+			$string .= "\t\t" . $this->aiVariableName . '->c(' . $this->phpClassAnnoCollection->getAnnotationString() . ')' 
 					. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL; 
 		}
 		
