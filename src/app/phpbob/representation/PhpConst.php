@@ -36,6 +36,10 @@ class PhpConst implements PhpNamespaceElement {
 		return $this->value;
 	}
 
+	/**
+	 * @param string $value
+	 * @return \phpbob\representation\PhpConst
+	 */
 	public function setValue(string $value) {
 		$this->value = $value;
 		

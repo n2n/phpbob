@@ -2,6 +2,7 @@
 namespace phpbob\representation\traits;
 
 use phpbob\representation\PhpTypeDef;
+use n2n\reflection\ArgUtils;
 
 trait InterfacesTrait {
 	protected $interfacePhpTypeDefs = array();
@@ -11,6 +12,7 @@ trait InterfacesTrait {
 	}
 	
 	public function setInterfacePhpTypeDefs(array $interfacePhpTypeDefs) {
+		ArgUtils::valArray($interfacePhpTypeDefs, PhpTypeDef::class);
 		$this->interfacePhpTypeDefs = $interfacePhpTypeDefs;
 	}
 	

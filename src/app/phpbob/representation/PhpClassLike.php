@@ -29,7 +29,7 @@ interface PhpClassLike extends PhpType {
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpProperty
 	 */
-	public function createPhpProperty(string $name): PhpProperty;
+	public function createPhpProperty(string $name, string $classifier): PhpProperty;
 	
 	
 	/**

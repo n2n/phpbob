@@ -2,7 +2,14 @@
 namespace phpbob\representation;
 
 interface PhpFileElement {
+	/**
+	 * @return PhpFile
+	 */
 	public function getPhpFile();
-	public function getPhpTypeDefs() : array;
+	
+	/**
+	 * @return PhpTypeDef []
+	 */
+	public function getPhpTypeDefs();
 	public function __toString();
 }

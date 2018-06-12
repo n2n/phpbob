@@ -3,7 +3,6 @@ namespace phpbob\representation;
 
 use phpbob\Phpbob;
 use phpbob\representation\traits\InterfacesTrait;
-use phpbob\representation\anno\PhpAnnotationSet;
 
 class PhpClass extends PhpClassLikeAdapter {
 	use InterfacesTrait;
@@ -13,7 +12,6 @@ class PhpClass extends PhpClassLikeAdapter {
 	private $static = false;
 	
 	private $superClassTypeDef;
-	private $phpAnnotationSet;
 
 	public function isFinal() {
 		return $this->final;
@@ -46,22 +44,6 @@ class PhpClass extends PhpClassLikeAdapter {
 	public function setSuperClassTypeDef(PhpTypeDef $superClassTypeDef = null) {
 		$this->superClassTypeDef = $superClassTypeDef;
 	}
-
-	/**
-	 * @return PhpAnnotationSet
-	 */
-	public function getPhpAnnotationSet() {
-		if (null === $this->phpAnnotationSet) {
-			$this->phpAnnotationSet = new PhpAnnotationSet($this);
-		}
-		return $this->phpAnnotationSet;
-	}
-	
-	public function setAnnotationSet(PhpAnnotationSet $annotationSet) {
-		$this->phpAnnotationSet = $annotationSet;
-		
-		return $this;
-	}
 	
 	public function implementsInterface($typeName) {
 		return $this->hasInterfacePhpTypeDef($typeName);
@@ -69,10 +51,7 @@ class PhpClass extends PhpClassLikeAdapter {
 
 	public function __toString() {
 		$str = $this->getPrependingString() . $this->generateClassDefinition() . Phpbob::GROUP_STATEMENT_OPEN . PHP_EOL;
-		if (null !== $this->phpAnnotationSet) {
-			$str .= $this->phpAnnotationSet . PHP_EOL;
-		}
-		
+
 		return $str .  $this->generateBody() . Phpbob::GROUP_STATEMENT_CLOSE;	
 	}
 
@@ -97,10 +76,10 @@ class PhpClass extends PhpClassLikeAdapter {
 			$phpTypeDefs[] = $this->superClassTypeDef;
 		}
 		
-		if (null !== $this->phpAnnotationSet) {
-			$phpTypeDefs += $this->phpAnnotationSet->getPhpTypeDefs();
-		}
-		
 		return $phpTypeDefs;
+	}
+	
+	public function determineTypeName(string $localName) {
+		return $this->determinePhpNamespaceElementCreator()->determineTypeName($localName);
 	}
 }

@@ -49,8 +49,8 @@ class PhpTypeDef {
 
 	public function valNameAssociationCorrect(string $localName, string $typeName = null) {
 		if (null === $typeName || $localName === $typeName) return;
-		$localNameParts = PhprepUtils::extractTypeNames($localName);
 		
+		$localNameParts = PhprepUtils::explodeTypeName($localName);
 		if (count($localNameParts) === 1) {
 			if (StringUtils::endsWith($localName, $typeName)) return;
 			
@@ -64,15 +64,39 @@ class PhpTypeDef {
 		throw new \InvalidArgumentException('Invalid local name ' . $localName . ' for typename ' . $typeName);
 	}
 	
+	public function needsPhpUse() {
+		return null !== $this->typeName && $this->typeName !== $this->localName;
+	}
+	
+	public function determineUseTypeName() {
+		if (null === $this->typeName || $this->typeName === $this->localName) return null;
+		
+		$localNameParts = PhprepUtils::explodeTypeName($this->localName);
+		if (count($localNameParts) === 1) return $this->typeName;
+		
+		$typeNameParts = PhprepUtils::explodeTypeName($this->typeName);
+		return implode(Phpbob::NAMESPACE_SEPERATOR, 
+				array_slice($typeNameParts, 0, count($typeNameParts) - count($localNameParts) - 1));
+	}
+	
 	public function determineAlias() {
 		if (null === $this->typeName || $this->typeName === $this->localName) return null;
-		$localNameParts = PhprepUtils::extractTypeNames($this->localName);
+		
+		$localNameParts = PhprepUtils::explodeTypeName($this->localName);
 		if (count($localNameParts) === 1) return null;
 		
 		return array_shift($localNameParts);
 	}
 	
+	public function isBool() {
+		return null !== $this->typeName && $this->localName === Phpbob::TYPE_BOOLEAN;
+	}
+	
 	public function __toString() {
 		return $this->localName;
+	}
+	
+	public static function fromTypeName(string $typeName) {
+		return new PhpTypeDef(PhprepUtils::extractClassName($typeName), $typeName);
 	}
 }

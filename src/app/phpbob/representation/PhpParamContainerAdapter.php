@@ -57,9 +57,14 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 	}
 	
 	public function getPhpTypeDefs() : array {
-		$typeDefs = [$this->returnPhpTypeDef];
+		$typeDefs = [];
+		if (null !== $this->returnPhpTypeDef) {
+			$typeDefs[] = $this->returnPhpTypeDef;
+		}
 		
 		foreach ($this->phpParams as $phpParam) {
+			if (!$phpParam->hasPhpTypeDef()) continue;
+			
 			$typeDefs[] = $phpParam->getPhpTypeDef();
 		}
 		

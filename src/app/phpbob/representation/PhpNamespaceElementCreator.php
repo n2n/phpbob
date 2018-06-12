@@ -177,6 +177,10 @@ abstract class PhpNamespaceElementCreator {
 		return $this->phpElementFactory->getPhpUse($typeName);
 	}
 	
+	public function determineTypeName(string $localName) {
+		return $this->phpElementFactory->determineTypeName($localName);
+	}
+ 	
 	/**
 	 * @return PhpUse []
 	 */

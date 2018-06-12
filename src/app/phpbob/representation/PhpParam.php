@@ -23,6 +23,10 @@ class PhpParam extends PhpVariable {
 	public function setPhpTypeDef(PhpTypeDef $phpTypeDef = null) {
 		$this->phpTypeDef = $phpTypeDef;
 	}
+	
+	public function hasPhpTypeDef() {
+		return null !== $this->phpTypeDef;
+	}
 
 	public function isSplat() {
 		return $this->splat;
@@ -55,14 +59,14 @@ class PhpParam extends PhpVariable {
 
 	public function __toString() {
 		$string = $this->getPrependingString();
-		if (null !== $this->typeName) {
-			$this->typeName;
-			$string .= $this->typeName . ' ';
+		if (null !== $this->phpTypeDef) {
+			$string .= $this->phpTypeDef . ' ';
 		}
 		
 		if ($this->splat) {
 			$string .= Phpbob::SPLAT_INDICATOR;
 		}
+		
 		return $string . $this->getNameValueString(true);
 	}
 }

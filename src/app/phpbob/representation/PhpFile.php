@@ -61,8 +61,7 @@ class PhpFile extends PhpNamespaceElementCreator {
 	}
 	
 	public function getStringRepresentation() {
-		$phpNamespaceResolver = new PhpNamespaceResolver($this->phpElementFactory);
-		$phpNamespaceResolver->resolveNamespaces();
+		$this->phpElementFactory->resolvePhpTypeDefs();
 
 		return Phpbob::PHP_BLOCK_BEGIN . PHP_EOL . $this->phpElementFactory;
 	}

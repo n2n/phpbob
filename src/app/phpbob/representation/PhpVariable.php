@@ -3,11 +3,13 @@ namespace phpbob\representation;
 
 use phpbob\Phpbob;
 use phpbob\representation\traits\PrependingCodeTrait;
+use n2n\util\StringUtils;
+use phpbob\representation\traits\NameChangeSubjectTrait;
 
 abstract class PhpVariable {
 	use PrependingCodeTrait;
+	use NameChangeSubjectTrait;
 	
-	protected $name;
 	protected $value;
 	
 	public function __construct(string $name, string $value = null, 
@@ -31,24 +33,27 @@ abstract class PhpVariable {
 
 	public function setValue(string $value = null) {
 		$this->value = $value;
+		
+		return $this;
 	}
 	
 // 	public function isNullable() {
 // 		return $this->value === Phpbob::KEYWORD_NULL;
 // 	}
 	
-// 	protected function getNameValueString(bool $check = false) {
-// 		$string = $this->checkVariableName($this->name, $check);
-// 		if (null !== $this->value) {
-// 			$string .= ' ' . Phpbob::ASSIGNMENT . ' ' . $this->value; 
-// 		}
-// 		return $string;
-// 	}
+	protected function getNameValueString() {
+		$string = $this->checkVariableName($this->name);
+		if (null !== $this->value) {
+			$string .= ' ' . Phpbob::ASSIGNMENT . ' ' . $this->value; 
+		}
+		return $string;
+	}
 	
-// 	private function checkVariableName(string $name, bool $check = false) {
-// 		if ($check && !StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $name)) {
-// 			return (string) Phpbob::VARIABLE_PREFIX . $name;
-// 		}
-// 		return (string) $name;
-// 	}
+	private function checkVariableName(string $name) {
+		if (!StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $name)) {
+			return Phpbob::VARIABLE_PREFIX . $name;
+		}
+		
+		return $name;
+	}
 }

@@ -5,14 +5,13 @@ use phpbob\representation\traits\PrependingCodeTrait;
 use phpbob\representation\traits\NameChangeSubjectTrait;
 use n2n\util\ex\IllegalStateException;
 use phpbob\representation\ex\UnknownElementException;
-use phpbob\PhprepUtils;
+use phpbob\representation\traits\PhpNamespaceElementTrait;
 
 abstract class PhpTypeAdapter implements PhpType {
 	use PrependingCodeTrait;
 	use NameChangeSubjectTrait;
+	use PhpNamespaceElementTrait;
 	
-	private $phpFile;
-	private $phpNamespace;
 	private $phpConsts = [];
 	
 	public function __construct(PhpFile $phpFile, string $name, PhpNamespace $phpNamespace = null) {
@@ -75,6 +74,11 @@ abstract class PhpTypeAdapter implements PhpType {
 		});
 			
 		return $phpConst;
+	}
+	
+	public function createPhpUse(string $typeName,
+			string $alias = null, string $type = null) {
+		return $this->determinePhpNamespaceElementCreator()->createPhpUse($typeName, $alias, $type);
 	}
 	
 	public function removePhpConst(string $name) {

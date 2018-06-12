@@ -3,9 +3,7 @@ namespace phpbob\representation\anno;
 
 use phpbob\Phpbob;
 use n2n\util\StringUtils;
-use phpbob\representation\PhpAnno;
 use phpbob\representation\PhpTypeDef;
-use phpbob\representation\PhpAnnoCollection;
 
 class PhpAnno {
 	private $phpAnno;

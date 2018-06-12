@@ -2,7 +2,6 @@
 namespace phpbob\representation;
 
 use phpbob\Phpbob;
-use phpbob\PhprepUtils;
 use phpbob\representation\traits\PrependingCodeTrait;
 use n2n\reflection\ArgUtils;
 use phpbob\representation\traits\NameChangeSubjectTrait;

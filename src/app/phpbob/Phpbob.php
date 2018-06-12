@@ -45,6 +45,11 @@ class Phpbob {
 	const SINGLE_COMMENT_START = '//';
 	const PHP_FILE_EXTENSION = '.php';
 	
+	const TYPE_BOOLEAN = 'bool';
+	const TYPE_INTEGER = 'int';
+	const TYPE_STRING = 'string';
+	const TYPE_ARRAY = 'array';
+	
 	public static function getClassifiers() {
 		return array(self::CLASSIFIER_PRIVATE, self::CLASSIFIER_PROTECTED, self::CLASSIFIER_PUBLIC);
 	}

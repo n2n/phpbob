@@ -4,13 +4,14 @@ namespace phpbob\representation\anno;
 use phpbob\representation\traits\PrependingCodeTrait;
 use phpbob\representation\ex\UnknownElementException;
 use n2n\util\ex\IllegalStateException;
-use phpbob\representation\PhpAnnoCollection;
+use phpbob\representation\PhpTypeDef;
+use phpbob\PhprepUtils;
 
 abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	use PrependingCodeTrait;
 	
 	protected $phpAnnotationSet;
-	protected $phpAnnoParams = array();
+	protected $phpAnnos = array();
 	
 	public function __construct(PhpAnnotationSet $phpAnnotationSet, $prependingCode = null) {
 		$this->phpAnnotationSet = $phpAnnotationSet;
@@ -22,7 +23,7 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	 * @return bool
 	 */
 	public function hasPhpAnno(string $typeName) {
-		return isset($this->phpAnnoParams[$typeName]);
+		return isset($this->phpAnnos[$typeName]);
 	}
 	
 	/**
@@ -31,32 +32,36 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	 * @return PhpAnno
 	 */
 	public function getPhpAnno(string $typeName) {
-		if (!isset($this->phpAnnoParams[$typeName])) {
+		if (!isset($this->phpAnnos[$typeName])) {
 			throw new UnknownElementException('No Anno Param with name "' . $typeName . '" given.');
 		}
 	
-		return $this->phpAnnoParams[$typeName];
+		return $this->phpAnnos[$typeName];
 	}
 	
 	/**
 	 * @return PhpAnno []
 	 */
 	public function getPhpAnnos() {
-		return $this->phpAnnoParams;
+		return $this->phpAnnos;
 	}
 	
 	/**
 	 * @param string $typeName
 	 * @param string $value
 	 * @throws IllegalStateException
-	 * @return \phpbob\representation\PhpAnno
+	 * @return PhpAnno
 	 */
-	public function createPhpAnno(string $typeName) {
+	public function createPhpAnno(string $typeName, string $localName = null) {
 		$this->checkPhpAnnoName($typeName);
+		
+		if ($localName === null) {
+			$localName = PhprepUtils::extractClassName($typeName);
+		}
 	
-		$phpAnnoParam = new PhpAnno($this, $typeName);
+		$phpAnnoParam = new PhpAnno($this, new PhpTypeDef($localName, $typeName));
 	
-		$this->phpAnnoParams[$this->buildConstKey($typeName)] = $phpAnnoParam;
+		$this->phpAnnos[$typeName] = $phpAnnoParam;
 
 		return $phpAnnoParam;
 	}
@@ -66,19 +71,19 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	 * @return \phpbob\representation\anno\PhpAnnoAdapter
 	 */
 	public function removePhpAnno(string $typeName) {
-		unset($this->phpAnnoParams);
+		unset($this->phpAnnos);
 		
 		return $this;
 	}
 	
 	public function resetPhpAnnos() {
-		$this->phpAnnoParams = [];
+		$this->phpAnnos = [];
 		
 		return $this;
 	}
 	
-	private function checkAnnoName(string $typeName) {
-		if (!isset($this->phpAnnoParams[$typeName])) return;
+	private function checkPhpAnnoName(string $typeName) {
+		if (!isset($this->phpAnnos[$typeName])) return;
 		
 		throw new IllegalStateException('Anno Param with tyename ' . $typeName . ' already defined.');
  	}
@@ -88,17 +93,25 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
  	}
  	
 	public function getAnnotationString() {
-		return implode(', ', $this->phpAnnoParams);
+		return implode(', ', $this->phpAnnos);
+ 	}
+ 	
+ 	public function getPhpTypeDefs() {
+ 		$phpTypeDefs = [];
+ 		foreach ($this->phpAnnos as $phpAnno) {
+ 			$phpTypeDefs[] = $phpAnno->getPhpTypeDef(); 
+ 		}
+ 		
+ 		return $phpTypeDefs;
+ 	}
+ 	
+ 	public function appendPrependingCode(string $prependingCode = null) {
+ 		if (null !== $prependingCode) return null;
+ 		
+ 		$this->prependingCode .= $prependingCode;
  	}
 	
-// 	public function mergeWith(PhpAnnoAdapter $anno) {
-// 		$this->prependingCode .= $anno->getPrependingCode();
-// 		foreach ($anno->getParams() as $param) {
-// 			$this->addParam($param);
-// 		}
-// 	}
-	
 	public function isEmpty() {
-		return count($this->phpAnnoParams) === 0;
+		return count($this->phpAnnos) === 0;
 	}
 }

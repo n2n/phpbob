@@ -5,7 +5,7 @@ use phpbob\Phpbob;
 use phpbob\representation\traits\PrependingCodeTrait;
 use phpbob\representation\traits\NameChangeSubjectTrait;
 
-class PhpNamespace extends PhpNamespaceElementCreator implements PhpFileElement {
+class PhpNamespace extends PhpNamespaceElementCreator implements PhpUseContainer {
 	use PrependingCodeTrait;
 	use NameChangeSubjectTrait;
 	
@@ -46,7 +46,11 @@ class PhpNamespace extends PhpNamespaceElementCreator implements PhpFileElement 
 	}
 	
 	public function getPhpTypeDefs(): array {
-		return $this->phpElementFactory->getPhpTypeDefs();
+		return [];
+	}
+	
+	public function resolvePhpTypeDefs() {
+		$this->phpElementFactory->resolvePhpTypeDefs();
 	}
 
 	public function __toString() {

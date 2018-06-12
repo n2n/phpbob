@@ -6,6 +6,7 @@ use phpbob\SingleStatement;
 use phpbob\PhprepUtils;
 use phpbob\Phpbob;
 use n2n\reflection\annotation\AnnotationSet;
+use phpbob\representation\PhpFile;
 
 class PhpSourceAnalyzer {
 	/**
@@ -13,7 +14,7 @@ class PhpSourceAnalyzer {
 	 * @param AnnotationSet $as
 	 * @return \phpbob\representation\PhpType [] 
 	 */
-	public function analyze($phpSource, AnnotationSet $as = null) {
+	public function analyze($phpSource/* , AnnotationSet $as = null */) {
 		
 		$rootGroup = $this->createPhpStatement($phpSource);
 		$namespaceStatement = null;
@@ -21,33 +22,12 @@ class PhpSourceAnalyzer {
 		$statementsBefore = array();
 		$phpTypes = array();
 		
+		$phpFile = new PhpFile();
+		
 		foreach ($rootGroup->getPhpStatements() as $phpStatement) {
-			if (!PhprepUtils::isTypeStatement($phpStatement)) {
-				if (PhprepUtils::isNamespaceStatement($phpStatement)) {
-					$namespaceStatement = $phpStatement;
-				} elseif(PhprepUtils::isUseStatement($phpStatement)) {
-					$useStatements[] = $phpStatement;
-				} else {
-					$statementsBefore[] = $phpStatement;
-				}
-				continue;
-			}
 			
-			$phpType = null;
-			if (PhprepUtils::isClassStatement($phpStatement)) {
-				$phpType = PhprepUtils::createPhpClass($phpStatement, $namespaceStatement, 
-						$useStatements, $statementsBefore, $as);
-			} elseif (PhprepUtils::isInterfaceStatement($phpStatement)) {
-				$phpType = PhprepUtils::createPhpInterface($phpStatement, $namespaceStatement, 
-						$useStatements, $statementsBefore);
-			} else {
-				$phpType = PhprepUtils::createPhpTrait($phpStatement, $namespaceStatement, 
-						$useStatements, $statementsBefore);
-			}
-			
-			$phpTypes[$phpType->getTypeName()] = $phpType; 
-			$statementsBefore = array();
 		}
+		
 		return $phpTypes;
 	}
 

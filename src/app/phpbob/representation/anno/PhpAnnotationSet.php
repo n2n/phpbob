@@ -13,7 +13,8 @@ class PhpAnnotationSet {
 	use PrependingCodeTrait;
 	
 	const DEFAULT_ANNO_INIT_VARIABLE_NAME = '$ai';
-	const ANNO_METHOD_SIGNATURE = 'private static function _annos(AnnoInit ';
+	const ANNO_METHOD_NAME = '_annos';
+	const ANNO_METHOD_SIGNATURE = 'private static function ' . self::ANNO_METHOD_NAME . '(AnnoInit ';
 	
 	private $phpClass;
 	private $aiVariableName = '$ai';
@@ -92,6 +93,16 @@ class PhpAnnotationSet {
 	
 	/**
 	 * @param string $methodName
+	 * @return PhpPropertyAnnoCollection
+	 */
+	public function getOrCreatePhpMethodAnnoCollection(string $methodName) {
+		if (!$this->hasPhpMethodAnnoCollection($methodName)) return $this->createPhpMethodAnnoCollection($methodName);
+		
+		return $this->phpMethodAnnoCollections[$methodName];
+	}
+	
+	/**
+	 * @param string $methodName
 	 */
 	public function removePhpMethodAnnoCollection(string $methodName) {
 		unset($this->phpMethodAnnoCollections[$methodName]);
@@ -120,7 +131,7 @@ class PhpAnnotationSet {
 	 */
 	public function getPhpPropertyAnnoCollection(string $propertyName) {
 		if (!isset($this->phpPropertyAnnoCollections[$propertyName])) {
-			throw new UnknownElementException('No function with name "' . $propertyName . '" given.');
+			throw new UnknownElementException('No property anno with name "' . $propertyName . '" given.');
 		}
 		
 		return $this->phpPropertyAnnoCollections[$propertyName];
@@ -157,6 +168,17 @@ class PhpAnnotationSet {
 		$this->phpPropertyAnnoCollections[$propertyName] = $phpPropertyAnnoCollection;
 		return $phpPropertyAnnoCollection;
 	}
+	
+	/**
+	 * @param string $propertyName
+	 * @return PhpPropertyAnnoCollection
+	 */
+	public function getOrCreatePhpPropertyAnnoCollection(string $propertyName) {
+		if (!$this->hasPhpPropertyAnnoCollection($propertyName)) return $this->createPhpPropertyAnnoCollection($propertyName); 
+		
+		return $this->phpPropertyAnnoCollections[$propertyName];
+	}
+	
 	
 	/**
 	 * @param string $methodName
@@ -197,7 +219,7 @@ class PhpAnnotationSet {
 	 * @param string $methodName
 	 * @param PhpTypeDef $returnPhpTypeDef
 	 * @throws IllegalStateException
-	 * @return \phpbob\representation\PhpPropertyAnnoCollection
+	 * @return PhpClassAnnotationCollection
 	 */
 	public function createPhpClassAnnoCollection() {
 		if (null !== $this->phpClassAnnoCollection) {
@@ -205,6 +227,12 @@ class PhpAnnotationSet {
 		}
 		
 		return $this->phpClassAnnoCollection = new PhpClassAnnotationCollection($this);
+	}
+	
+	public function getOrCreatePhpClassAnnoCollection() {
+		if (!$this->hasPhpClassAnnoCollection()) return $this->createPhpClassAnnoCollection();
+		
+		return $this->phpClassAnnoCollection;
 	}
 	
 	/**
@@ -259,7 +287,26 @@ class PhpAnnotationSet {
 // 	}
 	
 	public function getPhpTypeDefs() {
-		return [new PhpTypeDef('AnnoInit', AnnoInit::class)];
+		$phpTypeDefs = [PhpTypeDef::fromTypeName(AnnoInit::class)];
+		
+		if (null !== $this->phpClassAnnoCollection) {
+			$phpTypeDefs += $this->phpClassAnnoCollection->getPhpTypeDefs();
+		}
+		
+		foreach ($this->phpPropertyAnnoCollections as $phpPropertyAnnoCollection) {
+			$phpTypeDefs += $phpPropertyAnnoCollection->getPhpTypeDefs();
+		}
+		
+		foreach ($this->phpMethodAnnoCollections as $phpMethodAnnoCollection) {
+			$phpTypeDefs += $phpMethodAnnoCollection->getPhpTypeDefs();
+		}
+		
+		return $phpTypeDefs;
+	}
+	
+	public function createPhpUse(string $typeName,
+			string $alias = null, string $type = null) {
+		return $this->phpClass->createPhpUse($typeName, $alias, $type);
 	}
 	
 // 	private function checkTypeNames(PhpAnno $phpAnno) {

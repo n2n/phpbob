@@ -8,13 +8,20 @@ use phpbob\representation\PhpAnnoParam;
 
 class PhpAnnoParamAnalyzer {
 
+	/**
+	 * @param unknown $paramString
+	 * @param array $variableDefinitions
+	 * @throws PhpAnnotationSourceAnalyzingException
+	 * @throws PhpSourceAnalyzingException
+	 * @return \phpbob\analyze\PhpAnnoDef[]
+	 */
 	public function analyze($paramString, array $variableDefinitions) {
 		ArgUtils::valArray($variableDefinitions, new \ReflectionClass('phpbob\representation\PhpAnnoParam'));
-		$params = array();
+		$annos = array();
 	
 		foreach ($this->determineFirstLevelParamStrings($paramString) as $annoParamString) {
 			if ($this->isNewClass($annoParamString)) {
-				$params[] = $this->createNewClassAnnoParam($annoParamString);
+				$annos[] = $this->createPhpAnnoDef($annoParamString);
 				continue;
 			}
 				
@@ -23,14 +30,14 @@ class PhpAnnoParamAnalyzer {
 					throw new PhpAnnotationSourceAnalyzingException('Invalid variable . ' . $annoParamString);
 				}
 	
-				$params[] = $variableDefinitions[$annoParamString];
+				$annos[] = $variableDefinitions[$annoParamString];
 				continue;
 			}
 				
-			throw new PhpSourceAnalyzingException('Invalid anno param string: ' . $annoParamString);
+			throw new PhpSourceAnalyzingException('Invalid anno string: ' . $annoParamString);
 		}
 	
-		return $params;
+		return $annos;
 	}
 	
 	private function determineFirstLevelParamStrings($paramString) {
@@ -69,7 +76,7 @@ class PhpAnnoParamAnalyzer {
 		return $annoParamStrings;
 	}
 	
-	public function createNewClassAnnoParam($newClassString) {
+	public static function createPhpAnnoDef(string $newClassString) {
 		$typeName = null;
 		$constructorString = null;
 		$level = 0;
@@ -84,7 +91,6 @@ class PhpAnnoParamAnalyzer {
 					$level--;
 					break;
 				default:
-					
 			}
 			
 			if ($level < 0) {
@@ -107,9 +113,7 @@ class PhpAnnoParamAnalyzer {
 			$constructorString .= $char;
 		}
 		
-		$param =  new PhpAnnoParam($typeName, $this->buildConstructorParams($constructorString));
-		
-		return $param;
+		return new PhpAnnoDef($typeName, $this->buildConstructorParams($constructorString));
 	}
 	
 	private function buildConstructorParams($constructorString) {

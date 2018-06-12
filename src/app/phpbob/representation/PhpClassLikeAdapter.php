@@ -3,13 +3,35 @@ namespace phpbob\representation;
 
 use phpbob\representation\ex\UnknownElementException;
 use n2n\util\ex\IllegalStateException;
-use phpbob\PhprepUtils;
+use phpbob\representation\anno\PhpAnnotationSet;
+use phpbob\Phpbob;
 
 abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLike {
 	
+	private $phpAnnotationSet;
 	private $phpProperties = [];
 	private $phpMethods = [];
 	private $phpTraitUses = [];
+	
+	/**
+	 * @return PhpAnnotationSet
+	 */
+	public function getPhpAnnotationSet() {
+		if (null === $this->phpAnnotationSet) {
+			$this->phpAnnotationSet = new PhpAnnotationSet($this);
+		}
+		return $this->phpAnnotationSet;
+	}
+	
+	public function isPhpAnnotationSetAvailable() {
+		return null !== $this->phpAnnotationSet && !$this->phpAnnotationSet->isEmpty();
+	}
+	
+	public function setAnnotationSet(PhpAnnotationSet $annotationSet) {
+		$this->phpAnnotationSet = $annotationSet;
+		
+		return $this;
+	}
 	
 	/**
 	 * @param string $name
@@ -64,6 +86,52 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	
 	/**
 	 * @param string $name
+	 * @throws IllegalStateException
+	 * @return \phpbob\representation\PhpMethod
+	 */
+	public function createPhpSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null) {
+		if (!$this->hasPhpProperty($propertyName)) {
+			throw new IllegalStateException('No property with name \'' . $propertyName . '\' available.');
+		}
+		
+		$methodName = self::determineSetterMethodName($propertyName);
+		
+		$phpMethod = $this->createPhpMethod($methodName);
+		
+		$phpMethod->createPhpParam($propertyName, $value, $phpTypeDef);
+		$phpMethod->setMethodCode('$this->' . $propertyName . ' ' . Phpbob::ASSIGNMENT . ' $' . $propertyName . Phpbob::SINGLE_STATEMENT_STOP);
+			
+		return $phpMethod;
+	}
+	
+	/**
+	 * @param string $name
+	 * @throws IllegalStateException
+	 * @return \phpbob\representation\PhpMethod
+	 */
+	public function createPhpGetter(string $propertyName, PhpTypeDef $phpTypeDef = null) {
+		if (!$this->hasPhpProperty($propertyName)) {
+			throw new IllegalStateException('No property with name \'' . $propertyName . '\' available.');
+		}
+		
+		$methodName = self::determineGetterMethodName($propertyName, (null !== $phpTypeDef && $phpTypeDef->isBool()));
+		
+		$phpMethod = $this->createPhpMethod($methodName);
+		
+		$phpMethod->setMethodCode('return $this->' . $propertyName . Phpbob::SINGLE_STATEMENT_STOP);
+			
+		return $phpMethod;
+	}
+	
+	public function createPhpGetterAndSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null) {
+		$this->createPhpGetter($propertyName, $phpTypeDef);
+		$this->createPhpSetter($propertyName, $phpTypeDef, $value);
+		
+		return $this;
+	}
+	
+	/**
+	 * @param string $name
 	 * @return \phpbob\representation\PhpClassLikeAdapter
 	 */
 	public function removePhpMethod(string $name): PhpClassLike {
@@ -78,7 +146,11 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 */
 	private function checkPhpMethodName(string $name) {
 		if (isset($this->phpMethods[$name])) {
-			throw new IllegalStateException('Mmethod with name ' . $name . ' already defined.');
+			throw new IllegalStateException('Method with name ' . $name . ' already defined.');
+		}
+		
+		if ($name === PhpAnnotationSet::ANNO_METHOD_NAME) {
+			throw new IllegalStateException('Work with ' . get_class($this) . '::getPhpAnnotationSet() to work with Annotations.');
 		}
 	}
 	/**
@@ -114,10 +186,10 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpProperty
 	 */
-	public function createPhpProperty(string $name): PhpProperty {
+	public function createPhpProperty(string $classifier, string $name): PhpProperty {
 		$this->checkPhpPropertyName($name);
 		
-		$phpProperty = new PhpProperty($name);
+		$phpProperty = new PhpProperty($this, $classifier, $name);
 		$that = $this;
 		$phpProperty->onNameChange(function($oldName, $newName) use ($that) {
 			$that->checkPhpPropertyName($newName);
@@ -228,12 +300,22 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 			$typeDefs[] = $phpTraitUse->getPhpTypeDef();
 		}
 		
+		if ($this->isPhpAnnotationSetAvailable()) {
+			$typeDefs += $this->phpAnnotationSet->getPhpTypeDefs();
+		}
+		
 		return $typeDefs;
 	}
 	
 	protected function generateBody() {
-		return $this->generateTraitsStr() . $this->generateConstStr() . $this->generatePropertiesStr()  
-				. $this->generateMethodStr() . PHP_EOL;
+		$str = '';
+		
+		if (null !== $this->phpAnnotationSet) {
+			$str = $this->phpAnnotationSet . PHP_EOL;
+		}
+		
+		return $str . $this->generateTraitsStr() . $this->generateConstStr() . $this->generatePropertiesStr()  
+				. $this->generateMethodStr();
 	}
 	
 	protected function generateTraitsStr() {
@@ -251,6 +333,14 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	protected function generateMethodStr() {
 		if (empty($this->phpMethods)) return '';
 		
-		return implode('', $this->phpMethods)  . PHP_EOL;
+		return implode(PHP_EOL, $this->phpMethods);
+	}
+	
+	public static function determineSetterMethodName(string $propertyName) {
+		return 'set' . ucfirst((string) $propertyName);
+	}
+	
+	public static function determineGetterMethodName(string $propertyName, bool $bool = false) {
+		return (($bool) ? 'is' : 'get') . ucfirst((string) $propertyName);
 	}
 }

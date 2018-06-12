@@ -4,6 +4,10 @@ namespace phpbob\representation;
 use n2n\util\ex\IllegalStateException;
 use phpbob\representation\ex\UnknownElementException;
 use n2n\util\StringUtils;
+use n2n\reflection\ArgUtils;
+use phpbob\PhprepUtils;
+use phpbob\representation\ex\DuplicateElementException;
+use phpbob\Phpbob;
 
 class PhpElementFactory {
 	const FUNCTION_PREFIX = 'func-';
@@ -13,7 +17,13 @@ class PhpElementFactory {
 	private $phpFile;
 	private $phpNamespace;
 	private $namespacesOnly = false;
+	/**
+	 * @var PhpFileElement []
+	 */
 	private $phpFileElements = array();
+	/**
+	 * @var PhpUse []
+	 */
 	private $phpUses = array();
 	
 	public function __construct(PhpFile $phpFile, PhpNamespace $phpNamespace = null) {
@@ -23,18 +33,6 @@ class PhpElementFactory {
 	
 	public function getPhpFileElements() {
 		return $this->phpFileElements;
-	}
-	
-	/**
-	 * @return PhpTypeDef []
-	 */
-	public function getPhpTypeDefs() {
-		$phpTypeDefs = [];
-		foreach ($this->phpFileElements as $phpFileElement) {
-			$phpTypeDefs += $phpFileElement->getPhpTypeDefs();
-		}
-		
-		return $phpTypeDefs;
 	}
 	
 	public function hasNamespaces() {
@@ -372,6 +370,44 @@ class PhpElementFactory {
 	}
 	
 	/**
+	 * @param string $typeName
+	 * @throws DuplicateElementException
+	 * @return PhpUse
+	 */
+	public function determineTypeName(string $localName) {
+		$thePhpUse = null;
+		$localNameParts = PhprepUtils::explodeTypeName($localName);
+		$alias = null;
+		if (count($localNameParts) > 1) {
+			$alias = array_shift($localNameParts);
+		}
+		
+		foreach ($this->phpUses as $phpUse) {
+			if (null !== $alias) {
+				if ($phpUse->getAlias() !== $alias) {
+					continue;
+				}
+			} elseif (null !== $phpUse->getAlias()) {
+				continue;
+			} else {
+				if (!StringUtils::endsWith($localName, $phpUse->getTypeName())) continue;
+			}
+			
+			if (null !== $thePhpUse) {
+				throw new DuplicateElementException();
+			}
+			
+			$thePhpUse = $phpUse;
+		}
+		
+		if (null === $thePhpUse) return null;
+		
+		if (null === $alias) return $thePhpUse->getTypeName();
+		
+		return $thePhpUse->getTypeName() . Phpbob::NAMESPACE_SEPERATOR . implode(Phpbob::NAMESPACE_SEPERATOR, $localNameParts);
+	}
+	
+	/**
 	 * @return PhpUse []
 	 */
 	public function getPhpUses() {
@@ -485,6 +521,32 @@ class PhpElementFactory {
 	
 	private function buildTypeKey(string $name) {
 		return self::TYPE_PREFIX . $name;
+	}
+	
+	public function resolvePhpTypeDefs() {
+		foreach ($this->phpFileElements as $phpFileElement) {
+			foreach ($phpFileElement->getPhpTypeDefs() as $phpTypeDef) {
+				ArgUtils::valTypeReturn($phpTypeDef, PhpTypeDef::class, $phpFileElement, 'getPhpTypeDefs');
+				if (!$phpTypeDef->needsPhpUse()) continue;
+				
+				$typeName = $phpTypeDef->determineUseTypeName();
+				$alias = $phpTypeDef->determineAlias();
+				if (null !== $alias
+						&& $this->hasPhpUseAlias($alias)
+						&& $this->getPhpUseForAlias($alias)->getTypeName() !== $typeName) {
+					test($this->getPhpUseForAlias($alias)->getTypeName(), $typeName);
+					throw new IllegalStateException('duplicate alias ' . $alias . ' for use statements given');
+				}
+				
+				if (!$this->hasPhpUse($typeName)) {
+					$this->createPhpUse($typeName, $alias);
+				}
+			}
+			
+			if ($phpFileElement instanceof PhpUseContainer) {
+				$phpFileElement->resolvePhpTypeDefs();
+			}
+		}
 	}
 	
 	public function __toString() {

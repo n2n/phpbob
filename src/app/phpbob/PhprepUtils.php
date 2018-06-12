@@ -16,6 +16,7 @@ use phpbob\representation\PhpInterface;
 use phpbob\representation\PhpTrait;
 use n2n\util\ex\NotYetImplementedException;
 use phpbob\analyze\PhpSourceAnalyzingException;
+use phpbob\representation\PhpFile;
 
 class PhprepUtils {
 	public static function typeNameToPath($typeName) {
@@ -23,7 +24,7 @@ class PhprepUtils {
 				. Phpbob::PHP_FILE_EXTENSION;
 	}
 	
-	public static function extractClassName($typeName) {
+	public static function extractClassName(string $typeName) {
 		if (false === $pos = mb_strrpos($typeName, Phpbob::NAMESPACE_SEPERATOR)) {
 			return $typeName;
 		}
@@ -31,25 +32,19 @@ class PhprepUtils {
 		return mb_substr($typeName, $pos + 1); 
 	}
 	
-	public static function isInRootNamespace($typeName) {
+	public static function isInRootNamespace(string $typeName) {
 		return mb_strrpos($typeName, Phpbob::NAMESPACE_SEPERATOR) === 0;
 	}
 	
-	public static function extractNamespace($typeName) {
+	public static function extractNamespace(string $typeName) {
 		$lastPos = strrpos($typeName, Phpbob::NAMESPACE_SEPERATOR);
 		if (false === $lastPos) return null;
 		
 		return mb_substr($typeName, 0, $lastPos);
 	}
 	
-	public static function extractTypeNames($string) {
-		$typeNames = array();
-		foreach (preg_split('/(\s+|\||,|::)/', $string, null, PREG_SPLIT_NO_EMPTY) as $possibleTypeName) {
-			if (false === mb_strpos($possibleTypeName, Phpbob::NAMESPACE_SEPERATOR)) continue;
-			$typeNames[$possibleTypeName] = preg_replace('/^\\\\/', '', $possibleTypeName);
-		}
-		
-		return $typeNames;
+	public static function explodeTypeName(string $typename) {
+		return explode(Phpbob::NAMESPACE_SEPERATOR, $typename);	
 	}
 	
 	public static function isClassStatement(PhpStatement $phpStatement) {
@@ -123,99 +118,7 @@ class PhprepUtils {
 				|| StringUtils::startsWith(Phpbob::STRING_LITERAL_ALTERNATIVE_SEPERATOR, $value);
 	}
 	
-	public static function createPhpClass(PhpStatement $phpStatement, 
-			PhpStatement $namespaceStatement = null, array $useStatements = null, 
-					array $statmentsBefore = null, AnnotationSet $as = null) {
-		
-		ArgUtils::assertTrue($phpStatement instanceof StatementGroup 
-				&& self::isClassStatement($phpStatement));
-		
-		
-		$codeParts = self::determineCodeParts($phpStatement);
-		$isAbstract = false;
-		$isFinal = false;
-		
-		while (true) {
-			$codePart = strtolower(array_shift($codeParts));
-			if ($codePart == Phpbob::KEYWORD_CLASS) break;
-			
-			switch ($codePart) {
-				case Phpbob::KEYWORD_FINAL:
-					$isFinal = true;
-					break;
-				case Phpbob::KEYWORD_ABSTRACT:
-					$isAbstract = true;
-					break;
-				case false:
-					throw new \InvalidArgumentException('missing class Keyword');
-			}
-		}
-		
-		$phpClass = new PhpClass(array_shift($codeParts));
-		$phpClass->setAbstract($isAbstract);
-		$phpClass->setFinal($isFinal);
 
-		$phpClass->setPrependingCode(implode('', (array) $statmentsBefore) . 
-		    (string) self::createPrependingCode($phpStatement));
-		
-		if (null !== $namespaceStatement) {
-			$phpClass->setNamespace(self::createPhpNamespace($namespaceStatement));
-		}
-		
-		$inExtendsClause = false;
-		$inImplementsClause = false;
-		
-		foreach ($codeParts as $codePart) {
-			if ($inImplementsClause) {
-				$codePart = str_replace(',', '', $codePart);
-				$phpClass->addInterfaceName($codePart);
-				continue;
-			}
-			
-			if ($inExtendsClause) {
-				$phpClass->setSuperClassName($codePart);
-				$inExtendsClause = false;
-				continue;
-			}
-			
-			switch (strtolower($codePart)) {
-				case Phpbob::KEYWORD_EXTENDS:
-					$inExtendsClause = true;
-					break;
-				case Phpbob::KEYWORD_IMPLEMENTS:
-					$inImplementsClause = true;
-					break;
-			}
-		}
-
-		foreach ($useStatements as $useStatement) {
-			$phpClass->addUse(self::createPhpUse($useStatement));
-		}
-
-		foreach ($phpStatement->getPhpStatements() as $childPhpStatement) {
-			if (self::isConstStatement($childPhpStatement)) {
-				$phpClass->addConstant(self::createPhpConst($childPhpStatement));
-				continue;
-			} elseif (self::isPropertyStatement($childPhpStatement)) {
-				$phpClass->addProperty(self::createPhpProperty($childPhpStatement));
-				continue;
-			} elseif (self::isMethodStatement($childPhpStatement)) {
-				if (self::isAnnotationStatement($childPhpStatement)) {
-					$phpClass->setAnnotationSet(self::applyAnnotationSet($phpClass, $childPhpStatement, $as));
-				} else {
-					$phpClass->addMethod(self::createPhpMethod($childPhpStatement));
-				}
-				continue;
-			} elseif (self::isTraitUseStatement($childPhpStatement)) {
-				$phpClass->appendTraitNames(self::extractTraitNames($childPhpStatement));
-				continue;
-			}
-			
-			throw new PhpSourceAnalyzingException('Invalid PHP Statement: ' . $childPhpStatement);
-		}
-		
-		return $phpClass;
-	}
 	
 	public static function createPhpInterface(PhpStatement $phpStatement,
 			PhpStatement $namespaceStatement = null, array $useStatements = null,
@@ -275,7 +178,6 @@ class PhprepUtils {
 		return $phpInterface;
 	}
 	
-
 	public static function createPhpTrait(PhpStatement $phpStatement,
 			PhpStatement $namespaceStatement = null, array $useStatements = null,
 			array $statmentsBefore = null) {
@@ -337,55 +239,6 @@ class PhprepUtils {
 		}
 		
 		return $traitNames;
-	}
-	
-	public static function createPhpProperty(PhpStatement $phpStatement) {
-		ArgUtils::assertTrue(self::isPropertyStatement($phpStatement));
-		$codeParts = self::determineCodeParts($phpStatement, true);
-		
-		$classifier = null;
-		$name = null;
-		$value = null;
-		$isStatic = false;
-		
-		foreach ($codeParts as $codePart) {
-			if (null === $classifier) {
-				$classifier = $codePart;
-				continue;
-			}
-			
-			if (null === $name) {
-				if (strtolower($codePart) == Phpbob::KEYWORD_STATIC) {
-					$isStatic = true;
-				} else {
-					$name = self::purifyPropertyName($codePart);
-				}
-				
-				continue;
-			}
-			
-			if (null === $value) {
-				$value = $codePart;
-				continue;
-			} else {
-				$value .= ' ' . $codePart;
-			}
-		}
-		
-		$phpProperty = new PhpProperty($classifier, $name, $value, 
-				self::createPrependingCode($phpStatement));
-		$phpProperty->setStatic($isStatic);
-		
-		return $phpProperty;
-	}
-	
-	public static function createPhpConst(PhpStatement $phpStatement) {
-		ArgUtils::assertTrue(self::isConstStatement($phpStatement));
-		$codeParts = self::determineCodeParts($phpStatement, true);
-		// due to the isPropertyStatement method it s ensured that there are at least 2 Parts
-		$const = new PhpConst($codeParts[1], (count($codeParts) > 2) ? $codeParts[2] : null, 
-				self::createPrependingCode($phpStatement));
-		return $const;
 	}
 	
 	public static function createPhpMethod(PhpStatement $phpStatement, $abstract = false) {
@@ -486,80 +339,12 @@ class PhprepUtils {
 		return $phpMethod;
 	}
 	
-	public static function applyAnnotationSet(PhpClass $phpClass, PhpStatement $phpStatement, AnnotationSet $as = null) {
-		ArgUtils::assertTrue(self::isAnnotationStatement($phpStatement));
-		$annoAnalyzer = new PhpAnnoAnalyzer();
-		return $annoAnalyzer->analyze($phpStatement, $phpClass, $as);
-	}
-	
-	public static function createPhpNamespace(PhpStatement $phpStatement) {
-		ArgUtils::assertTrue(self::isNamespaceStatement($phpStatement));
-		$codeParts = self::determineCodeParts($phpStatement);
-		
-		return new PhpNamespace($codeParts[1], self::createPrependingCode($phpStatement));
-	}
-	
-	public static function createPhpUse(PhpStatement $phpStatement) {
-		ArgUtils::assertTrue(self::isUseStatement($phpStatement));
-		$codeParts = self::determineCodeParts($phpStatement);
-		
-		return new PhpUse($codeParts[1], self::createPrependingCode($phpStatement));
-	}
-	
 	public static function determinSetterMethodName($propertyName) {
 		return 'set' . ucfirst((string) $propertyName);
 	}
 
 	public static function determineGetterMethodName($propertyName, $boolean = false) {
 		return (($boolean) ? 'is' : 'get') . ucfirst((string) $propertyName);
-	}
-	
-	private static function determineCodeParts(PhpStatement $phpStatement, bool $replaceAssignment = false) {
-		$str = trim(str_replace(Phpbob::SINGLE_STATEMENT_STOP, '', implode(' ', $phpStatement->getCodeLines())));
-		if ($replaceAssignment) {
-			$str = str_replace(Phpbob::ASSIGNMENT, '', $str);
-		}
-		
-		return self::determineCodePartsForString($str);
-	}
-	
-	private static function determineCodePartsForString($string) {
-		if (StringUtils::isEmpty($string)) return array();
-		
-		$codeParts = array();
-		$currentCodePart = null;
-		$stringDelimiter = null;
-
-		foreach (str_split($string) as $token) {
-			if (null !== $stringDelimiter) {
-				$currentCodePart .= $token;
-				if ($token == $stringDelimiter) {
-					$stringDelimiter = null;
-				}
-				continue;
-			}
-			
-			if ($token == '"' || $token == "'") {
-				$currentCodePart .= $token;
-				$stringDelimiter = $token;
-				continue;
-			}
-			
-			if (StringUtils::isEmpty($token)) {
-				if (null !== $currentCodePart) {
-					$codeParts[] = $currentCodePart;
-					$currentCodePart = null;
-				}
-				continue;
-			}
-	
-			$currentCodePart .= $token;
-		}
-		if (null !== $currentCodePart) {
-			$codeParts[] = $currentCodePart;
-		}
-		
-		return $codeParts;
 	}
 	
 	public static function purifyPropertyName($propertyName) {

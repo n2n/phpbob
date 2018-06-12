@@ -19,6 +19,8 @@ class PhpProperty extends PhpVariable {
 	
 	public function setStatic(bool $static) {
 		$this->static = $static;
+		
+		return $this;
 	}
 	
 	public function isStatic() {
@@ -41,6 +43,6 @@ class PhpProperty extends PhpVariable {
 			$string .= $this->classifier . ' ';
 		}
 		
-		return $string .  $this->getNameValueString(true) . Phpbob::SINGLE_STATEMENT_STOP;
+		return $string .  $this->getNameValueString() . Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL;
 	}
 }
