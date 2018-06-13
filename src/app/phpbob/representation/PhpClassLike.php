@@ -61,4 +61,9 @@ interface PhpClassLike extends PhpType {
 	 */
 	public function createPhpTraitUse(string $typeName, string $localName = null): PhpTraitUse;
 	
+	/**
+	 * @return PhpAnnotationSet
+	 */
+	public function getPhpAnnotationSet();
+	
 }

@@ -3,7 +3,7 @@ namespace phpbob;
 
 class StatementGroup extends PhpStatementAdapter {
 	private $startCode;
-	private $phpStatements = array();
+	private $childPhpStatements = array();
 	private $endCode;
 	
 	public function __construct($startCode = null) {
@@ -17,12 +17,12 @@ class StatementGroup extends PhpStatementAdapter {
 		return $this->startCode;
 	}
 	
-	public function addStatement(PhpStatement $phpStatement) {
-		$this->phpStatements[] = $phpStatement;
+	public function addChildPhpStatement(PhpStatement $phpStatement) {
+		$this->childPhpStatements[] = $phpStatement;
 	}
 
-	public function getPhpStatements() {
-		return $this->phpStatements;
+	public function getChildPhpStatements() {
+		return $this->childPhpStatements;
 	}
 	
 	public function setEndCode($endCode) {
@@ -43,6 +43,6 @@ class StatementGroup extends PhpStatementAdapter {
 	}
 	
 	public function getStatementsString() {
-		return implode('', $this->phpStatements + array($this->endCode));
+		return implode('', $this->childPhpStatements + array($this->endCode));
 	}
 }

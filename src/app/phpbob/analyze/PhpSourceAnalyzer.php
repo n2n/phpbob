@@ -3,10 +3,8 @@ namespace phpbob\analyze;
 
 use phpbob\StatementGroup;
 use phpbob\SingleStatement;
-use phpbob\PhprepUtils;
 use phpbob\Phpbob;
 use n2n\reflection\annotation\AnnotationSet;
-use phpbob\representation\PhpFile;
 
 class PhpSourceAnalyzer {
 	/**
@@ -17,18 +15,14 @@ class PhpSourceAnalyzer {
 	public function analyze($phpSource/* , AnnotationSet $as = null */) {
 		
 		$rootGroup = $this->createPhpStatement($phpSource);
-		$namespaceStatement = null;
-		$useStatements = array();
-		$statementsBefore = array();
-		$phpTypes = array();
 		
-		$phpFile = new PhpFile();
+		$phpFileBuilder = new PhpFileBuilder();
 		
 		foreach ($rootGroup->getPhpStatements() as $phpStatement) {
-			
+			$phpFileBuilder->processPhpStatement($phpStatement);
 		}
 		
-		return $phpTypes;
+		return $phpFileBuilder->getPhpFile();
 	}
 
 	/**

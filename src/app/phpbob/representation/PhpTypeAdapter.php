@@ -87,6 +87,10 @@ abstract class PhpTypeAdapter implements PhpType {
 		return $this;
 	}
 	
+	public function determineTypeName(string $localName) {
+		return $this->determinePhpNamespaceElementCreator()->determineTypeName($localName);
+	}
+	
 	private function checkPhpConstName(string $name) {
 		if (isset($this->phpConsts[$name])) {
 			throw new IllegalStateException('Constant with name ' . $name . ' already defined.');

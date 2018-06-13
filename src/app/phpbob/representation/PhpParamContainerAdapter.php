@@ -8,20 +8,33 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 	private $returnPhpTypeDef;
 	private $phpParams = [];
 
+	/**
+	 * @return \phpbob\representation\PhpTypeDef
+	 */
 	public function getReturnPhpTypeDef() {
 		return $this->returnPhpTypeDef;
 	}
 
+	/**
+	 * @param PhpTypeDef $returnPhpTypeDef
+	 * @return \phpbob\representation\PhpParamContainerAdapter
+	 */
 	public function setReturnPhpTypeDef(PhpTypeDef $returnPhpTypeDef = null) {
 		$this->returnPhpTypeDef = $returnPhpTypeDef;
 		
 		return $this;
 	}
 	
+	/**
+	 * @return PhpParam []
+	 */
 	public function getPhpParams() {
 		return $this->phpParams;
 	}
 	
+	/**
+	 * @return \phpbob\representation\PhpParamContainerAdapter
+	 */
 	public function resetPhpParams() {
 		$this->phpParams = [];
 		

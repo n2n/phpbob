@@ -3,7 +3,6 @@ namespace phpbob\analyze;
 
 use phpbob\representation\PhpFile;
 use phpbob\PhpStatement;
-use phpbob\PhprepUtils;
 use n2n\reflection\ArgUtils;
 use phpbob\representation\PhpNamespaceElementCreator;
 use phpbob\Phpbob;
@@ -12,6 +11,10 @@ use phpbob\StatementGroup;
 use phpbob\representation\PhpTypeDef;
 use phpbob\representation\PhpClass;
 use n2n\util\StringUtils;
+use phpbob\representation\PhpType;
+use phpbob\representation\PhpClassLike;
+use phpbob\representation\PhpInterface;
+use phpbob\representation\PhpParamContainer;
 
 class PhpFileBuilder {
 	private $phpFile;
@@ -27,10 +30,10 @@ class PhpFileBuilder {
 	}
 	
 	public function processPhpStatement(PhpStatement $phpStatement) {
-		if (!PhprepUtils::isTypeStatement($phpStatement)) {
-			if (PhprepUtils::isNamespaceStatement($phpStatement)) {
+		if (!PhpbobAnalyzingUtils::isTypeStatement($phpStatement)) {
+			if (PhpbobAnalyzingUtils::isNamespaceStatement($phpStatement)) {
 				$this->createPhpNamespace($phpStatement);
-			} elseif(PhprepUtils::isUseStatement($phpStatement)) {
+			} elseif(PhpbobAnalyzingUtils::isUseStatement($phpStatement)) {
 				$this->createPhpUse($phpStatement);
 			} else {
 				$this->unprocessedStatements[] = $phpStatement;
@@ -38,23 +41,20 @@ class PhpFileBuilder {
 			continue;
 		}
 		
-		if (PhprepUtils::isClassStatement($phpStatement)) {
-			$phpType = PhprepUtils::createPhpClass($phpStatement, $namespaceStatement,
-					$useStatements, $statementsBefore, $as);
-		} elseif (PhprepUtils::isInterfaceStatement($phpStatement)) {
-			$phpType = PhprepUtils::createPhpInterface($phpStatement, $namespaceStatement,
-					$useStatements, $statementsBefore);
+		if (PhpbobAnalyzingUtils::isClassStatement($phpStatement)) {
+			$phpType = $this->createPhpClass($phpStatement);
+		} elseif (PhpbobAnalyzingUtils::isInterfaceStatement($phpStatement)) {
+			$phpType = $this->createPhpInterface($phpStatement);
 		} else {
-			$phpType = PhprepUtils::createPhpTrait($phpStatement, $namespaceStatement,
-					$useStatements, $statementsBefore);
+			$phpType = $this->createPhpTrait($phpStatement);
 		}
 		
-		$statementsBefore = array();
+		$this->unprocessedStatements = [];
 	}
 	
 	private function createPhpClass(PhpStatement $phpStatement) {
 		ArgUtils::assertTrue($phpStatement instanceof StatementGroup
-				&& self::isClassStatement($phpStatement));
+				&& PhpbobAnalyzingUtils::isClassStatement($phpStatement));
 		
 		$codeParts = self::determineCodeParts($phpStatement);
 		$abstract = false;
@@ -80,8 +80,6 @@ class PhpFileBuilder {
 		
 		$phpClass->setAbstract($abstract);
 		$phpClass->setFinal($final);
-		
-		$phpClass->setPrependingCode($this->determinePrependingCode($phpStatement));
 		
 		$inExtendsClause = false;
 		$inImplementsClause = false;
@@ -111,56 +109,109 @@ class PhpFileBuilder {
 			}
 		}
 		
-		foreach ($phpStatement->getPhpStatements() as $childPhpStatement) {
-			if (PhprepUtils::isConstStatement($childPhpStatement)) {
-				$this->applyPhpConst($phpClass, $childPhpStatement);
+		$this->applyClassLike($phpClass, $phpStatement);
+	}
+	
+	private static function createPhpInterface(PhpStatement $phpStatement) {
+		ArgUtils::assertTrue($phpStatement instanceof StatementGroup
+				&& self::isInterfaceStatement($phpStatement));
+		
+		$codeParts = self::determineCodeParts($phpStatement);
+		//shift "interface"
+		array_shift($codeParts);
+		$phpInterface = $this->determinePhpNamespaceElementCreator()->createPhpInterface(array_shift($codeParts));
+		$phpInterface->setPrependingCode($this->determinePrependingCode($phpStatement));
+		
+		$inExtendsClause = false;
+		foreach ($codeParts as $codePart) {			
+			if ($inExtendsClause) {
+				$phpInterface->addInterfacePhpTypeDef($this->buildTypeDef($codePart));
 				continue;
-			} 
+			}
 			
-			if (PhprepUtils::isPropertyStatement($childPhpStatement)) {
-				$this->applyPhpProperty($phpClass, $childPhpStatement);
+			switch (strtolower($codePart)) {
+				case Phpbob::KEYWORD_EXTENDS:
+					$inExtendsClause = true;
+					continue;
+			}
+		}
+		
+		foreach ($phpStatement->getChildPhpStatements() as $childPhpStatement) {
+			if (PhpbobAnalyzingUtils::isConstStatement($childPhpStatement)) {
+				$this->applyPhpConst($phpInterface, $childPhpStatement);
 				continue;
-			} 
+			} elseif (PhpbobAnalyzingUtils::isMethodStatement($childPhpStatement)) {
+				$this->applyPhpInterfaceMethod($phpInterface, $childPhpStatement);
+				continue;
+			}
 			
-			if (PhprepUtils::isMethodStatement($childPhpStatement)) {
-				if (PhprepUtils::isAnnotationStatement($childPhpStatement)) {
-					$phpClass->setAnnotationSet($this->applyAnnotationSet($phpClass, $childPhpStatement));
+			throw new PhpSourceAnalyzingException('Invalid interface structure detected: ' . 
+					$childPhpStatement);
+		}
+	}
+	
+	private function createPhpTrait(PhpStatement $phpStatement) {
+		ArgUtils::assertTrue($phpStatement instanceof StatementGroup && PhpbobAnalyzingUtils::isTraitStatement($phpStatement));
+				
+		$codeParts = self::determineCodeParts($phpStatement);
+		//shift "trait"
+		array_shift($codeParts);
+				
+		$traitName = array_shift($codeParts);
+		$phpTrait = $this->determinePhpNamespaceElementCreator()->createPhpTrait($traitName);
+				
+		$this->applyClassLike($phpTrait, $phpStatement);
+	}
+	
+	private function applyClassLike(PhpClassLike $phpClassLike, StatementGroup $statementGroup) {
+		$phpClassLike->setPrependingCode($this->determinePrependingCode($statementGroup));
+		foreach ($statementGroup->getChildPhpStatements() as $childPhpStatement) {
+			if (PhpbobAnalyzingUtils::isConstStatement($childPhpStatement)) {
+				$this->applyPhpConst($phpClassLike, $childPhpStatement);
+				continue;
+			}
+			
+			if (PhpbobAnalyzingUtils::isPropertyStatement($childPhpStatement)) {
+				$this->applyPhpProperty($phpClassLike, $childPhpStatement);
+				continue;
+			}
+			
+			if (PhpbobAnalyzingUtils::isMethodStatement($childPhpStatement)) {
+				if (PhpbobAnalyzingUtils::isAnnotationStatement($childPhpStatement)) {
+					$this->applyAnnotationSet($phpClassLike, $childPhpStatement);
 				} else {
-					$phpClass->addMethod(self::createPhpMethod($childPhpStatement));
+					$this->applyPhpMethod($phpClassLike, $childPhpStatement);
 				}
 				continue;
-			} 
+			}
 			
-			if (self::isTraitUseStatement($childPhpStatement)) {
-				$phpClass->appendTraitNames(self::extractTraitNames($childPhpStatement));
+			if (PhpbobAnalyzingUtils::isTraitUseStatement($childPhpStatement)) {
+				$this->applyTraitUse($phpClassLike, $childPhpStatement);
 				continue;
 			}
 			
 			throw new PhpSourceAnalyzingException('Invalid PHP Statement: ' . $childPhpStatement);
 		}
-		
-		return $phpClass;
 	}
 	
 	private function determinePrependingCode(PhpStatement $phpStatement) {
-		$prependingCode = implode('', $this->unprocessedStatements) . PhprepUtils::createPrependingCode($phpStatement);
-		$this->unprocessedStatements = [];
+		$prependingCode = implode('', $this->unprocessedStatements) . $this->createPrependingCode($phpStatement);
 		if (empty($prependingCode)) return null;
 		
 		return $prependingCode;
 	}
 	
 	private function createPhpNamespace(PhpStatement $phpStatement) {
-		ArgUtils::assertTrue(PhprepUtils::isNamespaceStatement($phpStatement));
-		$codeParts = PhprepUtils::determineCodeParts($phpStatement);
+		ArgUtils::assertTrue(PhpbobAnalyzingUtils::isNamespaceStatement($phpStatement));
+		$codeParts = PhpbobAnalyzingUtils::determineCodeParts($phpStatement);
 		
 		$this->currentNamespace = $this->phpFile->createPhpNamespace($codeParts[1])
 				->setPrependingCode($this->determinePrependingCode($phpStatement));
 	}
 	
 	private function createPhpUse(PhpStatement $phpStatement) {
-		ArgUtils::assertTrue(PhprepUtils::isUseStatement($phpStatement));
-		$codeParts = PhprepUtils::determineCodeParts($phpStatement);
+		ArgUtils::assertTrue(PhpbobAnalyzingUtils::isUseStatement($phpStatement));
+		$codeParts = PhpbobAnalyzingUtils::determineCodeParts($phpStatement);
 		
 		$typeName = $codeParts[1];
 		$type = null;
@@ -193,30 +244,35 @@ class PhpFileBuilder {
 		return $this->phpFile;
 	}
 	
-	private function buildTypeDef(string $localName) {
+	private function buildTypeDef(string $localName = null) {
+		if (null === $localName) return null;
+		
+		return new PhpTypeDef($localName, $this->determineTypeName($localName));
+	}
+	
+	private function determineTypeName(string $localName) {
 		$nec = $this->determinePhpNamespaceElementCreator();
 		try {
-			return new PhpTypeDef($localName, $nec->determineTypeName($localName));
+			return $nec->determineTypeName($localName);
 		} catch (\phpbob\representation\ex\DuplicateElementException $e) {
-			throw new PhpSourceAnalyzingException('Invalid local name: ' . $localName, null, $e);	
+			throw new PhpSourceAnalyzingException('Invalid local name: ' . $localName, null, $e);
 		}
 	}
 	
-	private function applyPhpConst(PhpClass $phpClass, PhpStatement $phpStatement) {
-		ArgUtils::assertTrue(PhprepUtils::isConstStatement($phpStatement));
+	private function applyPhpConst(PhpType $phpType, PhpStatement $phpStatement) {
+		ArgUtils::assertTrue(PhpbobAnalyzingUtils::isConstStatement($phpStatement));
 		$codeParts = self::determineCodeParts($phpStatement, true);
 		// due to the isPropertyStatement method it s ensured that there are at least 2 Parts
-		$phpConst = $phpClass->createPhpConst($codeParts[1]);
+		$phpConst = $phpType->createPhpConst($codeParts[1]);
 		if (count($codeParts) > 2) {
 			$phpConst->setValue($codeParts[2]);
 		}
 		
-		$phpConst->setPrependingCode(PhprepUtils::createPrependingCode($phpStatement));
+		$phpConst->setPrependingCode($this->createPrependingCode($phpStatement));
 	}
 	
-	
-	private function applyPhpProperty(PhpClass $phpClass, PhpStatement $phpStatement) {
-		ArgUtils::assertTrue(PhprepUtils::isPropertyStatement($phpStatement));
+	private function applyPhpProperty(PhpClassLike $phpClassLike, PhpStatement $phpStatement) {
+		ArgUtils::assertTrue(PhpbobAnalyzingUtils::isPropertyStatement($phpStatement));
 		$codeParts = self::determineCodeParts($phpStatement, true);
 		
 		$classifier = null;
@@ -234,7 +290,7 @@ class PhpFileBuilder {
 				if (strtolower($codePart) == Phpbob::KEYWORD_STATIC) {
 					$static = true;
 				} else {
-					$name = PhprepUtils::purifyPropertyName($codePart);
+					$name = PhpbobAnalyzingUtils::purifyPropertyName($codePart);
 				}
 				continue;
 			}
@@ -247,15 +303,94 @@ class PhpFileBuilder {
 			$value .= ' ' . $codePart;
 		}
 		
-		$phpClass->createPhpProperty($classifier, $name)->setValue($value)
-				->setStatic($static)->setPrependingCode(self::createPrependingCode($phpStatement));
+		$phpClassLike->createPhpProperty($classifier, $name)->setValue($value)
+				->setStatic($static)->setPrependingCode($this->createPrependingCode($phpStatement));
 	}
 	
-	private function applyAnnotationSet(PhpClass $phpClass, PhpStatement $phpStatement) {
-		$annoAnalyzer = new PhpAnnoAnalyzer();
-		$annoAnalyzer->analyze($phpStatement, $phpClass);
+	private function applyPhpInterfaceMethod(PhpInterface $phpInterface, PhpStatement $phpStatement) {
+		$phpMethodDef = PhpMethodDef::fromPhpStatement($phpStatement);
+		
+		$phpInterfaceMethod = $phpInterface->createPhpInterfaceMethod($phpMethodDef->getMethodName())
+				->setStatic($phpMethodDef->isStatic())
+				->setReturnPhpTypeDef($this->buildTypeDef($phpMethodDef->getReturnTypeName()));
+		
+		$this->applyMethodParameters($phpInterfaceMethod, $phpMethodDef->getParameterSignature());
 	}
 	
+	private function applyPhpMethod(PhpClassLike $phpClassLike, PhpStatement $phpStatement/*, $abstract = false */) {
+		$phpMethodDef = PhpMethodDef::fromPhpStatement($phpStatement); 
+		
+		$phpMethod = $phpClassLike->createPhpMethod($phpMethodDef->getMethodName())
+				->setFinal($phpMethodDef->isFinal())
+				->setStatic($phpMethodDef->isStatic())
+				->setAbstract($phpMethodDef->isAbstract())
+				->setClassifier($phpMethodDef->getClassifier())
+				->setReturnPhpTypeDef($this->buildTypeDef($phpMethodDef->getReturnTypeName()))
+				->setPrependingCode($this->createPrependingCode($phpStatement));
+		
+		$this->applyMethodParameters($phpMethod, $phpMethodDef->getParameterSignature());
+	}
+	
+	private function applyMethodParameters(PhpParamContainer $phpParamContainer, string $signature) {
+		foreach (preg_split('/\s*,\s*/', $signature) as $parameter) {
+			$parameterParts = self::determineCodePartsForString(str_replace('=', '', $parameter));
+			
+			if (count($parameterParts) > 3) {
+				throw new \InvalidArgumentException('Invalid Number of Parameter Parts in Parameter: ' 
+						. $parameter . ' in Method :' . $phpParamContainer);
+			}
+			
+			$parameterName = null;
+			$typeName = null;
+			$value = null;
+			$splat = false;
+			
+			foreach ($parameterParts as $parameterPart) {
+				if (StringUtils::startsWith(Phpbob::SPLAT_INDICATOR, $parameterPart)) {
+					$splat = true;
+					if (StringUtils::endsWith(Phpbob::SPLAT_INDICATOR, $parameterPart)) continue;
+					
+					$parameterPart = substr($parameterPart, strlen(Phpbob::SPLAT_INDICATOR));
+				}
+				
+				if (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $parameterPart)) {
+					$parameterName = $parameterPart;
+					continue;
+				}
+				
+				if (null === $parameterName) {
+					$typeName = $parameterPart;
+				} else {
+					$value = $parameterPart;
+				}
+			}
+			
+			if (null === $parameterName) {
+				throw new PhpSourceAnalyzingException('Invalid method parameter: ' . $parameter);
+			}
+			
+			$phpParamContainer->createPhpParam(PhpbobAnalyzingUtils::purifyPropertyName($parameterName),
+					$value, $this->buildTypeDef($typeName), $splat);
+		}
+	}
+	
+	private function applyTraitUse(PhpClassLike $phpClassLike, PhpStatement $phpStatement) {
+		ArgUtils::assertTrue(PhpbobAnalyzingUtils::isTraitUseStatement($phpStatement));
+		$codeParts = self::determineCodeParts($phpStatement);
+		//shift use
+		array_shift($codeParts);
+		
+		foreach ($codeParts as $codePart) {
+			foreach (array_filter(explode(',', $codePart)) as $traitName) {
+				$phpClassLike->createPhpTraitUse($this->determineTypeName($traitName), $traitName);
+			}
+		}
+	}
+	
+	private function applyAnnotationSet(PhpClassLike $phpClassLike, PhpStatement $phpStatement) {
+		$annoSetAnalyzer = new PhpAnnoSetAnalyzer($phpClassLike);
+		$annoSetAnalyzer->analyze($phpStatement, $phpClassLike);
+	}
 	
 	private static function determineCodeParts(PhpStatement $phpStatement, bool $replaceAssignment = false) {
 		$str = trim(str_replace(Phpbob::SINGLE_STATEMENT_STOP, '', implode(' ', $phpStatement->getCodeLines())));
@@ -303,5 +438,9 @@ class PhpFileBuilder {
 		}
 		
 		return $codeParts;
+	}
+	
+	private function createPrependingCode(PhpStatement $phpStatement) {
+		return implode(PHP_EOL, $phpStatement->getNonCodeLines());
 	}
 }

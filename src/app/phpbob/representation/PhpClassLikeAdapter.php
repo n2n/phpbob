@@ -276,6 +276,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		
 		$phpTraitUse = new PhpTraitUse($this, $phpTypeDef);
 		$this->phpTraitUses[$typeName] = $phpTraitUse;
+		
 		return $phpTraitUse;
 	}
 	

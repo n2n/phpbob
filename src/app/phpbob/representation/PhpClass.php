@@ -78,8 +78,4 @@ class PhpClass extends PhpClassLikeAdapter {
 		
 		return $phpTypeDefs;
 	}
-	
-	public function determineTypeName(string $localName) {
-		return $this->determinePhpNamespaceElementCreator()->determineTypeName($localName);
-	}
 }

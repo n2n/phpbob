@@ -39,6 +39,8 @@ class PhpMethod extends PhpParamContainerAdapter {
 	public function setClassifier(string $classifier) {
 		ArgUtils::valEnum($classifier, Phpbob::getClassifiers());
 		$this->classifier = $classifier;
+		
+		return $this;
 	}
 
 	public function isStatic() {
@@ -47,6 +49,8 @@ class PhpMethod extends PhpParamContainerAdapter {
 
 	public function setStatic(bool $static) {
 		$this->static = $static;
+		
+		return $this;
 	}
 
 	public function isFinal() {
@@ -55,6 +59,8 @@ class PhpMethod extends PhpParamContainerAdapter {
 
 	public function setFinal(bool $final) {
 		$this->final = $final;
+		
+		return $this;
 	}
 
 	public function isAbstract() {
@@ -63,6 +69,8 @@ class PhpMethod extends PhpParamContainerAdapter {
 
 	public function setAbstract(bool $abstract) {
 		$this->abstract = $abstract;
+		
+		return $this;
 	}
 
 // 	/**
