@@ -122,7 +122,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	/**
 	 * @return PhpMethod []
 	 */
-	public function getPhpMethods(): array {
+	public function getPhpMethods() {
 		return $this->phpMethods;
 	}
 	
@@ -147,6 +147,24 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		$this->phpMethods[$name] = $phpMethod;
 			
 		return $phpMethod;
+	}
+	
+	/**
+	 * @param PhpMethod $phpMethod
+	 * @return PhpMethod
+	 */
+	public function createPhpMethodClone(PhpMethod $phpMethod) {
+		$phpMethodClone = $this->createPhpMethod($phpMethod->getName())
+				->setAbstract($phpMethod->isAbstract())->setClassifier($phpMethod->getClassifier())
+				->setFinal($phpMethod->isFinal())->setPrependingCode($phpMethod->getPrependingCode())
+				->setMethodCode($phpMethod->getMethodCode())->setReturnPhpTypeDef($phpMethod->getReturnPhpTypeDef());
+		
+		foreach ($phpMethod->getPhpParams() as $phpParam) {
+			$phpMethodClone->createPhpParam($phpParam->getName(), $phpParam->getValue(),
+					$phpParam->getPhpTypeDef(), $phpParam->isSplat())->setPassedByReference($phpParam->isPassedByReference());
+		}
+		
+		return $phpMethodClone;
 	}
 	
 	/**

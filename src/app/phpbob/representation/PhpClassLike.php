@@ -20,7 +20,7 @@ interface PhpClassLike extends PhpType {
 	/**
 	 * @return PhpMethod []
 	 */
-	public function getPhpMethods(): array;
+	public function getPhpMethods();
 	
 	/**
 	 * @param string $name
