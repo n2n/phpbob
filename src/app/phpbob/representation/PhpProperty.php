@@ -15,6 +15,11 @@ class PhpProperty extends PhpVariable {
 		parent::__construct($name, $value, $prependingCode);
 		$this->phpClassLike = $phpClassLike;
 		$this->classifier = $classifier;
+		
+		$that = $this;
+		$this->onNameChange(function($oldName, $newName) use ($that) {
+			$this->getPhpPropertyAnnoCollection()->setPropertyName($newName);
+		});
 	}
 	
 	public function setStatic(bool $static) {
@@ -35,6 +40,14 @@ class PhpProperty extends PhpVariable {
 		ArgUtils::valEnum($classifier, Phpbob::getClassifiers());
 		
 		$this->classifier = $classifier;
+	}
+	
+	/**
+	 * @return \phpbob\representation\anno\PhpPropertyAnnoCollection
+	 */
+	public function getPhpPropertyAnnoCollection() {
+		return $this->phpClassLike->getPhpAnnotationSet()
+				->getOrCreatePhpPropertyAnnoCollection($this->getName());
 	}
 
 	public function __toString() {

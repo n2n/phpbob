@@ -114,7 +114,7 @@ class PhpFileBuilder {
 	
 	private static function createPhpInterface(PhpStatement $phpStatement) {
 		ArgUtils::assertTrue($phpStatement instanceof StatementGroup
-				&& self::isInterfaceStatement($phpStatement));
+				&& PhpbobAnalyzingUtils::isInterfaceStatement($phpStatement));
 		
 		$codeParts = self::determineCodeParts($phpStatement);
 		//shift "interface"
@@ -262,11 +262,9 @@ class PhpFileBuilder {
 	private function applyPhpConst(PhpType $phpType, PhpStatement $phpStatement) {
 		ArgUtils::assertTrue(PhpbobAnalyzingUtils::isConstStatement($phpStatement));
 		$codeParts = self::determineCodeParts($phpStatement, true);
+		ArgUtils::assertTrue(count($codeParts) === 3);
 		// due to the isPropertyStatement method it s ensured that there are at least 2 Parts
-		$phpConst = $phpType->createPhpConst($codeParts[1]);
-		if (count($codeParts) > 2) {
-			$phpConst->setValue($codeParts[2]);
-		}
+		$phpConst = $phpType->createPhpConst($codeParts[1], $codeParts[2]);
 		
 		$phpConst->setPrependingCode($this->createPrependingCode($phpStatement));
 	}
@@ -303,7 +301,7 @@ class PhpFileBuilder {
 			$value .= ' ' . $codePart;
 		}
 		
-		$phpClassLike->createPhpProperty($classifier, $name)->setValue($value)
+		$phpClassLike->createPhpProperty($name, $classifier)->setValue($value)
 				->setStatic($static)->setPrependingCode($this->createPrependingCode($phpStatement));
 	}
 	
@@ -326,8 +324,8 @@ class PhpFileBuilder {
 				->setAbstract($phpMethodDef->isAbstract())
 				->setClassifier($phpMethodDef->getClassifier())
 				->setMethodCode($phpMethodDef->getMethodCode())
-				->setReturnPhpTypeDef($this->buildTypeDef($phpMethodDef->getReturnTypeName()))
-				->setPrependingCode($this->createPrependingCode($phpStatement));
+				->setPrependingCode($this->createPrependingCode($phpStatement))
+				->setReturnPhpTypeDef($this->buildTypeDef($phpMethodDef->getReturnTypeName()));
 		
 		$this->applyMethodParameters($phpMethod, $phpMethodDef->getParameterSignature());
 	}

@@ -390,7 +390,7 @@ class PhpElementFactory {
 			} elseif (null !== $phpUse->getAlias()) {
 				continue;
 			} else {
-				if (!StringUtils::endsWith($localName, $phpUse->getTypeName())) continue;
+				if (!StringUtils::endsWith(Phpbob::NAMESPACE_SEPERATOR . $localName, $phpUse->getTypeName())) continue;
 			}
 			
 			if (null !== $thePhpUse) {

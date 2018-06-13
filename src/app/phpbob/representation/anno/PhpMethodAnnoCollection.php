@@ -1,6 +1,8 @@
 <?php
 namespace phpbob\representation\anno;
 
+use phpbob\Phpbob;
+
 class PhpMethodAnnoCollection extends PhpAnnoCollectionAdapter {
 	
 	private $methodName;
@@ -34,5 +36,12 @@ class PhpMethodAnnoCollection extends PhpAnnoCollectionAdapter {
 		foreach ($this->methodNameChangeClosures as $methodNameChangeClosure) {
 			$methodNameChangeClosure($oldMethodName, $newMethodName);
 		}
+	}
+	
+	public function __toString() {
+		if ($this->isEmpty()) return $this->getPrependingString();
+		
+		return $this->getPrependingString() . "\t\t" . $this->phpAnnotationSet->getAiVariableName() . '->m(\'' . $this->methodName . '\', '
+				. $this->getAnnotationString() . ')' . Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL;
 	}
 }

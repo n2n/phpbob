@@ -7,7 +7,7 @@ use phpbob\representation\PhpTypeDef;
 
 class PhpAnno {
 	private $phpAnno;
-	private $constructorParams = array();
+	private $phpAnnoParams = array();
 	private $phpTypeDef;
 	
 	public function __construct(PhpAnnoCollection $phpAnnoCollection, PhpTypeDef $phpTypeDef) {
@@ -15,77 +15,62 @@ class PhpAnno {
 		$this->phpTypeDef = $phpTypeDef;
 	}
 	
-	public function getConstructorParams() {
-		return $this->constructorParams;
+	public function getPhpAnnoParams() {
+		return $this->phpAnnoParams;
 	}
 
 	public function getPhpTypeDef() {
 		return $this->phpTypeDef;
 	}
-
-	public function setConstructorParams(array $constructorParams, bool $escape = false) {
-		$this->constructorParams = $constructorParams;
-		if ($escape) {
-			$this->escapeConstructorParams();
-		}
+	
+	public function createPhpAnnoParam(string $value, bool $escape = false) {
+		$this->phpAnnoParams[] = new PhpAnnoParam($this, $escape ? self::escapeString($value) : $value);	
 	}
 	
-	public function hasConstructorParam(int $position) {
-		return count($this->constructorParams) >= $position;
-	} 
+	public function hasPhpAnnoParam(int $position) {
+		return isset($this->phpAnnoParams[$position - 1]);
+	}
 	
-	public function setConstructorParam(int $position, $value, bool $escape = false) {
-		$constructorParams = array();
-		
-		if (!$this->hasConstructorParam($position)) {
-			throw new \InvalidArgumentException('Position ' . $position 
+	public function getNumPhpAnnoParams() {
+		return count($this->phpAnnoParams);	
+	}
+	
+	/**
+	 * @param int $position
+	 * @throws \InvalidArgumentException
+	 * @return PhpAnnoParam
+	 */
+	public function getPhpAnnoParam(int $position, bool $lenient = true) {
+		if (!$this->hasPhpAnnoParam($position)) {
+			if ($lenient) return null;
+			
+			throw new \InvalidArgumentException('Position ' . $position
 					. ' not Available in \"' . $this->phpTypeDef . '\"');
 		}
 		
-		$i = 1;
-		foreach ($this->constructorParams as $constructorParam) {
-			if ($position === $i) {
-				$constructorParams[] = ($escape) ? $this->escapeConstructorParam($value) : $value;
-			} else {
-				$constructorParams[] = $constructorParam;
-			}
-			$i++;
-		}
-		
-		$this->constructorParams = $constructorParams;
-	}
-	
-	public function addConstructorParam($constructorParam, $escape = false) {
-		if ($escape) {
-			$constructorParam = self::escapeConstructorParam($constructorParam);
-		}
-		
-		$this->constructorParams[] = $constructorParam;
+		return $this->phpAnnoParams[$position];
 	}
  
 	public function setPhpTypeDef(PhpTypeDef $phpTypeDef) {
 		$this->phpTypeDef = $phpTypeDef;
 	}
 	
+	public function isForAnno(string $typeName) {
+		return $this->phpTypeDef->determineUseTypeName() === $typeName;
+	}
+	
+	private static function escapeString(string $str) {
+		if (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $str)
+				|| mb_strpos($str, Phpbob::CONST_SEPERATOR) !== false
+				|| StringUtils::startsWith($str, Phpbob::STRING_LITERAL_SEPERATOR)
+				|| StringUtils::startsWith($str, Phpbob::STRING_LITERAL_ALTERNATIVE_SEPERATOR)) {
+					return $str;
+				}
+				
+				return Phpbob::STRING_LITERAL_SEPERATOR . $str . Phpbob::STRING_LITERAL_SEPERATOR;
+	}
+	
 	public function __toString() {
-		return Phpbob::KEYWORD_NEW . ' ' . $this->phpTypeDef . '(' . implode(', ', $this->constructorParams) . ')';
-	}
-	
-	public function escapeConstructorParams() {
-		foreach ($this->constructorParams as $key => $constructorParam) {
-			$this->constructorParams[$key] = self::escapeConstructorParam($constructorParam);
-		}
-	}
-	
-	public static function escapeConstructorParam(string $constructorParam) {
-		if (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $constructorParam)
-				|| mb_strpos($constructorParam, Phpbob::CONST_SEPERATOR) !== false
-				|| StringUtils::startsWith($constructorParam, Phpbob::STRING_LITERAL_SEPERATOR)
-				|| StringUtils::startsWith($constructorParam, Phpbob::STRING_LITERAL_ALTERNATIVE_SEPERATOR)) {
-			echo 'escape';
-			return $constructorParam;
-		}
-			
-		return Phpbob::STRING_LITERAL_SEPERATOR . $constructorParam . Phpbob::STRING_LITERAL_SEPERATOR;
+		return Phpbob::KEYWORD_NEW . ' ' . $this->phpTypeDef . '(' . implode(', ', $this->phpAnnoParams) . ')';
 	}
 }

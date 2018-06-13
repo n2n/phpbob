@@ -5,31 +5,24 @@ use phpbob\Phpbob;
 use n2n\reflection\ArgUtils;
 use phpbob\representation\traits\NameChangeSubjectTrait;
 use phpbob\representation\traits\PrependingCodeTrait;
+use phpbob\representation\traits\PhpNamespaceElementTrait;
 class PhpConst implements PhpNamespaceElement {
 	use NameChangeSubjectTrait;
 	use PrependingCodeTrait;
+	use PhpNamespaceElementTrait;
 	
-	private $phpFile;
 	private $value;
-	private $phpNamespace;
-	private $phpClassLike;
+	private $phpType;
 	
 	public function __construct(PhpFile $phpFile, string $name, string $value, 
-			PhpNamespace $phpNameSpace = null, PhpClassLike $phpClassLike = null) {
+			PhpNamespace $phpNameSpace = null, PhpType $phpType = null) {
 		$this->phpFile = $phpFile;
 		$this->name = $name;
 		$this->value = $value;
 		$this->phpNamespace = $phpNameSpace;
-		ArgUtils::assertTrue(null === $phpClassLike || null !== $phpClassLike && null !== $phpClassLike, 
+		ArgUtils::assertTrue(null === $phpType || null !== $phpType && null !== $phpType, 
 				'There can not be a classlike without a namespace');
-		$this->phpClassLike = $phpClassLike;
-	}
-	
-	/**
-	 * @return \phpbob\representation\PhpFile
-	 */
-	public function getPhpFile() {
-		return $this->phpFile;
+		$this->phpType = $phpType;
 	}
 
 	public function getValue() {
@@ -47,21 +40,16 @@ class PhpConst implements PhpNamespaceElement {
 	}
 
 	/**
-	 * @return \phpbob\representation\PhpNamespace|null
+	 * @return PhpType
 	 */
-	public function getPhpNamespace() {
-		return $this->phpNamespace;
-	}
-
-	/**
-	 * @return \phpbob\representation\PhpClassLike|null
-	 */
-	public function getPhpClassLike() {
-		return $this->phpClassLike;
+	public function getPhpType() {
+		return $this->phpType;
 	}
 
 	public function __toString() {
-		return $this->getPrependingString() . Phpbob::KEYWORD_CONST . ' ' . $this->name . ' ' 
+		$numTabs = null !== $this->phpType ? 1 : 0;
+		
+		return $this->getPrependingString() . str_repeat("\t", $numTabs) . Phpbob::KEYWORD_CONST . ' ' . $this->name . ' ' 
 				. Phpbob::ASSIGNMENT . ' ' . $this->value . Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL;
 	}
 	

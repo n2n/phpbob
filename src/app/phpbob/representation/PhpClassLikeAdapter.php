@@ -5,8 +5,10 @@ use phpbob\representation\ex\UnknownElementException;
 use n2n\util\ex\IllegalStateException;
 use phpbob\representation\anno\PhpAnnotationSet;
 use phpbob\Phpbob;
+use phpbob\representation\traits\PrependingCodeTrait;
 
 abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLike {
+	use PrependingCodeTrait;
 	
 	private $phpAnnotationSet;
 	private $phpProperties = [];
@@ -52,6 +54,69 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		}
 		
 		return $this->phpMethods[$name];
+	}
+	
+	/**
+	 * @param string $propertyName
+	 * @param bool $bool
+	 * @return boolean
+	 */
+	public function hasPhpGetter(string $propertyName, bool $bool = false) {
+		return $this->hasPhpMethod(self::determineGetterMethodName($propertyName, $bool));
+	}
+	
+	/**
+	 * @param string $propertyName
+	 * @param bool $bool
+	 * @return \phpbob\representation\PhpMethod
+	 */
+	public function getPhpGetter(string $propertyName, bool $bool = false) {
+		return $this->getPhpMethod(self::determineGetterMethodName($propertyName, $bool));
+	}
+	
+	/**
+	 * @param string $propertyName
+	 * @return boolean
+	 */
+	public function hasPhpSetter(string $propertyName) {
+		return $this->hasPhpMethod(self::determineSetterMethodName($propertyName));
+	}
+	
+	/**
+	 * @param string $propertyName
+	 * @return \phpbob\representation\PhpMethod
+	 */
+	public function getPhpSetter(string $propertyName) {
+		return $this->getPhpMethod(self::determineSetterMethodName($propertyName));
+	}
+	
+	/**
+	 * @param PhpTypeDef
+	 */
+	public function determinePhpTypeDef(string $propertyName) {
+		if ($this->hasPhpSetter($propertyName) && 
+				null !== $phpTypeDef = $this->getPhpSetter($propertyName)->getReturnPhpTypeDef()) {
+			return $phpTypeDef;
+		}
+		if ($this->hasPhpGetter($propertyName)) {
+			$phpGetter = $this->getPhpGetter($propertyName);
+			if (null !== ($firstPhpParam = $phpGetter->getFirstPhpParam()) 
+					&& (null !== $phpTypeDef = $firstPhpParam->getPhpTypeDef())) {
+				return $phpTypeDef;			
+			}
+		}
+		
+		if ($this->hasPhpGetter($propertyName)) {
+			$phpGetter = $this->getPhpGetter($propertyName);
+			if (null !== ($firstPhpParam = $phpGetter->getFirstPhpParam())
+					&& (null !== $phpTypeDef = $firstPhpParam->getPhpTypeDef())) {
+				return $phpTypeDef;
+			}
+			
+			return new PhpTypeDef('bool');
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -186,7 +251,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpProperty
 	 */
-	public function createPhpProperty(string $classifier, string $name): PhpProperty {
+	public function createPhpProperty(string $name, string $classifier = Phpbob::CLASSIFIER_PRIVATE): PhpProperty {
 		$this->checkPhpPropertyName($name);
 		
 		$phpProperty = new PhpProperty($this, $classifier, $name);

@@ -93,7 +93,7 @@ class PhpAnnotationSet {
 	
 	/**
 	 * @param string $methodName
-	 * @return PhpPropertyAnnoCollection
+	 * @return PhpMethodAnnoCollection
 	 */
 	public function getOrCreatePhpMethodAnnoCollection(string $methodName) {
 		if (!$this->hasPhpMethodAnnoCollection($methodName)) return $this->createPhpMethodAnnoCollection($methodName);
@@ -258,23 +258,19 @@ class PhpAnnotationSet {
 	
 	public function __toString() {
 		if ($this->isEmpty()) return $this->getPrependingString();
-		$string = "\t" . self::ANNO_METHOD_SIGNATURE . $this->aiVariableName . ') ' 
+		$string = $this->getPrependingString() . "\t" . self::ANNO_METHOD_SIGNATURE . $this->aiVariableName . ') ' 
 				. Phpbob::GROUP_STATEMENT_OPEN . PHP_EOL;
+		
 		if (null !== $this->phpClassAnnoCollection) {
-			$string .= "\t\t" . $this->aiVariableName . '->c(' . $this->phpClassAnnoCollection->getAnnotationString() . ')' 
-					. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL; 
+			$string .= $this->phpClassAnnoCollection; 
 		}
 		
-		foreach ($this->phpMethodAnnoCollections as $methodAnno) {
-			$string .= "\t\t" . $this->aiVariableName . '->m(\'' . $methodAnno->getMethodName() . '\', ' 
-					. $methodAnno->getAnnotationString() . ')' 
-					. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL; 
+		foreach ($this->phpMethodAnnoCollections as $methodAnnoCollection) {
+			$string .= $methodAnnoCollection; 
 		}
 		
-		foreach ($this->phpPropertyAnnoCollections as $propertyAnno) {
-			$string .= "\t\t" . $this->aiVariableName . '->p(\'' . $propertyAnno->getPropertyName() . '\', ' 
-					. $propertyAnno->getAnnotationString() . ')' 
-					. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL; 
+		foreach ($this->phpPropertyAnnoCollections as $propertyAnnoCollection) {
+			$string .= $propertyAnnoCollection; 
 		}
 		
 		return $string . "\t" . Phpbob::GROUP_STATEMENT_CLOSE . PHP_EOL;

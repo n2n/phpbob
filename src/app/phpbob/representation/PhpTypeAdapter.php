@@ -6,6 +6,7 @@ use phpbob\representation\traits\NameChangeSubjectTrait;
 use n2n\util\ex\IllegalStateException;
 use phpbob\representation\ex\UnknownElementException;
 use phpbob\representation\traits\PhpNamespaceElementTrait;
+use phpbob\Phpbob;
 
 abstract class PhpTypeAdapter implements PhpType {
 	use PrependingCodeTrait;
@@ -18,14 +19,6 @@ abstract class PhpTypeAdapter implements PhpType {
 		$this->phpFile = $phpFile;
 		$this->phpNamespace = $phpNamespace;
 		$this->name = $name;
-	}
-	
-	public function getPhpFile() {
-		return $this->phpFile;
-	}
-	
-	public function getPhpNamespace() {
-		return $this->phpNamespace;
 	}
 	
 	/**
@@ -60,10 +53,10 @@ abstract class PhpTypeAdapter implements PhpType {
 	 * @param string $name
 	 * @return \phpbob\representation\PhpConst
 	 */
-	public function createPhpConst(string $name) {
+	public function createPhpConst(string $name, string $value) {
 		$this->checkPhpConstName($name);
 		
-		$phpConst = new PhpConst($name);
+		$phpConst = new PhpConst($this->getPhpFile(), $name, $value, $this->getPhpNamespace(), $this);
 		$that = $this;
 		$phpConst->onNameChange(function($oldName, $newName) use ($that) {
 			$that->checkPhpConstName($newName);
@@ -81,6 +74,16 @@ abstract class PhpTypeAdapter implements PhpType {
 		return $this->determinePhpNamespaceElementCreator()->createPhpUse($typeName, $alias, $type);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see \phpbob\representation\PhpType::removePhpUse()
+	 */
+	public function removePhpUse(string $typeName) {
+		$this->determinePhpNamespaceElementCreator()->removePhpUse($typeName);
+		
+		return $this;
+	}
+	
 	public function removePhpConst(string $name) {
 		unset($this->phpConsts[$name]);
 		
@@ -89,6 +92,12 @@ abstract class PhpTypeAdapter implements PhpType {
 	
 	public function determineTypeName(string $localName) {
 		return $this->determinePhpNamespaceElementCreator()->determineTypeName($localName);
+	}
+	
+	public function getTypeName() {
+		if (null === $this->getPhpNamespace()) return $this->getName();
+		
+		return $this->getPhpNamespace()->getName() . Phpbob::NAMESPACE_SEPERATOR .  $this->getName();
 	}
 	
 	private function checkPhpConstName(string $name) {

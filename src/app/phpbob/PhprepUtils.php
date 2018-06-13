@@ -15,16 +15,16 @@ class PhprepUtils {
 		return mb_substr($typeName, $pos + 1); 
 	}
 	
-// 	public static function isInRootNamespace(string $typeName) {
-// 		return mb_strrpos($typeName, Phpbob::NAMESPACE_SEPERATOR) === 0;
-// 	}
+	public static function isInRootNamespace(string $typeName) {
+		return mb_strrpos($typeName, Phpbob::NAMESPACE_SEPERATOR) === 0;
+	}
 	
-// 	public static function extractNamespace(string $typeName) {
-// 		$lastPos = strrpos($typeName, Phpbob::NAMESPACE_SEPERATOR);
-// 		if (false === $lastPos) return null;
+	public static function extractNamespace(string $typeName) {
+		$lastPos = strrpos($typeName, Phpbob::NAMESPACE_SEPERATOR);
+		if (false === $lastPos) return null;
 		
-// 		return mb_substr($typeName, 0, $lastPos);
-// 	}
+		return mb_substr($typeName, 0, $lastPos);
+	}
 	
 	public static function explodeTypeName(string $typename) {
 		return explode(Phpbob::NAMESPACE_SEPERATOR, $typename);	

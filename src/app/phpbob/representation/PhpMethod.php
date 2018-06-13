@@ -26,6 +26,11 @@ class PhpMethod extends PhpParamContainerAdapter {
 		$this->phpClassLike = $phpClassLike;
 		$this->name = $name;
 		$this->setReturnPhpTypeDef($returnPhpTypeDef);
+		
+		$that = $this;
+		$this->onNameChange(function($oldName, $newName) use ($that) {
+			$that->getPhpMethodAnnoCollection()->setMethodName($newName);
+		});
 	}
 	
 	public function getPhpClassLike() {
@@ -71,6 +76,10 @@ class PhpMethod extends PhpParamContainerAdapter {
 		$this->abstract = $abstract;
 		
 		return $this;
+	}
+	
+	public function getPhpMethodAnnoCollection() {
+		return $this->phpClassLike->getPhpAnnotationSet()->getOrCreatePhpMethodAnnoCollection($this->name);
 	}
 
 // 	/**

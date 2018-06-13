@@ -1,6 +1,7 @@
 <?php
 namespace phpbob\representation\anno;
 
+use phpbob\Phpbob;
 
 class PhpPropertyAnnoCollection extends PhpAnnoCollectionAdapter {
 	private $propertyName;
@@ -26,6 +27,14 @@ class PhpPropertyAnnoCollection extends PhpAnnoCollectionAdapter {
 	
 	public function onPropertyNameChange(\Closure $closure) {
 		$this->propertyNameChangeClosures[] = $closure;
+	}
+	
+	public function __toString() {
+		if ($this->isEmpty()) return $this->getPrependingString();
+		
+		return $this->getPrependingString() . "\t\t" . $this->phpAnnotationSet->getAiVariableName() . '->p(\'' 
+				. $this->propertyName . '\', ' . $this->getAnnotationString() . ')'
+						. Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL;
 	}
 	
 	private function triggerPropertyNameChange(string $oldPropertyName, string $newPropertyName) {

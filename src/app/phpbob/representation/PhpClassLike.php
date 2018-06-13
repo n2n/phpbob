@@ -1,12 +1,39 @@
 <?php
 namespace phpbob\representation;
 
+use phpbob\representation\anno\PhpAnnotationSet;
+use phpbob\Phpbob;
+
 interface PhpClassLike extends PhpType {
+	/**
+	 * @param string $name
+	 * @return bool
+	 */
 	public function hasPhpMethod(string $name): bool;
+	
+	/**
+	 * @param string $name
+	 * @return PhpMethod
+	 */
 	public function getPhpMethod(string $name): PhpMethod;
+	
+	/**
+	 * @return PhpMethod []
+	 */
 	public function getPhpMethods(): array;
+	
+	/**
+	 * @param string $name
+	 * @return PhpMethod
+	 */
 	public function createPhpMethod(string $name): PhpMethod;
+	
+	/**
+	 * @param string $name
+	 * @return PhpClassLike
+	 */
 	public function removePhpMethod(string $name): PhpClassLike;
+	
 	/**
 	 * @param string $name
 	 * @return bool
@@ -29,8 +56,7 @@ interface PhpClassLike extends PhpType {
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpProperty
 	 */
-	public function createPhpProperty(string $name, string $classifier): PhpProperty;
-	
+	public function createPhpProperty(string $name, string $classifier = Phpbob::CLASSIFIER_PRIVATE): PhpProperty;
 	
 	/**
 	 * @param string $name
@@ -51,6 +77,9 @@ interface PhpClassLike extends PhpType {
 	 */
 	public function getPhpTraitUse(string $typeName): PhpTraitUse;
 	
+	/**
+	 * @return PhpTraitUse []
+	 */
 	public function getPhpTraitUses(): array;
 	
 	/**
@@ -66,4 +95,8 @@ interface PhpClassLike extends PhpType {
 	 */
 	public function getPhpAnnotationSet();
 	
+	/**
+	 * @param string $prependingCode
+	 */
+	public function setPrependingCode(string $prependingCode = null);
 }

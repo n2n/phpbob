@@ -5,12 +5,13 @@ use phpbob\StatementGroup;
 use phpbob\SingleStatement;
 use phpbob\Phpbob;
 use n2n\reflection\annotation\AnnotationSet;
+use phpbob\representation\PhpFile;
 
 class PhpSourceAnalyzer {
 	/**
 	 * @param string $phpSource
 	 * @param AnnotationSet $as
-	 * @return \phpbob\representation\PhpType [] 
+	 * @return PhpFile
 	 */
 	public function analyze($phpSource/* , AnnotationSet $as = null */) {
 		

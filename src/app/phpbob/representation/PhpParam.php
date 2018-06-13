@@ -24,6 +24,10 @@ class PhpParam extends PhpVariable {
 		$this->phpTypeDef = $phpTypeDef;
 	}
 	
+	public function isBool() {
+		return null !== $this->phpTypeDef && $this->phpTypeDef->isBool();
+	}
+	
 	public function hasPhpTypeDef() {
 		return null !== $this->phpTypeDef;
 	}

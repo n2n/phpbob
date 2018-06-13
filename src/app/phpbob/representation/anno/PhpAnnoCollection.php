@@ -39,11 +39,11 @@ interface PhpAnnoCollection {
 	
 	public function resetPhpAnnos();
 	
-	public function getAnnotationString();
-	
 	public function getPhpTypeDefs();
 
 	public function isEmpty();
 	
 	public function appendPrependingCode(string $prependingCode = null);
+	
+	public function __toString();
 }

@@ -1,13 +1,15 @@
 <?php
 namespace phpbob\analyze;
 
+use phpbob\representation\anno\PhpAnno;
+
 class PhpAnnoDef {
 	private $typeName;
-	private $constructorParams = [];
+	private $paramStrs = [];
 	
-	public function __construct(string $typeName, array $constructorParams) {
+	public function __construct(string $typeName, array $paramStrs) {
 		$this->typeName = $typeName;
-		$this->constructorParams = $constructorParams;
+		$this->paramStrs = $paramStrs;
 	}
 	
 	public function getTypeName() {
@@ -18,11 +20,17 @@ class PhpAnnoDef {
 		$this->typeName = $typeName;
 	}
 
-	public function getConstructorParams() {
-		return $this->constructorParams;
+	public function getParamStrs() {
+		return $this->paramStrs;
 	}
 
-	public function setConstructorParams($constructorParams) {
-		$this->constructorParams = $constructorParams;
+	public function setParamStrs($paramStrs) {
+		$this->paramStrs = $paramStrs;
+	}
+
+	public function applyTo(PhpAnno $phpAnno) {
+		foreach ($this->paramStrs as $paramStr) {
+			$phpAnno->createPhpAnnoParam($paramStr);
+		}
 	}
 }

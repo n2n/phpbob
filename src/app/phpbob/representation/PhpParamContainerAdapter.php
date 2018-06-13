@@ -52,6 +52,15 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 	}
 	
 	/**
+	 * @return NULL|PhpParam
+	 */
+	public function getFirstPhpParam() {
+		if (count($this->phpParams) === 0) return null;
+		
+		return reset($this->phpParams);
+	}
+	
+	/**
 	 * @param string $name
 	 * @param string $value
 	 * @param PhpTypeDef $phpTypeDef

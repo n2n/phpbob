@@ -24,7 +24,7 @@ interface PhpType extends PhpNamespaceElement {
 	 * @param string $name
 	 * @return \phpbob\representation\PhpConst
 	 */
-	public function createPhpConst(string $name);
+	public function createPhpConst(string $name, string $value);
 	
 	
 	/**
@@ -41,6 +41,12 @@ interface PhpType extends PhpNamespaceElement {
 	 */
 	public function createPhpUse(string $typeName, string $alias = null, string $type = null);
 	
+	/**
+	 * @param string $typeName
+	 * 
+	 * @return PhpType;
+	 */
+	public function removePhpUse(string $typeName);
 	
 	/**
 	 * @param string $localName
@@ -48,4 +54,9 @@ interface PhpType extends PhpNamespaceElement {
 	 * @return string
 	 */
 	public function determineTypeName(string $localName);
+	
+	/**
+	 * @param \Closure $closure
+	 */
+	public function onNameChange(\Closure $closure);
 }

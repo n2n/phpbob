@@ -4,8 +4,8 @@ namespace phpbob\representation\traits;
 use phpbob\representation\PhpNamespaceElementCreator;
 
 trait PhpNamespaceElementTrait {
-	private $phpFile;
-	private $phpNamespace;
+	protected $phpFile;
+	protected $phpNamespace;
 	
 	public function getPhpFile() {
 		return $this->phpFile;

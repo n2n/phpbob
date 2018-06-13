@@ -211,8 +211,7 @@ class PhpAnnoSetAnalyzer {
 		foreach ($this->paramAnalyzer->analyze($paramString, $this->variableDefinitions) as $phpAnnoDef) {
 			$localName = $phpAnnoDef->getTypeName();
 			$typeName = $this->phpClassLike->determineTypeName($localName) ?? $localName;
-			$phpAnnoCollection->createPhpAnno($typeName, $localName)
-					->setConstructorParams($phpAnnoDef->getConstructorParams());
+			$phpAnnoDef->applyTo($phpAnnoCollection->createPhpAnno($typeName, $localName));
 		}
 		
 		$phpAnnoCollection->appendPrependingCode($prependingCode);

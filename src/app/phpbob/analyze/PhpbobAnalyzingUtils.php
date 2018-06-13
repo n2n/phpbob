@@ -19,7 +19,7 @@ class PhpbobAnalyzingUtils {
 	
 	public static function isTypeStatement(PhpStatement $phpStatement) {
 		return self::isClassStatement($phpStatement) || self::isInterfaceStatement($phpStatement)
-		|| self::isTraitStatement($phpStatement);
+				|| self::isTraitStatement($phpStatement);
 	}
 	
 	public static function isInterfaceStatement(PhpStatement $phpStatement) {
@@ -47,13 +47,13 @@ class PhpbobAnalyzingUtils {
 	
 	public static function isConstStatement(PhpStatement $phpStatement) {
 		return $phpStatement instanceof SingleStatement
-		&& StringUtils::startsWith(Phpbob::KEYWORD_CONST, ltrim(strtolower($phpStatement->getCode())));
+				&& StringUtils::startsWith(Phpbob::KEYWORD_CONST, ltrim(strtolower($phpStatement->getCode())));
 	}
 	
 	public static function isAnnotationStatement(PhpStatement $phpStatement) {
 		return self::isMethodStatement($phpStatement)
-		&& preg_match('/private\s+static\s+function\s+_annos.*\(.*\)/i',
-				$phpStatement->getCode());
+				&& preg_match('/private\s+static\s+function\s+_annos.*\(.*\)/i',
+						$phpStatement->getCode());
 	}
 	
 	public static function isMethodStatement(PhpStatement $phpStatement) {
@@ -63,12 +63,12 @@ class PhpbobAnalyzingUtils {
 	
 	public static function isNamespaceStatement(PhpStatement $phpStatement) {
 		return $phpStatement instanceof SingleStatement
-		&& preg_match('/^\s*' . preg_quote(Phpbob::KEYWORD_NAMESPACE) . '\s+/i', $phpStatement->getCode());
+				&& preg_match('/^\s*' . preg_quote(Phpbob::KEYWORD_NAMESPACE) . '\s+/i', $phpStatement->getCode());
 	}
 	
 	public static function isUseStatement(PhpStatement $phpStatement) {
 		return $phpStatement instanceof SingleStatement
-		&& StringUtils::startsWith(Phpbob::KEYWORD_USE, ltrim(strtolower(implode(' ', $phpStatement->getCodeLines()))));
+				&& StringUtils::startsWith(Phpbob::KEYWORD_USE, ltrim(strtolower(implode(' ', $phpStatement->getCodeLines()))));
 	}
 	
 	public static function isTraitUseStatement(PhpStatement $phpStatement) {

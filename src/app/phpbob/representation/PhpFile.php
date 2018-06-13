@@ -31,7 +31,7 @@ class PhpFile extends PhpNamespaceElementCreator {
 	
 	/**
 	 * @param string $name
-	 * @return PhpFunction
+	 * @return PhpNamespace
 	 */
 	public function getPhpNamespace(string $name) {
 		return $this->phpElementFactory->getPhpNamespace($name);

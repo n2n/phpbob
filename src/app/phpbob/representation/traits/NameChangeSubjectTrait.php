@@ -2,8 +2,8 @@
 namespace phpbob\representation\traits;
 
 trait NameChangeSubjectTrait {
-	private $nameChangeClosures;
-	private $name;
+	protected $nameChangeClosures;
+	protected $name;
 	
 	public function onNameChange(\Closure $closure) {
 		$this->nameChangeClosures[] = $closure;

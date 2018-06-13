@@ -115,8 +115,10 @@ class PhpAnnoAnalyzer {
 		return new PhpAnnoDef($typeName, self::buildConstructorParams($constructorString));
 	}
 	
-	private static function buildConstructorParams(string $constructor) {
-		$constructorParams = array();
+	private static function buildConstructorParams(string $constructor = null) {
+		if (null === $constructor) return [];
+		
+		$constructorParams = [];
 		foreach (self::determineFirstLevelParamStrings($constructor) as $constructorPart) {
 			$constructorParams[] = $constructorPart;
 		}

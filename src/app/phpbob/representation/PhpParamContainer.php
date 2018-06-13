@@ -30,6 +30,10 @@ interface PhpParamContainer {
 	public function getPhpParam(string $name);
 	
 	/**
+	 * @return PhpParam
+	 */
+	public function getFirstPhpParam();
+	/**
 	 * @param string $name
 	 * @param string $value
 	 * @param PhpTypeDef $phpTypeDef

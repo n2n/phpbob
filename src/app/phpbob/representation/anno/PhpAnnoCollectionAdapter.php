@@ -40,6 +40,17 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	}
 	
 	/**
+	 * @param string $typeName
+	 * @throws UnknownElementException
+	 * @return PhpAnno
+	 */
+	public function getOrCreatePhpAnno(string $typeName) {
+		if ($this->hasPhpAnno($typeName)) return $this->getPhpAnno($typeName);
+	
+		return $this->createPhpAnno($typeName);
+	}
+	
+	/**
 	 * @return PhpAnno []
 	 */
 	public function getPhpAnnos() {
