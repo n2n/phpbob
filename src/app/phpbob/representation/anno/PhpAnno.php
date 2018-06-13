@@ -23,9 +23,8 @@ class PhpAnno {
 		return $this->phpTypeDef;
 	}
 
-	public function setConstructorParams(array $constructorParams, bool $escape = true) {
+	public function setConstructorParams(array $constructorParams, bool $escape = false) {
 		$this->constructorParams = $constructorParams;
-		
 		if ($escape) {
 			$this->escapeConstructorParams();
 		}
@@ -78,11 +77,12 @@ class PhpAnno {
 		}
 	}
 	
-	public static function escapeConstructorParam($constructorParam) {
+	public static function escapeConstructorParam(string $constructorParam) {
 		if (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $constructorParam)
 				|| mb_strpos($constructorParam, Phpbob::CONST_SEPERATOR) !== false
 				|| StringUtils::startsWith($constructorParam, Phpbob::STRING_LITERAL_SEPERATOR)
 				|| StringUtils::startsWith($constructorParam, Phpbob::STRING_LITERAL_ALTERNATIVE_SEPERATOR)) {
+			echo 'escape';
 			return $constructorParam;
 		}
 			

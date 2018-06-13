@@ -5,7 +5,6 @@ use phpbob\PhpStatement;
 use phpbob\StatementGroup;
 use phpbob\SingleStatement;
 use phpbob\Phpbob;
-use n2n\reflection\annotation\AnnotationSet;
 use phpbob\representation\anno\PhpAnnoCollection;
 use phpbob\representation\PhpClassLike;
 
@@ -22,7 +21,7 @@ class PhpAnnoSetAnalyzer {
 		$this->phpAnnotationSet = $phpClassLike->getPhpAnnotationSet();
 	}
 	
-	public function analyze(PhpStatement $phpStatement, AnnotationSet $as = null) {
+	public function analyze(PhpStatement $phpStatement/*, AnnotationSet $as = null */) {
 		if (!($phpStatement instanceof StatementGroup && PhpbobAnalyzingUtils::isAnnotationStatement($phpStatement))) {
 			throw new PhpAnnotationSourceAnalyzingException('invalid annotation-statement:' . 
 					$phpStatement);
@@ -42,7 +41,7 @@ class PhpAnnoSetAnalyzer {
 		}
 		
 		$prependingCode = '';
-		foreach ($phpStatement->getPhpStatements() as $childPhpStatement) {
+		foreach ($phpStatement->getChildPhpStatements() as $childPhpStatement) {
 			if ($this->isClassAnnotation($childPhpStatement, $aiVariableName)) {
 				$this->applyPhpClassAnno($childPhpStatement, $aiVariableName, $prependingCode);
 				$prependingCode = '';
@@ -141,7 +140,7 @@ class PhpAnnoSetAnalyzer {
 	private function determineVarialbeDefinitions(StatementGroup $statementGroup) {
 		$this->variableDefinitions = [];
 		
-		foreach ($statementGroup->getPhpStatements() as $phpStatement) {
+		foreach ($statementGroup->getChildPhpStatements() as $phpStatement) {
 			if (!$phpStatement instanceof SingleStatement) {
 				throw new PhpSourceAnalyzingException('only single statements are allowed in annotation statements. Given statement: '
 						. $phpStatement->__toString());
@@ -151,7 +150,7 @@ class PhpAnnoSetAnalyzer {
 			if (!preg_match('/\s*(\$\S+)\s*=\s*(\s*' . preg_quote(Phpbob::KEYWORD_NEW). '\s+.*);/', 
 					$phpStatement->getCode(), $matches) || count($matches) !== 3) continue;
 
-			$this->variableDefinitions[$matches[1]] = $this->paramAnalyzer->createNewClassAnnoParam($matches[2]);
+			$this->variableDefinitions[$matches[1]] = PhpAnnoAnalyzer::createPhpAnnoDef($matches[2]);
 		}
 	}
 
@@ -211,7 +210,7 @@ class PhpAnnoSetAnalyzer {
 			string $prependingCode) {
 		foreach ($this->paramAnalyzer->analyze($paramString, $this->variableDefinitions) as $phpAnnoDef) {
 			$localName = $phpAnnoDef->getTypeName();
-			$typeName = $this->phpClassLike->determineTypeName($localName);
+			$typeName = $this->phpClassLike->determineTypeName($localName) ?? $localName;
 			$phpAnnoCollection->createPhpAnno($typeName, $localName)
 					->setConstructorParams($phpAnnoDef->getConstructorParams());
 		}

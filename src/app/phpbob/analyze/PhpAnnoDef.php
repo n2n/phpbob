@@ -5,7 +5,7 @@ class PhpAnnoDef {
 	private $typeName;
 	private $constructorParams = [];
 	
-	public function __construct($typeName, array $constructorParams) {
+	public function __construct(string $typeName, array $constructorParams) {
 		$this->typeName = $typeName;
 		$this->constructorParams = $constructorParams;
 	}
@@ -14,7 +14,7 @@ class PhpAnnoDef {
 		return $this->typeName;
 	}
 
-	public function setTypeName($typeName) {
+	public function setTypeName(string $typeName) {
 		$this->typeName = $typeName;
 	}
 

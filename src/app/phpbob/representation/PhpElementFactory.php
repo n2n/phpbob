@@ -534,7 +534,6 @@ class PhpElementFactory {
 				if (null !== $alias
 						&& $this->hasPhpUseAlias($alias)
 						&& $this->getPhpUseForAlias($alias)->getTypeName() !== $typeName) {
-					test($this->getPhpUseForAlias($alias)->getTypeName(), $typeName);
 					throw new IllegalStateException('duplicate alias ' . $alias . ' for use statements given');
 				}
 				

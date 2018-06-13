@@ -83,7 +83,7 @@ class PhpMethodDef {
 	}
 
 	public static function fromPhpStatement(PhpStatement $phpStatement) {
-		ArgUtils::assertTrue(self::isMethodStatement($phpStatement));
+		ArgUtils::assertTrue(PhpbobAnalyzingUtils::isMethodStatement($phpStatement));
 		$parts = preg_split('/[\(:]/', trim($phpStatement->getCode()), 3);
 		if (count($parts) > 3) {
 			throw new \InvalidArgumentException();
@@ -120,11 +120,11 @@ class PhpMethodDef {
 					$this->static = true;
 					break;
 				default:
-					$this->setMethodName($part);
+					$methodDef->setMethodName($part);
 			}
 		}
 		
-		if ($this->abstract) {
+		if ($methodDef->isAbstract()) {
 			ArgUtils::assertTrue($phpStatement instanceof SingleStatement);
 		} else {
 			ArgUtils::assertTrue($phpStatement instanceof StatementGroup);

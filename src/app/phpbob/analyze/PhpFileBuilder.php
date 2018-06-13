@@ -38,7 +38,7 @@ class PhpFileBuilder {
 			} else {
 				$this->unprocessedStatements[] = $phpStatement;
 			}
-			continue;
+			return;
 		}
 		
 		if (PhpbobAnalyzingUtils::isClassStatement($phpStatement)) {
@@ -203,7 +203,7 @@ class PhpFileBuilder {
 	
 	private function createPhpNamespace(PhpStatement $phpStatement) {
 		ArgUtils::assertTrue(PhpbobAnalyzingUtils::isNamespaceStatement($phpStatement));
-		$codeParts = PhpbobAnalyzingUtils::determineCodeParts($phpStatement);
+		$codeParts = self::determineCodeParts($phpStatement);
 		
 		$this->currentNamespace = $this->phpFile->createPhpNamespace($codeParts[1])
 				->setPrependingCode($this->determinePrependingCode($phpStatement));
@@ -211,7 +211,7 @@ class PhpFileBuilder {
 	
 	private function createPhpUse(PhpStatement $phpStatement) {
 		ArgUtils::assertTrue(PhpbobAnalyzingUtils::isUseStatement($phpStatement));
-		$codeParts = PhpbobAnalyzingUtils::determineCodeParts($phpStatement);
+		$codeParts = self::determineCodeParts($phpStatement);
 		
 		$typeName = $codeParts[1];
 		$type = null;
@@ -317,7 +317,7 @@ class PhpFileBuilder {
 		$this->applyMethodParameters($phpInterfaceMethod, $phpMethodDef->getParameterSignature());
 	}
 	
-	private function applyPhpMethod(PhpClassLike $phpClassLike, PhpStatement $phpStatement/*, $abstract = false */) {
+	private function applyPhpMethod(PhpClassLike $phpClassLike, PhpStatement $phpStatement) {
 		$phpMethodDef = PhpMethodDef::fromPhpStatement($phpStatement); 
 		
 		$phpMethod = $phpClassLike->createPhpMethod($phpMethodDef->getMethodName())
@@ -325,6 +325,7 @@ class PhpFileBuilder {
 				->setStatic($phpMethodDef->isStatic())
 				->setAbstract($phpMethodDef->isAbstract())
 				->setClassifier($phpMethodDef->getClassifier())
+				->setMethodCode($phpMethodDef->getMethodCode())
 				->setReturnPhpTypeDef($this->buildTypeDef($phpMethodDef->getReturnTypeName()))
 				->setPrependingCode($this->createPrependingCode($phpStatement));
 		
@@ -332,6 +333,8 @@ class PhpFileBuilder {
 	}
 	
 	private function applyMethodParameters(PhpParamContainer $phpParamContainer, string $signature) {
+		if (empty($signature)) return;
+		
 		foreach (preg_split('/\s*,\s*/', $signature) as $parameter) {
 			$parameterParts = self::determineCodePartsForString(str_replace('=', '', $parameter));
 			
@@ -389,7 +392,7 @@ class PhpFileBuilder {
 	
 	private function applyAnnotationSet(PhpClassLike $phpClassLike, PhpStatement $phpStatement) {
 		$annoSetAnalyzer = new PhpAnnoSetAnalyzer($phpClassLike);
-		$annoSetAnalyzer->analyze($phpStatement, $phpClassLike);
+		$annoSetAnalyzer->analyze($phpStatement);
 	}
 	
 	private static function determineCodeParts(PhpStatement $phpStatement, bool $replaceAssignment = false) {

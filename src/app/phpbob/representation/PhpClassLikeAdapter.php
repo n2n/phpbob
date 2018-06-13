@@ -294,7 +294,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		$typeDefs = [];
 		
 		foreach ($this->phpMethods as $phpMethod) {
-			$typeDefs += $phpMethod->getPhpTypeDefs();
+			$typeDefs = array_merge($typeDefs, $phpMethod->getPhpTypeDefs());
 		}
 		
 		foreach ($this->phpTraitUses as $phpTraitUse) {
@@ -302,7 +302,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		}
 		
 		if ($this->isPhpAnnotationSetAvailable()) {
-			$typeDefs += $this->phpAnnotationSet->getPhpTypeDefs();
+			$typeDefs = array_merge($typeDefs, $this->phpAnnotationSet->getPhpTypeDefs());
 		}
 		
 		return $typeDefs;

@@ -116,7 +116,6 @@ class PhpAnnotationSet {
 		}
 	}
 	
-	
 	/**
 	 * @param string $propertyName
 	 * @return bool
@@ -148,7 +147,7 @@ class PhpAnnotationSet {
 	 * @param string $methodName
 	 * @param PhpTypeDef $returnPhpTypeDef
 	 * @throws IllegalStateException
-	 * @return \phpbob\representation\PhpPropertyAnnoCollection
+	 * @return PhpPropertyAnnoCollection
 	 */
 	public function createPhpPropertyAnnoCollection(string $propertyName) {
 		$this->checkPhpPropetyName($propertyName);
@@ -178,7 +177,6 @@ class PhpAnnotationSet {
 		
 		return $this->phpPropertyAnnoCollections[$propertyName];
 	}
-	
 	
 	/**
 	 * @param string $methodName
@@ -290,15 +288,15 @@ class PhpAnnotationSet {
 		$phpTypeDefs = [PhpTypeDef::fromTypeName(AnnoInit::class)];
 		
 		if (null !== $this->phpClassAnnoCollection) {
-			$phpTypeDefs += $this->phpClassAnnoCollection->getPhpTypeDefs();
+			$phpTypeDefs = array_merge($phpTypeDefs, $this->phpClassAnnoCollection->getPhpTypeDefs());
 		}
 		
 		foreach ($this->phpPropertyAnnoCollections as $phpPropertyAnnoCollection) {
-			$phpTypeDefs += $phpPropertyAnnoCollection->getPhpTypeDefs();
+			$phpTypeDefs = array_merge($phpTypeDefs, $phpPropertyAnnoCollection->getPhpTypeDefs());
 		}
 		
 		foreach ($this->phpMethodAnnoCollections as $phpMethodAnnoCollection) {
-			$phpTypeDefs += $phpMethodAnnoCollection->getPhpTypeDefs();
+			$phpTypeDefs = array_merge($phpTypeDefs, $phpMethodAnnoCollection->getPhpTypeDefs());
 		}
 		
 		return $phpTypeDefs;

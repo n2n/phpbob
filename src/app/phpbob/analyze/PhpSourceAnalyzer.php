@@ -18,7 +18,7 @@ class PhpSourceAnalyzer {
 		
 		$phpFileBuilder = new PhpFileBuilder();
 		
-		foreach ($rootGroup->getPhpStatements() as $phpStatement) {
+		foreach ($rootGroup->getChildPhpStatements() as $phpStatement) {
 			$phpFileBuilder->processPhpStatement($phpStatement);
 		}
 		
@@ -86,13 +86,13 @@ class PhpSourceAnalyzer {
 			
 			switch ($token[0]) {
 				case Phpbob::SINGLE_STATEMENT_STOP:
-					$currentGroup->addStatement(new SingleStatement($content));
+					$currentGroup->addChildPhpStatement(new SingleStatement($content));
 					$content = null;
 					break;
 						
 				case Phpbob::GROUP_STATEMENT_OPEN:
 					$newGroup = new StatementGroup($content);
-					$currentGroup->addStatement($newGroup);
+					$currentGroup->addChildPhpStatement($newGroup);
 					$groupStack[] = $currentGroup;
 					$currentGroup = $newGroup;
 					$content = null;

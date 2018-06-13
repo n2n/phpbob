@@ -70,7 +70,7 @@ class PhpClass extends PhpClassLikeAdapter {
 	}
 	
 	public function getPhpTypeDefs() : array {
-		$phpTypeDefs = parent::getPhpTypeDefs() + $this->interfacePhpTypeDefs;
+		$phpTypeDefs = array_merge(parent::getPhpTypeDefs(), $this->interfacePhpTypeDefs);
 		
 		if (null !== $this->superClassTypeDef) {
 			$phpTypeDefs[] = $this->superClassTypeDef;

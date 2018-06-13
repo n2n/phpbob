@@ -4,7 +4,6 @@ namespace phpbob\analyze;
 use phpbob\Phpbob;
 use n2n\util\StringUtils;
 use n2n\reflection\ArgUtils;
-use phpbob\representation\PhpAnnoParam;
 
 class PhpAnnoAnalyzer {
 
@@ -16,12 +15,12 @@ class PhpAnnoAnalyzer {
 	 * @return \phpbob\analyze\PhpAnnoDef[]
 	 */
 	public function analyze($paramString, array $variableDefinitions) {
-		ArgUtils::valArray($variableDefinitions, new \ReflectionClass('phpbob\representation\PhpAnnoParam'));
+		ArgUtils::valArray($variableDefinitions, PhpAnnoDef::class);
 		$annos = array();
 	
-		foreach ($this->determineFirstLevelParamStrings($paramString) as $annoParamString) {
+		foreach (self::determineFirstLevelParamStrings($paramString) as $annoParamString) {
 			if ($this->isNewClass($annoParamString)) {
-				$annos[] = $this->createPhpAnnoDef($annoParamString);
+				$annos[] = self::createPhpAnnoDef($annoParamString);
 				continue;
 			}
 				
@@ -40,7 +39,7 @@ class PhpAnnoAnalyzer {
 		return $annos;
 	}
 	
-	private function determineFirstLevelParamStrings($paramString) {
+	private static function determineFirstLevelParamStrings($paramString) {
 		$level = 0;
 		$annoParamStrings = array();
 		$annoParamString = '';
@@ -113,13 +112,13 @@ class PhpAnnoAnalyzer {
 			$constructorString .= $char;
 		}
 		
-		return new PhpAnnoDef($typeName, $this->buildConstructorParams($constructorString));
+		return new PhpAnnoDef($typeName, self::buildConstructorParams($constructorString));
 	}
 	
-	private function buildConstructorParams($constructorString) {
+	private static function buildConstructorParams(string $constructor) {
 		$constructorParams = array();
-		foreach ($this->determineFirstLevelParamStrings($constructorString) as $constructorStringPart) {
-			$constructorParams[] = new SimpleParam($constructorStringPart);
+		foreach (self::determineFirstLevelParamStrings($constructor) as $constructorPart) {
+			$constructorParams[] = $constructorPart;
 		}
 		
 		return $constructorParams;

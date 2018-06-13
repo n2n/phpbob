@@ -68,7 +68,7 @@ class PhpInterface extends PhpTypeAdapter {
 		$typeDefs = $this->interfacePhpTypeDefs;
 		
 		foreach ($this->phpInterfaceMethods as $phpInterfaceMethod) {
-			$typeDefs += $phpInterfaceMethod->getPhpTypeDefs();
+			$typeDefs = array_merge($typeDefs, $phpInterfaceMethod->getPhpTypeDefs());
 		}
 		
 		return $typeDefs;
