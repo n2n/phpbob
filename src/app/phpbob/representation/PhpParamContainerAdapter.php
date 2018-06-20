@@ -6,6 +6,7 @@ use phpbob\Phpbob;
 abstract class PhpParamContainerAdapter implements PhpParamContainer {
 	
 	private $returnPhpTypeDef;
+	private $returnValueNullable = false;
 	private $phpParams = [];
 
 	/**
@@ -24,6 +25,24 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 		
 		return $this;
 	}
+	
+	/**
+	 * @param bool $returnValueNullable
+	 * @return \phpbob\representation\PhpParamContainerAdapter
+	 */
+	public function setReturnValueNullable(bool $returnValueNullable) {
+		$this->returnValueNullable = $returnValueNullable;
+		
+		return $this;
+	}
+	
+	/**
+	 * @return boolean|\phpbob\representation\bool
+	 */
+	public function isReturnValueNullable() {
+		return $this->returnValueNullable;
+	}
+	
 	
 	/**
 	 * @return PhpParam []
@@ -96,7 +115,7 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 	public function generateParamContainerStr() {
 		$str = Phpbob::PARAMETER_GROUP_START . implode(', ', $this->phpParams) . Phpbob::PARAMETER_GROUP_END;
 		if (null !== $this->returnPhpTypeDef) {
-			$str . ': ' . $this->returnPhpTypeDef;
+			$str . ': ' . ($this->returnValueNullable ? '?' : '') .  $this->returnPhpTypeDef;
 		}
 		
 		return $str;

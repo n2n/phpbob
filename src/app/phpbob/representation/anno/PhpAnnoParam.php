@@ -4,16 +4,16 @@ namespace phpbob\representation\anno;
 use phpbob\Phpbob;
 
 class PhpAnnoParam {
-	private $phpAnnoCollection;
+	private $phpAnno;
 	private $value;
 	
-	public function __construct(PhpAnnoCollection $phpAnnoCollection, string $value) {
-		$this->phpAnnoCollection = $phpAnnoCollection;
+	public function __construct(PhpAnno $phpAnno, string $value) {
+		$this->phpAnno = $phpAnno;
 		$this->value = $value;
 	}
 	
 	public function getPhpAnnoCollection() {
-		return $this->phpAnnoCollection;
+		return $this->phpAnno;
 	}
 	
 	public function isString() {

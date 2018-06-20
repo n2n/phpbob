@@ -37,9 +37,9 @@ abstract class PhpVariable {
 		return $this;
 	}
 	
-// 	public function isNullable() {
-// 		return $this->value === Phpbob::KEYWORD_NULL;
-// 	}
+	public function hasValue() {
+		return $this->value === Phpbob::KEYWORD_NULL;
+	}
 	
 	protected function getNameValueString() {
 		$string = $this->checkVariableName($this->name);

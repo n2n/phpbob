@@ -98,6 +98,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 				null !== $phpTypeDef = $this->getPhpSetter($propertyName)->getReturnPhpTypeDef()) {
 			return $phpTypeDef;
 		}
+		
 		if ($this->hasPhpGetter($propertyName)) {
 			$phpGetter = $this->getPhpGetter($propertyName);
 			if (null !== ($firstPhpParam = $phpGetter->getFirstPhpParam()) 
