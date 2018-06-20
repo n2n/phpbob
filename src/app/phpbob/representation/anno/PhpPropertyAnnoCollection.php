@@ -2,6 +2,7 @@
 namespace phpbob\representation\anno;
 
 use phpbob\Phpbob;
+use n2n\reflection\annotation\Annotation;
 
 class PhpPropertyAnnoCollection extends PhpAnnoCollectionAdapter {
 	private $propertyName;
@@ -27,6 +28,13 @@ class PhpPropertyAnnoCollection extends PhpAnnoCollectionAdapter {
 	
 	public function onPropertyNameChange(\Closure $closure) {
 		$this->propertyNameChangeClosures[] = $closure;
+	}
+
+	public function determineAnnotation(PhpAnno $phpAnno): ?Annotation {
+		if (!$this->phpAnnotationSet->isAnnotationSetAssigned()) return null;
+	
+		return $this->phpAnnotationSet->getAnnotationSet()->getPropertyAnnotation($this->propertyName,
+				$phpAnno->getPhpTypeDef()->determineUseTypeName());
 	}
 	
 	public function __toString() {

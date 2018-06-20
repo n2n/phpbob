@@ -12,7 +12,7 @@ class PhpAnnoParam {
 		$this->value = $value;
 	}
 	
-	public function getPhpAnnoCollection() {
+	public function getPhpAnno() {
 		return $this->phpAnno;
 	}
 	
@@ -23,7 +23,7 @@ class PhpAnnoParam {
 	public function getStringValue() {
 		if (!$this->isString()) return null;
 		
-		return preg_replace('/((^\')|(^")|(\'$)|("$))/', $this->value);
+		return preg_replace('/((^\')|(^")|(\'$)|("$))/', '', $this->value);
 	}
 	
 	public function __toString() {

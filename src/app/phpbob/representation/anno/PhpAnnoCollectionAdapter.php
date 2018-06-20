@@ -82,7 +82,7 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	 * @return \phpbob\representation\anno\PhpAnnoAdapter
 	 */
 	public function removePhpAnno(string $typeName) {
-		unset($this->phpAnnos);
+		unset($this->phpAnnos[$typeName]);
 		
 		return $this;
 	}

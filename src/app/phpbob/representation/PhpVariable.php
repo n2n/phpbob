@@ -18,14 +18,6 @@ abstract class PhpVariable {
 		$this->name = $name;
 		$this->value = $value;
 	}
-	
-	public function getName() {
-		return $this->name;
-	}
-	
-	public function setName(string $name) {
-		$this->name = $name;
-	}
 
 	public function getValue() {
 		return $this->value;

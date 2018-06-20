@@ -14,6 +14,7 @@ class Phpbob {
 	const CLASSIFIER_PUBLIC = 'public';
 
 	const VARIABLE_PREFIX = '$';
+	const VARIABLE_REFERENCE_PREFIX = '&';
 	const KEYWORD_CLASS = 'class';
 	const KEYWORD_INTERFACE = 'interface';
 	const KEYWORD_TRAIT = 'trait';

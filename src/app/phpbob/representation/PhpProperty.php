@@ -49,6 +49,28 @@ class PhpProperty extends PhpVariable {
 		return $this->phpClassLike->getPhpAnnotationSet()
 				->getOrCreatePhpPropertyAnnoCollection($this->getName());
 	}
+	
+	/**
+	 * @param string $typeName
+	 * @return \phpbob\representation\PhpProperty
+	 */
+	public function removePhpUse(string $typeName) {
+		$this->phpClassLike->removePhpUse($typeName);
+		
+		return $this;
+	}
+	
+	/**
+	 * @param string $typeName
+	 * @param string $alias
+	 * @param string $type
+	 * @return \phpbob\representation\PhpProperty
+	 */
+	public function createPhpUse(string $typeName, string $alias = null, string $type = null) {
+		$this->phpClassLike->createPhpUse($typeName, $alias, $type);
+		
+		return $this;
+	}
 
 	public function __toString() {
 		$string = $this->getPrependingString() . "\t";

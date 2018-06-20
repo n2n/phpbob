@@ -65,8 +65,4 @@ class PhpFile extends PhpNamespaceElementCreator {
 
 		return Phpbob::PHP_BLOCK_BEGIN . PHP_EOL . $this->phpElementFactory;
 	}
-	
-	public function save(FsPath $fsPath) {
-		
-	}
 }

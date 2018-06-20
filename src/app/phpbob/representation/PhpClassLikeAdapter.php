@@ -294,6 +294,8 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @return \phpbob\representation\PhpClassLikeAdapter
 	 */
 	public function removePhpProperty(string $name): PhpClassLike {
+		$this->phpAnnotationSet->removePhpPropertyAnnoCollection($name); 
+		
 		unset($this->phpProperties[$name]);
 		
 		return $this;
@@ -305,7 +307,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 */
 	private function checkPhpPropertyName(string $name) {
 		if (isset($this->phpProperties[$name])) {
-			throw new IllegalStateException('Interface method with name ' . $name . ' already defined.');
+			throw new IllegalStateException('property with name ' . $name . ' already defined.');
 		}
 	}
 	

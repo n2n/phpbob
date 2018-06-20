@@ -8,6 +8,7 @@ use phpbob\representation\PhpTypeDef;
 use n2n\reflection\annotation\AnnoInit;
 use phpbob\representation\ex\UnknownElementException;
 use n2n\util\ex\IllegalStateException;
+use n2n\reflection\annotation\AnnotationSet;
 
 class PhpAnnotationSet {
 	use PrependingCodeTrait;
@@ -21,6 +22,7 @@ class PhpAnnotationSet {
 	private $phpPropertyAnnoCollections = array();
 	private $phpMethodAnnoCollections = array();
 	private $phpClassAnnoCollection;
+	private $annotationSet;
 	
 	public function __construct(PhpClass $phpClass) {
 		$this->phpClass = $phpClass;
@@ -64,6 +66,18 @@ class PhpAnnotationSet {
 	 */
 	public function getPhpMethodAnnoCollections() {
 		return $this->phpMethodAnnoCollections;
+	}
+	
+	public function assignAnnotationSet(AnnotationSet $annotationSet = null) {
+		$this->annotationSet = $annotationSet;
+	}
+	
+	public function isAnnotationSetAssigned() {
+		return null !== $this->annotationSet;
+	}
+	
+	public function getAnnotationSet() {
+		return $this->annotationSet;
 	}
 	
 	/**

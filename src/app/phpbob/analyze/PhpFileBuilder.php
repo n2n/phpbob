@@ -42,11 +42,11 @@ class PhpFileBuilder {
 		}
 		
 		if (PhpbobAnalyzingUtils::isClassStatement($phpStatement)) {
-			$phpType = $this->createPhpClass($phpStatement);
+			$this->createPhpClass($phpStatement);
 		} elseif (PhpbobAnalyzingUtils::isInterfaceStatement($phpStatement)) {
-			$phpType = $this->createPhpInterface($phpStatement);
+			$this->createPhpInterface($phpStatement);
 		} else {
-			$phpType = $this->createPhpTrait($phpStatement);
+			$this->createPhpTrait($phpStatement);
 		}
 		
 		$this->unprocessedStatements = [];
@@ -112,7 +112,7 @@ class PhpFileBuilder {
 		$this->applyClassLike($phpClass, $phpStatement);
 	}
 	
-	private static function createPhpInterface(PhpStatement $phpStatement) {
+	private function createPhpInterface(PhpStatement $phpStatement) {
 		ArgUtils::assertTrue($phpStatement instanceof StatementGroup
 				&& PhpbobAnalyzingUtils::isInterfaceStatement($phpStatement));
 		
@@ -354,7 +354,8 @@ class PhpFileBuilder {
 					$parameterPart = substr($parameterPart, strlen(Phpbob::SPLAT_INDICATOR));
 				}
 				
-				if (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $parameterPart)) {
+				if (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $parameterPart) 
+						|| StringUtils::startsWith(Phpbob::VARIABLE_REFERENCE_PREFIX . Phpbob::VARIABLE_PREFIX, $parameterPart)) {
 					$parameterName = $parameterPart;
 					continue;
 				}
@@ -367,11 +368,13 @@ class PhpFileBuilder {
 			}
 			
 			if (null === $parameterName) {
-				throw new PhpSourceAnalyzingException('Invalid method parameter: ' . $parameter);
+				throw new PhpSourceAnalyzingException('Invalid method parameter: ' . $parameter . ' in method ' . "\n" . $phpParamContainer);
 			}
 			
-			$phpParamContainer->createPhpParam(PhpbobAnalyzingUtils::purifyPropertyName($parameterName),
+			$param = $phpParamContainer->createPhpParam(PhpbobAnalyzingUtils::purifyPropertyName($parameterName),
 					$value, $this->buildTypeDef($typeName), $splat);
+			
+			$param->setPassedByReference(StringUtils::startsWith(Phpbob::VARIABLE_REFERENCE_PREFIX, $parameterName));
 		}
 	}
 	
