@@ -413,17 +413,21 @@ class PhpElementFactory {
 	public function getPhpUses() {
 		return $this->phpUses;
 	}
+
 	
 	/**
 	 * @param string $typeName
 	 * @param string $alias
 	 * @param string $type
+	 * @param bool $lenient
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpUse
 	 */
 	public function createPhpUse(string $typeName, 
-			string $alias = null, string $type = null) {
+			string $alias = null, string $type = null, bool $lenient = true) {
 		if ($this->hasPhpUse($typeName)) {
+			if ($lenient) return $this->getPhpUse($typeName);
+			
 			throw new IllegalStateException('Use for typename ' . $typeName . ' already defined.');
 		}
 		

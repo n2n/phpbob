@@ -18,14 +18,6 @@ abstract class PhpVariable {
 		$this->name = $name;
 		$this->value = $value;
 	}
-	
-	public function getName() {
-		return $this->name;
-	}
-	
-	public function setName(string $name) {
-		$this->name = $name;
-	}
 
 	public function getValue() {
 		return $this->value;
@@ -37,9 +29,9 @@ abstract class PhpVariable {
 		return $this;
 	}
 	
-// 	public function isNullable() {
-// 		return $this->value === Phpbob::KEYWORD_NULL;
-// 	}
+	public function hasValue() {
+		return $this->value === Phpbob::KEYWORD_NULL;
+	}
 	
 	protected function getNameValueString() {
 		$string = $this->checkVariableName($this->name);

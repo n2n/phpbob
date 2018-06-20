@@ -2,6 +2,7 @@
 namespace phpbob\representation\anno;
 
 use phpbob\Phpbob;
+use n2n\reflection\annotation\Annotation;
 
 class PhpMethodAnnoCollection extends PhpAnnoCollectionAdapter {
 	
@@ -30,6 +31,13 @@ class PhpMethodAnnoCollection extends PhpAnnoCollectionAdapter {
 	
 	public function onMethodNameChange(\Closure $closure) {
 		$this->methodNameChangeClosures[] = $closure;
+	}
+
+	public function determineAnnotation(PhpAnno $phpAnno): ?Annotation {
+		if (!$this->phpAnnotationSet->isAnnotationSetAssigned()) return null;
+	
+		return $this->phpAnnotationSet->getAnnotationSet()->getMethodAnnotation($this->methodName, 
+				$phpAnno->getPhpTypeDef()->determineUseTypeName());
 	}
 	
 	private function triggerMethodNameChange(string $oldMethodName, string $newMethodName) {

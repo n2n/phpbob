@@ -76,6 +76,6 @@ class PhpbobAnalyzingUtils {
 	}
 	
 	public static function purifyPropertyName($propertyName) {
-		return str_replace(Phpbob::VARIABLE_PREFIX, '', $propertyName);
+		return str_replace(array(Phpbob::VARIABLE_PREFIX, Phpbob::VARIABLE_REFERENCE_PREFIX), '', $propertyName);
 	}
 }

@@ -102,7 +102,7 @@ abstract class PhpNamespaceElementCreator {
 	/**
 	 * @param string $name
 	 * @throws UnknownElementException
-	 * @return PhpConst
+	 * @return PhpType
 	 */
 	public function getPhpType(string $name) {
 		return $this->phpElementFactory->getPhpType($name);

@@ -4,16 +4,16 @@ namespace phpbob\representation\anno;
 use phpbob\Phpbob;
 
 class PhpAnnoParam {
-	private $phpAnnoCollection;
+	private $phpAnno;
 	private $value;
 	
-	public function __construct(PhpAnnoCollection $phpAnnoCollection, string $value) {
-		$this->phpAnnoCollection = $phpAnnoCollection;
+	public function __construct(PhpAnno $phpAnno, string $value) {
+		$this->phpAnno = $phpAnno;
 		$this->value = $value;
 	}
 	
-	public function getPhpAnnoCollection() {
-		return $this->phpAnnoCollection;
+	public function getPhpAnno() {
+		return $this->phpAnno;
 	}
 	
 	public function isString() {
@@ -23,7 +23,7 @@ class PhpAnnoParam {
 	public function getStringValue() {
 		if (!$this->isString()) return null;
 		
-		return preg_replace('/((^\')|(^")|(\'$)|("$))/', $this->value);
+		return preg_replace('/((^\')|(^")|(\'$)|("$))/', '', $this->value);
 	}
 	
 	public function __toString() {

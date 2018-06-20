@@ -2,6 +2,7 @@
 namespace phpbob\representation\anno;
 
 use phpbob\representation\anno\PhpAnnotationSet;
+use n2n\reflection\annotation\Annotation;
 
 interface PhpAnnoCollection {
 	public function getPhpAnnotationSet(): PhpAnnotationSet;
@@ -44,6 +45,8 @@ interface PhpAnnoCollection {
 	public function isEmpty();
 	
 	public function appendPrependingCode(string $prependingCode = null);
+	
+	public function determineAnnotation(PhpAnno $phpAnno): ?Annotation;
 	
 	public function __toString();
 }

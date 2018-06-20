@@ -6,13 +6,19 @@ use n2n\util\StringUtils;
 use phpbob\representation\PhpTypeDef;
 
 class PhpAnno {
-	private $phpAnno;
+	private $phpAnnoCollection;
 	private $phpAnnoParams = array();
 	private $phpTypeDef;
 	
 	public function __construct(PhpAnnoCollection $phpAnnoCollection, PhpTypeDef $phpTypeDef) {
-		$this->phpAnno = $phpAnnoCollection;
+		$this->phpAnnoCollection = $phpAnnoCollection;
 		$this->phpTypeDef = $phpTypeDef;
+	}
+	
+	public function resetPhpAnnoParams() {
+		$this->phpAnnoParams = [];
+		
+		return $this;
 	}
 	
 	public function getPhpAnnoParams() {
@@ -48,7 +54,7 @@ class PhpAnno {
 					. ' not Available in \"' . $this->phpTypeDef . '\"');
 		}
 		
-		return $this->phpAnnoParams[$position];
+		return $this->phpAnnoParams[$position - 1];
 	}
  
 	public function setPhpTypeDef(PhpTypeDef $phpTypeDef) {
@@ -57,6 +63,13 @@ class PhpAnno {
 	
 	public function isForAnno(string $typeName) {
 		return $this->phpTypeDef->determineUseTypeName() === $typeName;
+	}
+	
+	/**
+	 * @return \n2n\reflection\annotation\Annotation
+	 */
+	public function determineAnnotation() {
+		return $this->phpAnnoCollection->determineAnnotation($this);
 	}
 	
 	private static function escapeString(string $str) {
