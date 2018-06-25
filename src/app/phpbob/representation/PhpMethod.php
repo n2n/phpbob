@@ -40,8 +40,11 @@ class PhpMethod extends PhpParamContainerAdapter {
 	public function getClassifier() {
 		return $this->classifier;
 	}
-
-	public function setClassifier(string $classifier) {
+	
+	public function setClassifier(string $classifier = null) {
+		if ($classifier === null) {
+			$classifier = Phpbob::CLASSIFIER_PUBLIC;
+		}
 		ArgUtils::valEnum($classifier, Phpbob::getClassifiers());
 		$this->classifier = $classifier;
 		
