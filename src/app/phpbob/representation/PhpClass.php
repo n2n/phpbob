@@ -84,6 +84,10 @@ class PhpClass extends PhpClassLikeAdapter {
 		return $phpTypeDefs;
 	}
 	
+	public function getClassName() {
+		return PhprepUtils::extractClassName($this->name);
+	}
+	
 	public static function fromTypeName(string $typeName) {
 		$namespace = PhprepUtils::extractNamespace($typeName);
 		$className = PhprepUtils::extractClassName($typeName);
