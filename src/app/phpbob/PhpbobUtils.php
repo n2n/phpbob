@@ -1,7 +1,7 @@
 <?php
 namespace phpbob;
 
-class PhprepUtils {
+class PhpbobUtils {
 // 	public static function typeNameToPath($typeName) {
 // 		return str_replace(Phpbob::NAMESPACE_SEPERATOR, DIRECTORY_SEPARATOR, trim($typeName, Phpbob::NAMESPACE_SEPERATOR)) 
 // 				. Phpbob::PHP_FILE_EXTENSION;

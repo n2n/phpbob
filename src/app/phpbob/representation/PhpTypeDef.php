@@ -2,7 +2,7 @@
 namespace phpbob\representation;
 
 use n2n\util\StringUtils;
-use phpbob\PhprepUtils;
+use phpbob\PhpbobUtils;
 use phpbob\Phpbob;
 
 class PhpTypeDef {
@@ -50,7 +50,7 @@ class PhpTypeDef {
 	public function valNameAssociationCorrect(string $localName, string $typeName = null) {
 		if (null === $typeName || $localName === $typeName) return;
 		
-		$localNameParts = PhprepUtils::explodeTypeName($localName);
+		$localNameParts = PhpbobUtils::explodeTypeName($localName);
 		if (count($localNameParts) === 1) {
 			if (StringUtils::endsWith($localName, $typeName)) return;
 			
@@ -71,10 +71,10 @@ class PhpTypeDef {
 	public function determineUseTypeName() {
 		if (null === $this->typeName || $this->typeName === $this->localName) return null;
 		
-		$localNameParts = PhprepUtils::explodeTypeName($this->localName);
+		$localNameParts = PhpbobUtils::explodeTypeName($this->localName);
 		if (count($localNameParts) === 1) return $this->typeName;
 		
-		$typeNameParts = PhprepUtils::explodeTypeName($this->typeName);
+		$typeNameParts = PhpbobUtils::explodeTypeName($this->typeName);
 		return implode(Phpbob::NAMESPACE_SEPERATOR, 
 				array_slice($typeNameParts, 0, count($typeNameParts) - count($localNameParts) - 1));
 	}
@@ -82,7 +82,7 @@ class PhpTypeDef {
 	public function determineAlias() {
 		if (null === $this->typeName || $this->typeName === $this->localName) return null;
 		
-		$localNameParts = PhprepUtils::explodeTypeName($this->localName);
+		$localNameParts = PhpbobUtils::explodeTypeName($this->localName);
 		if (count($localNameParts) === 1) return null;
 		
 		return array_shift($localNameParts);
@@ -97,6 +97,6 @@ class PhpTypeDef {
 	}
 	
 	public static function fromTypeName(string $typeName) {
-		return new PhpTypeDef(PhprepUtils::extractClassName($typeName), $typeName);
+		return new PhpTypeDef(PhpbobUtils::extractClassName($typeName), $typeName);
 	}
 }
