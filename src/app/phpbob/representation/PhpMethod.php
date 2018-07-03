@@ -112,8 +112,8 @@ class PhpMethod extends PhpParamContainerAdapter {
 // 	public function determineParamTypeNames(PhpType $phpType) {
 // 		foreach ($this->params as $param) {
 // 			$typeName = $param->getTypeName();
-// 			if (null === $typeName || PhprepUtils::isInRootNamespace($typeName) 
-// 					|| null === PhprepUtils::extractNamespace($typeName)) continue;
+// 			if (null === $typeName || PhpbobUtils::isInRootNamespace($typeName) 
+// 					|| null === PhpbobUtils::extractNamespace($typeName)) continue;
 			
 // 			$param->setTypeName($phpType->extractUse($param->getTypeName()));
 // 		}

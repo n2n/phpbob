@@ -3,7 +3,7 @@ namespace phpbob\representation;
 
 use phpbob\Phpbob;
 use phpbob\representation\traits\InterfacesTrait;
-use phpbob\PhprepUtils;
+use phpbob\PhpbobUtils;
 
 class PhpClass extends PhpClassLikeAdapter {
 	use InterfacesTrait;
@@ -85,12 +85,12 @@ class PhpClass extends PhpClassLikeAdapter {
 	}
 	
 	public function getClassName() {
-		return PhprepUtils::extractClassName($this->name);
+		return PhpbobUtils::extractClassName($this->name);
 	}
 	
 	public static function fromTypeName(string $typeName) {
-		$namespace = PhprepUtils::extractNamespace($typeName);
-		$className = PhprepUtils::extractClassName($typeName);
+		$namespace = PhpbobUtils::extractNamespace($typeName);
+		$className = PhpbobUtils::extractClassName($typeName);
 		
 		$phpFile = new PhpFile();
 		return $phpFile->createPhpNamespace($namespace)->createPhpClass($className);

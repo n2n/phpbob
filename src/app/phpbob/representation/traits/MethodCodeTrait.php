@@ -1,7 +1,7 @@
 <?php
 namespace phpbob\representation\traits;
 
-use phpbob\PhprepUtils;
+use phpbob\PhpbobUtils;
 
 trait MethodCodeTrait {
 	private $methodCode;
@@ -24,7 +24,7 @@ trait MethodCodeTrait {
 		foreach (explode(PHP_EOL, $this->methodCode) as $methodCodeLine) {
 			if (preg_match('/^\s*$/', $methodCodeLine)) continue;
 			
-			$str .= str_repeat("\t", $numLeadingTabs) . PhprepUtils::removeLeadingWhiteSpaces($methodCodeLine) . PHP_EOL;
+			$str .= str_repeat("\t", $numLeadingTabs) . PhpbobUtils::removeLeadingWhiteSpaces($methodCodeLine) . PHP_EOL;
 		}
 		
 		return $str;

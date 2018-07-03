@@ -5,7 +5,7 @@ use n2n\util\ex\IllegalStateException;
 use phpbob\representation\ex\UnknownElementException;
 use n2n\util\StringUtils;
 use n2n\reflection\ArgUtils;
-use phpbob\PhprepUtils;
+use phpbob\PhpbobUtils;
 use phpbob\representation\ex\DuplicateElementException;
 use phpbob\Phpbob;
 
@@ -376,7 +376,7 @@ class PhpElementFactory {
 	 */
 	public function determineTypeName(string $localName) {
 		$thePhpUse = null;
-		$localNameParts = PhprepUtils::explodeTypeName($localName);
+		$localNameParts = PhpbobUtils::explodeTypeName($localName);
 		$alias = null;
 		if (count($localNameParts) > 1) {
 			$alias = array_shift($localNameParts);

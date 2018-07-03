@@ -320,9 +320,9 @@ class PhpAnnotationSet {
 // 	private function checkTypeNames(PhpAnno $phpAnno) {
 // 		foreach ($phpAnno->getParams() as $annoParam) {
 // 			$typeName = $annoParam->getTypeName();
-// 			if (null === PhprepUtils::extractNamespace($typeName)) return;
+// 			if (null === PhpbobUtils::extractNamespace($typeName)) return;
 // 			$this->phpClass->addUse(new PhpUse($typeName));
-// 			$annoParam->setTypeName(PhprepUtils::extractClassName($typeName));
+// 			$annoParam->setTypeName(PhpbobUtils::extractClassName($typeName));
 // 		}
 // 	} 
 }

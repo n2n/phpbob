@@ -5,7 +5,7 @@ use phpbob\representation\traits\PrependingCodeTrait;
 use phpbob\representation\ex\UnknownElementException;
 use n2n\util\ex\IllegalStateException;
 use phpbob\representation\PhpTypeDef;
-use phpbob\PhprepUtils;
+use phpbob\PhpbobUtils;
 
 abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	use PrependingCodeTrait;
@@ -67,7 +67,7 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 		$this->checkPhpAnnoName($typeName);
 		
 		if ($localName === null) {
-			$localName = PhprepUtils::extractClassName($typeName);
+			$localName = PhpbobUtils::extractClassName($typeName);
 		}
 	
 		$phpAnnoParam = new PhpAnno($this, new PhpTypeDef($localName, $typeName));

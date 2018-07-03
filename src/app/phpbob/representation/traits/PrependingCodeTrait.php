@@ -1,7 +1,7 @@
 <?php
 namespace phpbob\representation\traits;
 
-use phpbob\PhprepUtils;
+use phpbob\PhpbobUtils;
 use n2n\util\StringUtils;
 
 trait PrependingCodeTrait {
@@ -27,7 +27,7 @@ trait PrependingCodeTrait {
 			return '';
 		}
 
-		$this->prependingCode = PhprepUtils::removeLeadingWhiteSpaces($this->prependingCode);
+		$this->prependingCode = PhpbobUtils::removeLeadingWhiteSpaces($this->prependingCode);
 		
 		if (StringUtils::endsWith($this->prependingCode, PHP_EOL)) {
 			return $this->prependingCode;
