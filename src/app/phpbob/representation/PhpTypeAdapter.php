@@ -65,6 +65,8 @@ abstract class PhpTypeAdapter implements PhpType {
 			unset($that->phpConsts[$oldName]);
 			$that->phpConsts[$newName] = $tmpPhpConst;
 		});
+		
+		$this->phpConsts[$name] = $phpConst;
 			
 		return $phpConst;
 	}

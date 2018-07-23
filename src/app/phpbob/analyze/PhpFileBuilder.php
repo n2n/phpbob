@@ -262,9 +262,11 @@ class PhpFileBuilder {
 	private function applyPhpConst(PhpType $phpType, PhpStatement $phpStatement) {
 		ArgUtils::assertTrue(PhpbobAnalyzingUtils::isConstStatement($phpStatement));
 		$codeParts = self::determineCodeParts($phpStatement, true);
-		ArgUtils::assertTrue(count($codeParts) === 3);
-		// due to the isPropertyStatement method it s ensured that there are at least 2 Parts
-		$phpConst = $phpType->createPhpConst($codeParts[1], $codeParts[2]);
+		//shift "const"
+		array_shift($codeParts);
+		$name = array_shift($codeParts);
+		$value = implode(' ', $codeParts);
+		$phpConst = $phpType->createPhpConst($name, $value);
 		
 		$phpConst->setPrependingCode($this->createPrependingCode($phpStatement));
 	}
