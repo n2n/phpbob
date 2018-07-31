@@ -3,6 +3,7 @@ namespace phpbob\representation\traits;
 
 use phpbob\representation\PhpNamespaceElementCreator;
 use phpbob\representation\PhpFile;
+use phpbob\representation\PhpNamespace;
 
 trait PhpNamespaceElementTrait {
 	protected $phpFile;
@@ -15,6 +16,9 @@ trait PhpNamespaceElementTrait {
 		return $this->phpFile;
 	}
 	
+	/**
+	 * @return PhpNamespace
+	 */
 	public function getPhpNamespace() {
 		return $this->phpNamespace;
 	}
