@@ -1,7 +1,6 @@
 <?php
 namespace phpbob\representation;
 
-use n2n\io\fs\FsPath;
 use phpbob\Phpbob;
 
 class PhpFile extends PhpNamespaceElementCreator {
