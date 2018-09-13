@@ -9,7 +9,6 @@ use phpbob\Phpbob;
 use phpbob\representation\PhpUse;
 use phpbob\StatementGroup;
 use phpbob\representation\PhpTypeDef;
-use phpbob\representation\PhpClass;
 use n2n\util\StringUtils;
 use phpbob\representation\PhpType;
 use phpbob\representation\PhpClassLike;

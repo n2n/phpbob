@@ -1,8 +1,6 @@
 <?php
 namespace phpbob\representation\anno;
 
-use phpbob\Phpbob;
-
 class PhpAnnoParam {
 	private $phpAnno;
 	private $value;
