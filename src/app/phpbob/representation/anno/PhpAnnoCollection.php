@@ -2,6 +2,7 @@
 namespace phpbob\representation\anno;
 
 use n2n\reflection\annotation\Annotation;
+use n2n\util\ex\IllegalStateException;
 
 interface PhpAnnoCollection {
 	public function getPhpAnnotationSet(): PhpAnnotationSet;
