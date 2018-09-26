@@ -37,7 +37,7 @@ class PhpPropertyAnnoCollection extends PhpAnnoCollectionAdapter {
 				$phpAnno->getPhpTypeDef()->determineUseTypeName());
 	}
 	
-	public function __toString() {
+	public function __toString(): string {
 		if ($this->isEmpty()) return $this->getPrependingString();
 		
 		return $this->getPrependingString() . "\t\t" . $this->phpAnnotationSet->getAiVariableName() . '->p(\'' 

@@ -22,7 +22,7 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	 * @param string $typeName
 	 * @return bool
 	 */
-	public function hasPhpAnno(string $typeName) {
+	public function hasPhpAnno(string $typeName): bool {
 		return isset($this->phpAnnos[$typeName]);
 	}
 	
@@ -31,7 +31,7 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	 * @throws UnknownElementException
 	 * @return PhpAnno
 	 */
-	public function getPhpAnno(string $typeName) {
+	public function getPhpAnno(string $typeName): PhpAnno {
 		if (!isset($this->phpAnnos[$typeName])) {
 			throw new UnknownElementException('No Anno Param with name "' . $typeName . '" given.');
 		}
@@ -53,7 +53,7 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	/**
 	 * @return PhpAnno []
 	 */
-	public function getPhpAnnos() {
+	public function getPhpAnnos(): array {
 		return $this->phpAnnos;
 	}
 	
@@ -63,7 +63,7 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	 * @throws IllegalStateException
 	 * @return PhpAnno
 	 */
-	public function createPhpAnno(string $typeName, string $localName = null) {
+	public function createPhpAnno(string $typeName, string $localName = null): PhpAnno {
 		$this->checkPhpAnnoName($typeName);
 		
 		if ($localName === null) {
@@ -107,7 +107,7 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 		return implode(', ', $this->phpAnnos);
  	}
  	
- 	public function getPhpTypeDefs() {
+ 	public function getPhpTypeDefs(): array {
  		$phpTypeDefs = [];
  		foreach ($this->phpAnnos as $phpAnno) {
  			$phpTypeDefs[] = $phpAnno->getPhpTypeDef(); 
@@ -122,7 +122,7 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
  		$this->prependingCode .= $prependingCode;
  	}
 	
-	public function isEmpty() {
+	public function isEmpty(): bool {
 		return count($this->phpAnnos) === 0;
 	}
 }
