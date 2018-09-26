@@ -3,6 +3,7 @@ namespace phpbob\representation\anno;
 
 use n2n\reflection\annotation\Annotation;
 use n2n\util\ex\IllegalStateException;
+use phpbob\representation\PhpTypeDef;
 
 interface PhpAnnoCollection {
 	public function getPhpAnnotationSet(): PhpAnnotationSet;
@@ -10,19 +11,19 @@ interface PhpAnnoCollection {
 	 * @param string $typeName
 	 * @return bool
 	 */
-	public function hasPhpAnno(string $typeName);
+	public function hasPhpAnno(string $typeName): bool;
 	
 	/**
 	 * @param string $typeName
 	 * @throws UnknownElementException
 	 * @return PhpAnno
 	 */
-	public function getPhpAnno(string $typeName);
+	public function getPhpAnno(string $typeName): PhpAnno;
 	
 	/**
 	 * @return PhpAnno []
 	 */
-	public function getPhpAnnos();
+	public function getPhpAnnos(): array;
 	
 	/**
 	 * @param string $typeName
@@ -30,7 +31,7 @@ interface PhpAnnoCollection {
 	 * @throws IllegalStateException
 	 * @return PhpAnno
 	 */
-	public function createPhpAnno(string $typeName, string $localName = null);
+	public function createPhpAnno(string $typeName, string $localName = null): PhpAnno;
 	
 	/**
 	 * @param string $typeName
@@ -40,13 +41,26 @@ interface PhpAnnoCollection {
 	
 	public function resetPhpAnnos();
 	
-	public function getPhpTypeDefs();
+	/**
+	 * @return PhpTypeDef []
+	 */
+	public function getPhpTypeDefs(): array;
 
-	public function isEmpty();
+	/**
+	 * @return bool
+	 */
+	public function isEmpty(): bool;
 	
+	/**
+	 * @param string $prependingCode
+	 */
 	public function appendPrependingCode(string $prependingCode = null);
 	
+	/**
+	 * @param PhpAnno $phpAnno
+	 * @return Annotation|NULL
+	 */
 	public function determineAnnotation(PhpAnno $phpAnno): ?Annotation;
 	
-	public function __toString();
+	public function __toString(): string;
 }
