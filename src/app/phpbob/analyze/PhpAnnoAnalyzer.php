@@ -8,13 +8,13 @@ use n2n\reflection\ArgUtils;
 class PhpAnnoAnalyzer {
 
 	/**
-	 * @param unknown $paramString
+	 * @param string $paramString
 	 * @param array $variableDefinitions
 	 * @throws PhpAnnotationSourceAnalyzingException
 	 * @throws PhpSourceAnalyzingException
 	 * @return \phpbob\analyze\PhpAnnoDef[]
 	 */
-	public function analyze($paramString, array $variableDefinitions) {
+	public function analyze(string $paramString, array $variableDefinitions) {
 		ArgUtils::valArray($variableDefinitions, PhpAnnoDef::class);
 		$annos = array();
 	

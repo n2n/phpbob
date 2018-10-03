@@ -2,6 +2,7 @@
 namespace phpbob\representation;
 
 use phpbob\Phpbob;
+use n2n\util\ex\IllegalStateException;
 
 class PhpFile extends PhpNamespaceElementCreator {
 	

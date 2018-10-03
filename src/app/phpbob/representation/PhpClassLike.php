@@ -3,6 +3,8 @@ namespace phpbob\representation;
 
 use phpbob\representation\anno\PhpAnnotationSet;
 use phpbob\Phpbob;
+use phpbob\representation\ex\UnknownElementException;
+use n2n\util\ex\IllegalStateException;
 
 interface PhpClassLike extends PhpType {
 	/**

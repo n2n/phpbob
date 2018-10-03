@@ -4,6 +4,7 @@ namespace phpbob\representation\anno;
 use n2n\reflection\annotation\Annotation;
 use n2n\util\ex\IllegalStateException;
 use phpbob\representation\PhpTypeDef;
+use phpbob\representation\ex\UnknownElementException;
 
 interface PhpAnnoCollection {
 	public function getPhpAnnotationSet(): PhpAnnotationSet;
@@ -35,9 +36,9 @@ interface PhpAnnoCollection {
 	
 	/**
 	 * @param string $typeName
-	 * @return \phpbob\representation\anno\PhpAnnoAdapter
+	 * @return PhpAnnoCollection
 	 */
-	public function removePhpAnno(string $typeName);
+	public function removePhpAnno(string $typeName): PhpAnnoCollection;
 	
 	public function resetPhpAnnos();
 	

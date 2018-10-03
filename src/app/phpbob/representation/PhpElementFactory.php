@@ -465,7 +465,7 @@ class PhpElementFactory {
 	}
 	
 	/**
-	 * @param unknown $typeName
+	 * @param string $typeName
 	 * @return \phpbob\representation\PhpElementFactory
 	 */
 	public function removePhpUse(string $typeName) {

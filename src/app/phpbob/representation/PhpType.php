@@ -1,6 +1,8 @@
 <?php
 namespace phpbob\representation;
 
+use phpbob\representation\ex\UnknownElementException;
+
 interface PhpType extends PhpNamespaceElement {
 	/**
 	 * @param string $name

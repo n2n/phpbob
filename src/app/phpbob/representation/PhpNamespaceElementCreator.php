@@ -1,6 +1,9 @@
 <?php
 namespace phpbob\representation;
 
+use phpbob\representation\ex\UnknownElementException;
+use n2n\util\ex\IllegalStateException;
+
 abstract class PhpNamespaceElementCreator {
 
 	protected $phpElementFactory;

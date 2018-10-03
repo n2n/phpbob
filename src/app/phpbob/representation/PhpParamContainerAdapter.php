@@ -27,7 +27,7 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 	}
 	
 	/**
-	 * @param bool $returnValueNullable
+	 * @param boolean $returnValueNullable
 	 * @return \phpbob\representation\PhpParamContainerAdapter
 	 */
 	public function setReturnValueNullable(bool $returnValueNullable) {
@@ -37,7 +37,7 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 	}
 	
 	/**
-	 * @return boolean|\phpbob\representation\bool
+	 * @return boolean
 	 */
 	public function isReturnValueNullable() {
 		return $this->returnValueNullable;
