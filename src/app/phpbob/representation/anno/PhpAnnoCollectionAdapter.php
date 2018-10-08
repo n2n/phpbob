@@ -76,12 +76,12 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 
 		return $phpAnnoParam;
 	}
-	
+
 	/**
-	 * @param string $typeName
-	 * @return \phpbob\representation\anno\PhpAnnoAdapter
+	 * {@inheritDoc}
+	 * @see \phpbob\representation\anno\PhpAnnoCollection::removePhpAnno()
 	 */
-	public function removePhpAnno(string $typeName) {
+	public function removePhpAnno(string $typeName): PhpAnnoCollection {
 		unset($this->phpAnnos[$typeName]);
 		
 		return $this;

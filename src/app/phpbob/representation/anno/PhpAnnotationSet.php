@@ -84,7 +84,7 @@ class PhpAnnotationSet {
 	 * @param string $methodName
 	 * @param PhpTypeDef $returnPhpTypeDef
 	 * @throws IllegalStateException
-	 * @return \phpbob\representation\PhpMethodAnnoCollection
+	 * @return PhpMethodAnnoCollection
 	 */
 	public function createPhpMethodAnnoCollection(string $methodName) {
 		$this->checkPhpMethodName($methodName);
