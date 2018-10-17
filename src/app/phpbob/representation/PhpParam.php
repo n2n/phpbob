@@ -81,7 +81,11 @@ class PhpParam extends PhpVariable {
 		}
 		
 		if ($this->splat) {
-			$string .= Phpbob::SPLAT_INDICATOR;
+			$string .= Phpbob::SPLAT_INDICATOR . ' ';
+		}
+		
+		if ($this->passedByReference) {
+			$string .= Phpbob::VARIABLE_REFERENCE_PREFIX . ' ';
 		}
 		
 		return $string . $this->getNameValueString(true);
