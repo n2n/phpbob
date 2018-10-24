@@ -89,7 +89,7 @@ class PhpTypeDef {
 	}
 	
 	public function isBool() {
-		return null !== $this->typeName && $this->localName === Phpbob::TYPE_BOOLEAN;
+		return null !== $this->localName && $this->localName === Phpbob::TYPE_BOOLEAN;
 	}
 	
 	public function __toString() {

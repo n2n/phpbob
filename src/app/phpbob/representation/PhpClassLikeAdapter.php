@@ -94,26 +94,25 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @param PhpTypeDef
 	 */
 	public function determinePhpTypeDef(string $propertyName) {
-		if ($this->hasPhpSetter($propertyName) && 
-				null !== $phpTypeDef = $this->getPhpSetter($propertyName)->getReturnPhpTypeDef()) {
+		if ($this->hasPhpGetter($propertyName) && 
+				null !== $phpTypeDef = $this->getPhpGetter($propertyName)->getReturnPhpTypeDef()) {
 			return $phpTypeDef;
 		}
 		
-		if ($this->hasPhpGetter($propertyName)) {
-			$phpGetter = $this->getPhpGetter($propertyName);
+		if ($this->hasPhpGetter($propertyName, true) && 
+				null !== $phpTypeDef = $this->getPhpGetter($propertyName, true)->getReturnPhpTypeDef()) {
+			return $phpTypeDef;
+		}
+		
+		if ($this->hasPhpSetter($propertyName)) {
+			$phpGetter = $this->getPhpSetter($propertyName);
 			if (null !== ($firstPhpParam = $phpGetter->getFirstPhpParam()) 
 					&& (null !== $phpTypeDef = $firstPhpParam->getPhpTypeDef())) {
 				return $phpTypeDef;			
 			}
 		}
 		
-		if ($this->hasPhpGetter($propertyName)) {
-			$phpGetter = $this->getPhpGetter($propertyName);
-			if (null !== ($firstPhpParam = $phpGetter->getFirstPhpParam())
-					&& (null !== $phpTypeDef = $firstPhpParam->getPhpTypeDef())) {
-				return $phpTypeDef;
-			}
-			
+		if ($this->hasPhpGetter($propertyName, true)) {
 			return new PhpTypeDef('bool');
 		}
 		
@@ -168,22 +167,42 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		return $phpMethodClone;
 	}
 	
+	
 	/**
 	 * @param string $name
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpMethod
 	 */
 	public function createPhpSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null) {
+		$methodName = self::determineSetterMethodName($propertyName);
+		if ($this->hasPhpMethod($methodName)) {
+			$this->removePhpMethod($methodName);
+		}
+		
+		return $this->updateOrCreatePhpSetter($propertyName, $phpTypeDef, $value);
+	}
+	
+	/**
+	 * @param string $name
+	 * @throws IllegalStateException
+	 * @return \phpbob\representation\PhpMethod
+	 */
+	public function updateOrCreatePhpSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null) {
 		if (!$this->hasPhpProperty($propertyName)) {
 			throw new IllegalStateException('No property with name \'' . $propertyName . '\' available.');
 		}
 		
 		$methodName = self::determineSetterMethodName($propertyName);
 		
-		$phpMethod = $this->createPhpMethod($methodName);
+		$phpMethod = null;
+		if ($this->hasPhpMethod($methodName)) {
+			$phpMethod = $this->getPhpMethod($methodName);
+		} else {
+			$phpMethod = $this->createPhpMethod($methodName);
+		}
 		
-		$phpMethod->createPhpParam($propertyName, $value, $phpTypeDef);
-		$phpMethod->setMethodCode('$this->' . $propertyName . ' ' . Phpbob::ASSIGNMENT . ' $' . $propertyName . Phpbob::SINGLE_STATEMENT_STOP);
+		$phpMethod->resetPhpParams()->createPhpParam($propertyName, $value, $phpTypeDef);
+		$phpMethod->setMethodCode("\t\t" . '$this->' . $propertyName . ' ' . Phpbob::ASSIGNMENT . ' $' . $propertyName . Phpbob::SINGLE_STATEMENT_STOP);
 			
 		return $phpMethod;
 	}
@@ -194,20 +213,53 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @return \phpbob\representation\PhpMethod
 	 */
 	public function createPhpGetter(string $propertyName, PhpTypeDef $phpTypeDef = null) {
+		$methodName = self::determineGetterMethodName($propertyName, (null !== $phpTypeDef && $phpTypeDef->isBool()));
+		if ($this->hasPhpMethod($methodName)) {
+			$this->removePhpMethod($methodName);
+		}
+		
+		return $this->updateOrCreatePhpGetter($propertyName, $phpTypeDef);
+	}
+	
+	/**
+	 * @param string $name
+	 * @throws IllegalStateException
+	 * @return \phpbob\representation\PhpMethod
+	 */
+	public function updateOrCreatePhpGetter(string $propertyName, PhpTypeDef $phpTypeDef = null) {
 		if (!$this->hasPhpProperty($propertyName)) {
 			throw new IllegalStateException('No property with name \'' . $propertyName . '\' available.');
 		}
 		
 		$methodName = self::determineGetterMethodName($propertyName, (null !== $phpTypeDef && $phpTypeDef->isBool()));
 		
-		$phpMethod = $this->createPhpMethod($methodName);
+		if (null !== $phpTypeDef && $phpTypeDef->isBool()) {
+			if (!$this->hasPhpMethod($methodName) && $this->hasPhpMethod(self::determineGetterMethodName($propertyName))) {
+				$methodName = self::determineGetterMethodName($propertyName);
+			}
+		}
 		
-		$phpMethod->setMethodCode('return $this->' . $propertyName . Phpbob::SINGLE_STATEMENT_STOP);
+		if ($this->hasPhpMethod($methodName)) {
+			$phpMethod = $this->getPhpMethod($methodName);
+		} else {
+			$phpMethod = $this->createPhpMethod($methodName);
+		}
+		
+		$phpMethod->resetPhpParams()->setMethodCode("\t\t" . 'return $this->' . $propertyName . Phpbob::SINGLE_STATEMENT_STOP);
 			
 		return $phpMethod;
 	}
 	
+	public function updateOrCreatePhpGetterAndSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null) {
+		
+		$this->updateOrCreatePhpGetter($propertyName, $phpTypeDef);
+		$this->updateOrCreatePhpSetter($propertyName, $phpTypeDef, $value);
+		
+		return $this;
+	}
+	
 	public function createPhpGetterAndSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null) {
+		
 		$this->createPhpGetter($propertyName, $phpTypeDef);
 		$this->createPhpSetter($propertyName, $phpTypeDef, $value);
 		

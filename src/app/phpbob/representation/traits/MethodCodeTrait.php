@@ -1,7 +1,7 @@
 <?php
 namespace phpbob\representation\traits;
 
-use phpbob\PhpbobUtils;
+use n2n\util\StringUtils;
 
 trait MethodCodeTrait {
 	private $methodCode;
@@ -17,16 +17,17 @@ trait MethodCodeTrait {
 		return $this;
 	}
 	
-	public function generateMethodCodeStr(int $numLeadingTabs) {
+	public function generateMethodCodeStr() {
 		if (empty($this->methodCode)) return '';
+		$methodCodeStr = $this->methodCode;
 		
-		$str = PHP_EOL;
-		foreach (explode(PHP_EOL, $this->methodCode) as $methodCodeLine) {
-			if (preg_match('/^\s*$/', $methodCodeLine)) continue;
-			
-			$str .= str_repeat("\t", $numLeadingTabs) . PhpbobUtils::removeLeadingWhiteSpaces($methodCodeLine) . PHP_EOL;
+		if (!StringUtils::startsWith(PHP_EOL, $this->methodCode)) {
+			$methodCodeStr = PHP_EOL . $methodCodeStr;
 		}
 		
-		return $str;
+		if (!StringUtils::endsWith(PHP_EOL, $this->methodCode)) {
+			$methodCodeStr = $methodCodeStr . PHP_EOL;
+		}
+		return $methodCodeStr;
 	}
 }

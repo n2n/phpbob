@@ -154,7 +154,7 @@ class PhpMethod extends PhpParamContainerAdapter {
 		}
 
 		
-		return $string . $this->generateMethodCodeStr(2) . "\t" . (!$this->abstract ? Phpbob::GROUP_STATEMENT_CLOSE : ';') . PHP_EOL;
+		return $string . $this->generateMethodCodeStr() . "\t" . (!$this->abstract ? Phpbob::GROUP_STATEMENT_CLOSE : ';') . PHP_EOL;
 	}
 
 	private function appendToString($string, $append) {
