@@ -68,7 +68,7 @@ class PhpbobAnalyzingUtils {
 	
 	public static function isUseStatement(PhpStatement $phpStatement) {
 		return $phpStatement instanceof SingleStatement
-				&& StringUtils::startsWith(Phpbob::KEYWORD_USE, ltrim(strtolower(implode(' ', $phpStatement->getCodeLines()))));
+				&& StringUtils::startsWith(Phpbob::KEYWORD_USE, ltrim(strtolower($phpStatement->getCode())));
 	}
 	
 	public static function isTraitUseStatement(PhpStatement $phpStatement) {

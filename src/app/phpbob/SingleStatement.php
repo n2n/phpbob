@@ -8,10 +8,6 @@ class SingleStatement extends PhpStatementAdapter {
 		$this->content = $content;
 	}
 	
-	public function getCode() {
-		return implode('', $this->getCodeLines());
-	}
-	
 	public function __toString() {
 		return $this->content . Phpbob::SINGLE_STATEMENT_STOP; 
 	}

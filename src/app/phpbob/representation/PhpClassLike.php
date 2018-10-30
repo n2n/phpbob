@@ -8,6 +8,10 @@ use n2n\util\ex\IllegalStateException;
 
 interface PhpClassLike extends PhpType {
 	/**
+	 * @return string
+	 */
+	public function getTypeName(): string;
+	/**
 	 * @param string $name
 	 * @return bool
 	 */

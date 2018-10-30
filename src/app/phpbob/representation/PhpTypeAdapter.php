@@ -96,7 +96,7 @@ abstract class PhpTypeAdapter implements PhpType {
 		return $this->determinePhpNamespaceElementCreator()->determineTypeName($localName);
 	}
 	
-	public function getTypeName() {
+	public function getTypeName(): string {
 		if (null === $this->getPhpNamespace()) return $this->getName();
 		
 		return $this->getPhpNamespace()->getName() . Phpbob::NAMESPACE_SEPERATOR .  $this->getName();
