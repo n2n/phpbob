@@ -7,6 +7,7 @@ use phpbob\representation\anno\PhpAnnotationSet;
 use phpbob\Phpbob;
 use phpbob\representation\traits\PrependingCodeTrait;
 use n2n\util\StringUtils;
+use n2n\reflection\ArgUtils;
 
 abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLike {
 	use PrependingCodeTrait;
@@ -358,10 +359,16 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		$that = $this;
 		$phpProperty->onNameChange(function($oldName, $newName) use ($that) {
 			$that->checkPhpPropertyName($newName);
-			
-			$tmpPhpProperty = $that->phpProperties[$oldName];
-			unset($that->phpProperties[$oldName]);
-			$that->phpProperties[$newName] = $tmpPhpProperty;
+			$tmpPhpProperties = [];
+			//keep the same order
+			foreach ($that->phpProperties as $aName => $aPhpProperty) {
+				if ($aName === $oldName) {
+					$tmpPhpProperties[$newName] = $aPhpProperty;
+				}  else {
+					$tmpPhpProperties[$aName] = $aPhpProperty;
+				}
+			}
+			$that->phpProperties = $tmpPhpProperties;
 		});
 		
 		$this->phpProperties[$name] = $phpProperty;
@@ -369,6 +376,23 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		return $phpProperty;
 	}
 	
+	/**
+	 * @param array $propertyNames
+	 */
+	public function orderProperties(array $propertyNames) {
+		ArgUtils::valArray($propertyNames, 'string', false, 'propertyNames');
+		ArgUtils::assertTrue(count($propertyNames) === count($this->phpProperties), 'Num properties doesn\'t match.');
+		
+		$tmpPhpProperties = [];
+		foreach ($propertyNames as $aPropertyName) {
+			ArgUtils::assertTrue(isset($this->phpProperties[$aPropertyName]), 
+					'Property with name \'' . $aPropertyName . '\' not defined in \'' . $this->getName() . '\'.');
+			$tmpPhpProperties[$aPropertyName] = $this->phpProperties[$aPropertyName];
+		}
+		$this->phpProperties = $tmpPhpProperties;
+		
+		return $this;
+	}
 	
 	/**
 	 * @param string $name
