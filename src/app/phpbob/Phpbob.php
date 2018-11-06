@@ -49,6 +49,7 @@ class Phpbob {
 	const TYPE_BOOLEAN = 'bool';
 	const TYPE_INTEGER = 'int';
 	const TYPE_STRING = 'string';
+	const TYPE_FLOAT = 'float';
 	const TYPE_ARRAY = 'array';
 	
 	public static function getClassifiers() {

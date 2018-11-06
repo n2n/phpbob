@@ -400,7 +400,11 @@ class PhpElementFactory {
 			$thePhpUse = $phpUse;
 		}
 		
-		if (null === $thePhpUse) return null;
+		if (null === $thePhpUse) {
+			if (count($localNameParts) > 1) return $localName;
+			
+			return $this->phpNamespace->getName() . Phpbob::NAMESPACE_SEPERATOR .  $localName;
+		}
 		
 		if (null === $alias) return $thePhpUse->getTypeName();
 		

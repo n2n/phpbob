@@ -71,6 +71,10 @@ class PhpProperty extends PhpVariable {
 		
 		return $this;
 	}
+	
+	public function determineTypeName(string $localName) {
+		return $this->phpClassLike->determineTypeName($localName);
+	}
 
 	public function __toString() {
 		$string = $this->getPrependingString() . "\t";

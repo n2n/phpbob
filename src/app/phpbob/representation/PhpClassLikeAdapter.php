@@ -6,6 +6,7 @@ use n2n\util\ex\IllegalStateException;
 use phpbob\representation\anno\PhpAnnotationSet;
 use phpbob\Phpbob;
 use phpbob\representation\traits\PrependingCodeTrait;
+use n2n\util\StringUtils;
 
 abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLike {
 	use PrependingCodeTrait;
@@ -105,8 +106,8 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		}
 		
 		if ($this->hasPhpSetter($propertyName)) {
-			$phpGetter = $this->getPhpSetter($propertyName);
-			if (null !== ($firstPhpParam = $phpGetter->getFirstPhpParam()) 
+			$phpSetter = $this->getPhpSetter($propertyName);
+			if (null !== ($firstPhpParam = $phpSetter->getFirstPhpParam()) 
 					&& (null !== $phpTypeDef = $firstPhpParam->getPhpTypeDef())) {
 				return $phpTypeDef;			
 			}
@@ -114,6 +115,34 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		
 		if ($this->hasPhpGetter($propertyName, true)) {
 			return new PhpTypeDef('bool');
+		}
+		
+		if ($this->hasPhpGetter($propertyName)) {
+			foreach (explode(PHP_EOL, (string) $this->getPhpGetter($propertyName)->getPrependingCode()) as $line) {
+				$pureLine = preg_replace('/^\s*\*\s*/', '', $line);
+				if (!StringUtils::startsWith('@return', $pureLine)) continue;
+				if (preg_match('/\s*\[\]\s*$/', $pureLine)) continue;
+				
+				return PhpTypeDef::fromTypeName($this->determineTypeName(preg_replace('/(^\@return\s*|\s*$)/', '', $pureLine)));
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * @param string $propertyName
+	 * @return \phpbob\representation\PhpTypeDef|NULL
+	 */
+	public function determineArrayLikePhpTypeDef(string $propertyName) {
+		if ($this->hasPhpGetter($propertyName)) {
+			foreach (explode(PHP_EOL, (string) $this->getPhpGetter($propertyName)->getPrependingCode()) as $line) {
+				$pureLine = preg_replace('/^\s*\*\s*/', '', $line);
+				if (!StringUtils::startsWith('@return', $pureLine)) continue;
+				if (!preg_match('/\s*\[\]\s*$/', $pureLine)) continue;
+				
+				return PhpTypeDef::fromTypeName($this->determineTypeName(preg_replace('/(^\@return\s*|\s*\[\]\s*$)/', '', $pureLine)));
+			}
 		}
 		
 		return null;
