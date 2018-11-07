@@ -9,7 +9,7 @@ class StatementGroup extends PhpStatementAdapter {
 	public function __construct($startCode = null) {
 		$this->startCode = $startCode;
 	}
-	public function getLines() {
+	public function getLines(): array {
 		return preg_split('/(\\r\\n|\\n|\\r)/', (string) $this->startCode);
 	}
 	

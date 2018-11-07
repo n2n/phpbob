@@ -56,6 +56,21 @@ class PhpAnno {
 		
 		return $this->phpAnnoParams[$position - 1];
 	}
+
+	/**
+	 * @param int $position
+	 * @param string $value
+	 * @return PhpAnnoParam
+	 */
+	public function getOrCreatePhpAnnoParam(int $position, string $value) {
+		if (!$this->hasPhpAnnoParam($position)) {
+			$this->phpAnnoParams[$position - 1] = new PhpAnnoParam($this, $value);
+		} else {
+			$this->phpAnnoParams[$position - 1]->setValue($value);
+		}
+		
+		return $this->phpAnnoParams[$position - 1];
+	}
  
 	public function setPhpTypeDef(PhpTypeDef $phpTypeDef) {
 		$this->phpTypeDef = $phpTypeDef;

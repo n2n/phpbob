@@ -195,7 +195,7 @@ abstract class PhpNamespaceElementCreator {
 	 * @param string $typeName
 	 * @param string $alias
 	 * @param string $type
-	 * @return \phpbob\representation\PhpUse
+	 * @return \phpbob\representation\PhpUse|null
 	 */
 	public function createPhpUse(string $typeName,
 			string $alias = null, string $type = null) {

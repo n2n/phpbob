@@ -32,7 +32,7 @@ class PhpAnnoSetAnalyzer {
 		$aiVariableName = null;
 		$matches = array();
 		if (preg_match('/private\s+static\s+function\s+_annos\s*\(\s*(n2n\\reflection\\annotation)?AnnoInit\s+(\$\S+)\)/',
-				implode(' ', $phpStatement->getCodeLines()), $matches) 
+				$phpStatement->getCode(), $matches) 
 				&& (count($matches) === 2 || count($matches) === 3)) {
 			$aiVariableName = end($matches);
 			$this->phpAnnotationSet->setAiVariableName($aiVariableName);
@@ -172,7 +172,7 @@ class PhpAnnoSetAnalyzer {
 	private function applyPhpClassAnno(PhpStatement $phpStatement, $aiVariableName, $prependingCode = null) {
 		$matches = array();
 		if (!preg_match('/' . preg_quote($aiVariableName) . '->c\s*\(\s*(.*)\s*\)\s*;/',
-			implode(' ', $phpStatement->getCodeLines()), $matches) || count($matches) !== 2) {
+			$phpStatement->getCode(), $matches) || count($matches) !== 2) {
 			throw new PhpAnnotationSourceAnalyzingException('Invalid Class Annotation statement' . $phpStatement);
 		}
 		
@@ -183,7 +183,7 @@ class PhpAnnoSetAnalyzer {
 	private function applyPhpMethodAnno(PhpStatement $phpStatement, $aiVariableName, $prependingCode = null) {
 		$matches = array();
 		if (!preg_match('/' . preg_quote($aiVariableName) . '->m\s*\(\s*\'([^\']*)\'\s*,\s*(.*)\s*\)\s*;/',
-				implode(' ', $phpStatement->getCodeLines()), $matches) || count($matches) !== 3) {
+				$phpStatement->getCode(), $matches) || count($matches) !== 3) {
 			throw new PhpAnnotationSourceAnalyzingException('Invalid Method Annotation statement: ' . $phpStatement);
 		}
 		
@@ -194,8 +194,8 @@ class PhpAnnoSetAnalyzer {
 	private function applyPhpPropertyAnno(PhpStatement $phpStatement, $aiVariableName, $prependingCode = null) {
 		$matches = array();
 		if (!preg_match('/' . preg_quote($aiVariableName) . '->p\s*\(\s*\'([^\']*)\'\s*,\s*(.*)\s*\)\s*;/',
-				implode(' ', $phpStatement->getCodeLines()), $matches) || count($matches) !== 3) {
-			throw new PhpAnnotationSourceAnalyzingException('Invalid Property Annotation statement: ' . $phpStatement);
+				$phpStatement->getCode(), $matches) || count($matches) !== 3) {
+			throw new PhpAnnotationSourceAnalyzingException($this->phpClassLike->getTypeName() .  ': Invalid Property Annotation statement: ' . $phpStatement);
 		}
 		
 		$this->applyAnnosFromString($this->phpAnnotationSet->getOrCreatePhpPropertyAnnoCollection($matches[1]), 
@@ -203,7 +203,7 @@ class PhpAnnoSetAnalyzer {
 	}
 	
 	private function createPrependingCode(PhpStatement $phpStatement, $additonalPrependingCode = null) {
-		return $additonalPrependingCode . implode(PHP_EOL, $phpStatement->getNonCodeLines());
+		return $additonalPrependingCode . implode(PHP_EOL, $phpStatement->getPrependingCommentLines());
 	}
 	
 	private function applyAnnosFromString(PhpAnnoCollection $phpAnnoCollection, string $paramString, 

@@ -400,7 +400,11 @@ class PhpElementFactory {
 			$thePhpUse = $phpUse;
 		}
 		
-		if (null === $thePhpUse) return null;
+		if (null === $thePhpUse) {
+			if (count($localNameParts) > 1) return $localName;
+			
+			return $this->phpNamespace->getName() . Phpbob::NAMESPACE_SEPERATOR .  $localName;
+		}
 		
 		if (null === $alias) return $thePhpUse->getTypeName();
 		
@@ -527,6 +531,7 @@ class PhpElementFactory {
 		return self::TYPE_PREFIX . $name;
 	}
 	
+	
 	public function resolvePhpTypeDefs() {
 		foreach ($this->phpFileElements as $phpFileElement) {
 			foreach ($phpFileElement->getPhpTypeDefs() as $phpTypeDef) {
@@ -548,8 +553,26 @@ class PhpElementFactory {
 			
 			if ($phpFileElement instanceof PhpUseContainer) {
 				$phpFileElement->resolvePhpTypeDefs();
+				$phpFileElement->removeUnnecessaryPhpUses();
 			}
 		}
+	}
+	
+	public function isInSameNamespace(string $typeName) {
+		return StringUtils::startsWith($this->phpNamespace->getName(), $typeName) && 
+				count(PhpbobUtils::explodeTypeName($typeName)) === count(PhpbobUtils::explodeTypeName($this->phpNamespace->getName())) + 1;
+	}
+	
+	public function removeUnnecessaryPhpUses() {
+		$phpUses = [];
+		foreach ($this->phpUses as $phpUse) {
+			if (!$phpUse->hasAlias() && $this->isInSameNamespace($phpUse->getTypeName())) {
+				continue;
+			}
+			$phpUses[] = $phpUse;
+		}
+		
+		$this->phpUses = $phpUses;
 	}
 	
 	public function __toString() {

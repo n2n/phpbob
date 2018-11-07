@@ -52,6 +52,10 @@ class PhpNamespace extends PhpNamespaceElementCreator implements PhpUseContainer
 	public function resolvePhpTypeDefs() {
 		$this->phpElementFactory->resolvePhpTypeDefs();
 	}
+	
+	public function removeUnnecessaryPhpUses() {
+		$this->phpElementFactory->removeUnnecessaryPhpUses();
+	}
 
 	public function __toString() {
 		return $this->getPrependingString() . Phpbob::KEYWORD_NAMESPACE . ' ' . $this->name 

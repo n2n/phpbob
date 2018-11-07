@@ -398,7 +398,7 @@ class PhpFileBuilder {
 	}
 	
 	private static function determineCodeParts(PhpStatement $phpStatement, bool $replaceAssignment = false) {
-		$str = trim(str_replace(Phpbob::SINGLE_STATEMENT_STOP, '', implode(' ', $phpStatement->getCodeLines())));
+		$str = trim(str_replace(Phpbob::SINGLE_STATEMENT_STOP, '', $phpStatement->getCode()));
 		if ($replaceAssignment) {
 			$str = str_replace(Phpbob::ASSIGNMENT, '', $str);
 		}
@@ -446,6 +446,6 @@ class PhpFileBuilder {
 	}
 	
 	private function createPrependingCode(PhpStatement $phpStatement) {
-		return implode(PHP_EOL, $phpStatement->getNonCodeLines());
+		return implode(PHP_EOL, $phpStatement->getPrependingCommentLines());
 	}
 }

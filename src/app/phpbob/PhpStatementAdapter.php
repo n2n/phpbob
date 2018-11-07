@@ -3,67 +3,110 @@ namespace phpbob;
 
 abstract class PhpStatementAdapter implements PhpStatement {
 	
-	private $codeLines = null;
-	private $nonCodeLines = null;
+	private $code = null;
+	private $prependingCommentLines = null;
 	
-	public function getLines() {
+	public function getLines(): array {
 		return preg_split('/(\\r\\n|\\n|\\r)/', (string) $this);
 	}
-	/**
-	 * 
-	 */
-	public function getCodeLines() {
-		if (null === $this->codeLines) {
+	
+	public function getCode(): string {
+		if (null === $this->code) {
 			$this->determineLines();
 		}
 		
-		return $this->codeLines;
+		return $this->code;
 	}
 	
-	public function getNonCodeLines() {
-		if (null === $this->nonCodeLines) {
+	public function getPrependingCommentLines(): array {
+		if (null === $this->prependingCommentLines) {
 			$this->determineLines();
 		}
 		
-		return $this->nonCodeLines;
+		return $this->prependingCommentLines;
 	}
 	
 	private function determineLines() {
-		$this->codeLines = array();
-		$this->nonCodeLines = array();
+		$this->code = '';
+		$this->prependingCommentLines = array();
 		$inComment = false;
 		
 		foreach ($this->getLines() as $line) {
-
-			if ($inComment) {
-				if ($this->hasCommentEnd($line)) {
-					$inComment = false;
+			if (empty($code)) {
+				if ($inComment) {
+					if ($this->hasCommentEnd($line)) {
+						$this->applyCodeLine($line);
+						$inComment = false;
+						continue;
+					}
+					
+					$this->prependingCommentLines[] = $line;
+					continue;
 				}
-				$this->nonCodeLines[] = $line;
-				continue;
+				
+				if (preg_match('/(^\s*$|^\s*(\/\/|#))/', $line)) {
+					$this->prependingCommentLines[] = $line;
+					continue;
+				}
+				
+				if (preg_match('/^\s*\/\*/', $line)) {
+					if (!$this->hasCommentEnd($line)) {
+						$inComment = true;
+						$this->prependingCommentLines[] = $line;
+						continue;
+					}
+					$this->applyCodeLine($line);
+					continue;
+				}
 			}
 			
-			if (preg_match('/(^\s*$|^\s*(\/\/|#))/', $line)) {
-				$this->nonCodeLines[] = $line;
-				continue;
-			}
-			
-			if (preg_match('/^\s*\/\*/', $line)) {
-				if (!$this->hasCommentEnd($line)) {
-					$inComment = true;
-				}
-				$this->nonCodeLines[] = $line;
-				continue;
-			}
-			$this->codeLines[] = $line;
+			$this->applyCodeLine($line);
 		}
-	} 
-	
+	}
+
+	private function hasCommentStart($string) {
+		return preg_match('/\/\*/', $string);
+	}
+
 	private function hasCommentEnd($string) {
 		return preg_match('/\*\//', $string);
 	}
 	
-	public function getCode() {
-		return implode(' ', $this->getCodeLines());
+	private function applyCodeLine(string $line) {
+		//replace tailing Comments 
+		$line = preg_replace('/(\/\/|#).*$/', '', $line);
+		
+		$lineParts = preg_split('/(\/\*|\*\/)/', $line, null, PREG_SPLIT_DELIM_CAPTURE);
+		if (count($lineParts) > 1) {
+			$str = '';
+			$tStr = '';
+			$inComment = null;
+			
+			foreach ($lineParts as $linePart) {
+				if ($this->hasCommentEnd($linePart)) {
+					$tStr = null;
+					$inComment = false;
+					continue;
+				}
+				
+				if ($this->hasCommentStart($linePart)) {
+					$str .= $tStr;
+					$inComment = true;
+					continue;
+				}
+				
+				$tStr .= $linePart;
+			}
+			if (!$inComment) {
+				$str .= $tStr;
+			}
+			
+			$line = $str;
+		}
+		
+		if (!empty($this->code)) {
+			$this->code .= ' ';
+		}
+ 		$this->code .= $line;
 	}
 }

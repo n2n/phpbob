@@ -58,6 +58,10 @@ class PhpUse {
 		
 		return $this;
 	}
+	
+	public function hasAlias() {
+		return null !== $this->alias;
+	}
 
 	public function __toString() {
 		$string = $this->getPrependingString() . Phpbob::KEYWORD_USE;

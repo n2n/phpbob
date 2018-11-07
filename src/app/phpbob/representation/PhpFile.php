@@ -62,6 +62,7 @@ class PhpFile extends PhpNamespaceElementCreator {
 	
 	public function getStringRepresentation() {
 		$this->phpElementFactory->resolvePhpTypeDefs();
+		$this->phpElementFactory->removeUnnecessaryPhpUses();
 
 		return Phpbob::PHP_BLOCK_BEGIN . PHP_EOL . $this->phpElementFactory;
 	}
