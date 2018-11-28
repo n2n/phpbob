@@ -69,6 +69,17 @@ class PhpElementFactory {
 	}
 	
 	/**
+	 * @return PhpNamespace
+	 */
+	public function getFirstPhpNameSpace() {
+		foreach ($this->phpFileElements as $phpNamespace) {
+			return $phpNamespace;
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * @param string $name
 	 * @param PhpTypeDef $returnPhpTypeDef
 	 * @throws IllegalStateException
