@@ -376,16 +376,30 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		return $phpProperty;
 	}
 	
+	
 	/**
 	 * @param array $propertyNames
+	 * @param bool $strict - if set to true, all properties must be in the propertyNames - by default the not set property names are prepended
 	 */
-	public function orderProperties(array $propertyNames) {
+	public function orderProperties(array $propertyNames, bool $strict = false) {
 		ArgUtils::valArray($propertyNames, 'string', false, 'propertyNames');
-		ArgUtils::assertTrue(count($propertyNames) === count($this->phpProperties), 'Num properties doesn\'t match.');
+		if ($strict) {
+			ArgUtils::assertTrue(count($propertyNames) === count($this->phpProperties), 'Num properties doesn\'t match.');
+		}
 		
 		$tmpPhpProperties = [];
+		foreach ($this->phpProperties as $phpProperty) {
+			$aPropertyName = $phpProperty->getName();
+			if (!in_array($aPropertyName, $propertyNames)) {
+				if ($strict) {
+					throw new \InvalidArgumentException('Property name ' . $aPropertyName . 'is missing');
+				}
+				$tmpPhpProperties[$aPropertyName] = $phpProperty;
+			}
+		}
+		
 		foreach ($propertyNames as $aPropertyName) {
-			ArgUtils::assertTrue(isset($this->phpProperties[$aPropertyName]), 
+			ArgUtils::assertTrue(isset($this->phpProperties[$aPropertyName]),
 					'Property with name \'' . $aPropertyName . '\' not defined in \'' . $this->getName() . '\'.');
 			$tmpPhpProperties[$aPropertyName] = $this->phpProperties[$aPropertyName];
 		}
