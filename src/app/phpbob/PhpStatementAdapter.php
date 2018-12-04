@@ -78,19 +78,24 @@ abstract class PhpStatementAdapter implements PhpStatement {
 		
 		$lineParts = preg_split('/(\/\*|\*\/)/', $line, null, PREG_SPLIT_DELIM_CAPTURE);
 		if (count($lineParts) > 1) {
-			$str = '';
+			$lineStr = '';
+			
 			$tStr = '';
 			$inComment = null;
 			
 			foreach ($lineParts as $linePart) {
 				if ($this->hasCommentEnd($linePart)) {
+					if (empty($this->code)) {
+						//this is the last prepending code line
+						$this->prependingCommentLines[] = $tStr . $linePart;
+					}
 					$tStr = null;
 					$inComment = false;
 					continue;
 				}
 				
 				if ($this->hasCommentStart($linePart)) {
-					$str .= $tStr;
+					$lineStr .= $tStr;
 					$inComment = true;
 					continue;
 				}
@@ -98,10 +103,10 @@ abstract class PhpStatementAdapter implements PhpStatement {
 				$tStr .= $linePart;
 			}
 			if (!$inComment) {
-				$str .= $tStr;
+				$lineStr .= $tStr;
 			}
 			
-			$line = $str;
+			$line = $lineStr;
 		}
 		
 		if (!empty($this->code)) {

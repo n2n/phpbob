@@ -104,6 +104,10 @@ class PhpTypeDef {
 		return null !== $this->localName && $this->localName === Phpbob::TYPE_FLOAT;
 	}
 	
+	public function isScalar() {
+		return $this->isBool() || $this->isInt() || $this->isString() || $this->isFloat();
+	}
+	
 	public function __toString() {
 		return $this->localName;
 	}

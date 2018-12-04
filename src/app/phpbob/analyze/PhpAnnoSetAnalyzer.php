@@ -156,23 +156,24 @@ class PhpAnnoSetAnalyzer {
 
 	private function isClassAnnotation(PhpStatement $phpStatement, $aiVariableName) {
 		return $phpStatement instanceof SingleStatement
-				&& preg_match('/' . preg_quote($aiVariableName) .'-\>c/', (string) $phpStatement);
+				&& preg_match('/' . preg_quote($aiVariableName) .'-\>c/', (string) $phpStatement->getCode());
 	}
 	
 	private function isMethodAnnotation(PhpStatement $phpStatement, $aiVariableName) {
 		return $phpStatement instanceof SingleStatement
-				&& preg_match('/' . preg_quote($aiVariableName) .'-\>m/', (string) $phpStatement);
+				&& preg_match('/' . preg_quote($aiVariableName) .'-\>m/', (string) $phpStatement->getCode());
 	}
 	
 	private function isPropertyAnnotation(PhpStatement $phpStatement, $aiVariableName) {
 		return $phpStatement instanceof SingleStatement
-				&& preg_match('/' . preg_quote($aiVariableName) .'-\>p/', (string) $phpStatement);
+				&& preg_match('/' . preg_quote($aiVariableName) .'-\>p/', (string) $phpStatement->getCode());
 	}
 
 	private function applyPhpClassAnno(PhpStatement $phpStatement, $aiVariableName, $prependingCode = null) {
 		$matches = array();
 		if (!preg_match('/' . preg_quote($aiVariableName) . '->c\s*\(\s*(.*)\s*\)\s*;/',
-			$phpStatement->getCode(), $matches) || count($matches) !== 2) {
+				$phpStatement->getCode(), $matches) || count($matches) !== 2) {
+					test($phpStatement->getCode());
 			throw new PhpAnnotationSourceAnalyzingException('Invalid Class Annotation statement' . $phpStatement);
 		}
 		

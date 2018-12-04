@@ -37,8 +37,18 @@ class PhpFile extends PhpNamespaceElementCreator {
 		return $this->phpElementFactory->getPhpNamespace($name);
 	}
 
+	/**
+	 * @return PhpNamespace []
+	 */
 	public function getPhpNameSpaces() {
 		return $this->phpElementFactory->getPhpNameSpaces();
+	}
+	
+	/**
+	 * @return PhpNamespace
+	 */
+	public function getFirstPhpNameSpace() {
+		return $this->phpElementFactory->getFirstPhpNameSpace();
 	}
 	
 	/**
