@@ -3,7 +3,7 @@ namespace phpbob\analyze;
 
 use phpbob\representation\PhpFile;
 use phpbob\PhpStatement;
-use n2n\reflection\ArgUtils;
+use n2n\util\type\ArgUtils;
 use phpbob\representation\PhpNamespaceElementCreator;
 use phpbob\Phpbob;
 use phpbob\representation\PhpUse;

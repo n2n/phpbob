@@ -4,7 +4,7 @@ namespace phpbob\representation;
 use n2n\util\ex\IllegalStateException;
 use phpbob\representation\ex\UnknownElementException;
 use n2n\util\StringUtils;
-use n2n\reflection\ArgUtils;
+use n2n\util\type\ArgUtils;
 use phpbob\PhpbobUtils;
 use phpbob\representation\ex\DuplicateElementException;
 use phpbob\Phpbob;

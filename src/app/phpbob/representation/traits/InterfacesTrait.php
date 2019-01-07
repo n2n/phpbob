@@ -2,7 +2,7 @@
 namespace phpbob\representation\traits;
 
 use phpbob\representation\PhpTypeDef;
-use n2n\reflection\ArgUtils;
+use n2n\util\type\ArgUtils;
 
 trait InterfacesTrait {
 	protected $interfacePhpTypeDefs = array();

@@ -2,7 +2,7 @@
 namespace phpbob\analyze;
 
 use phpbob\PhpStatement;
-use n2n\reflection\ArgUtils;
+use n2n\util\type\ArgUtils;
 use phpbob\Phpbob;
 use phpbob\SingleStatement;
 use phpbob\StatementGroup;

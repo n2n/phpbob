@@ -2,7 +2,7 @@
 namespace phpbob\representation;
 
 use phpbob\Phpbob;
-use n2n\reflection\ArgUtils;
+use n2n\util\type\ArgUtils;
 use phpbob\representation\traits\PrependingCodeTrait;
 use phpbob\representation\traits\PhpNamespaceElementTrait;
 
