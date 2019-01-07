@@ -7,7 +7,7 @@ use phpbob\representation\anno\PhpAnnotationSet;
 use phpbob\Phpbob;
 use phpbob\representation\traits\PrependingCodeTrait;
 use n2n\util\StringUtils;
-use n2n\reflection\ArgUtils;
+use n2n\util\type\ArgUtils;
 
 abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLike {
 	use PrependingCodeTrait;
