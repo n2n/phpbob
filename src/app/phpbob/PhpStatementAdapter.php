@@ -32,7 +32,7 @@ abstract class PhpStatementAdapter implements PhpStatement {
 		$inComment = false;
 		
 		foreach ($this->getLines() as $line) {
-			if (empty($code)) {
+			if (empty($this->code)) {
 				if ($inComment) {
 					if ($this->hasCommentEnd($line)) {
 						$this->applyCodeLine($line);
@@ -73,8 +73,8 @@ abstract class PhpStatementAdapter implements PhpStatement {
 	}
 	
 	private function applyCodeLine(string $line) {
-		//replace tailing Comments 
-		$line = preg_replace('/(\/\/|#).*$/', '', $line);
+		//replace tailing Comments
+		$line = $this->replaceTrailingComments($line);
 		
 		$lineParts = preg_split('/(\/\*|\*\/)/', $line, null, PREG_SPLIT_DELIM_CAPTURE);
 		if (count($lineParts) > 1) {
@@ -113,5 +113,41 @@ abstract class PhpStatementAdapter implements PhpStatement {
 			$this->code .= ' ';
 		}
  		$this->code .= $line;
+	}
+	
+	private function replaceTrailingComments(string $str) {
+		if (!preg_match('/(\/\/|#).*$/', $str)) return $str;
+		$inStr = null;
+		$firstSlashDetected = false;
+		
+		$newStr = '';
+		foreach (str_split($str) as $s) {
+			if (null !== $inStr) {
+				if ($inStr === $s) {
+					$inStr = null;
+				}
+				
+				$newStr .= $s;
+				continue;
+			}
+			
+			if ($s === '/') {
+				if ($firstSlashDetected) break;
+				
+				$firstSlashDetected = true;
+				continue;
+			}
+			
+			if ($s === '#') break;
+			
+			if ($s === '\'' || $s === '"') {
+				$inStr = $s;
+			}
+			
+			$newStr .= $s;
+
+		}
+		
+		return $newStr;
 	}
 }

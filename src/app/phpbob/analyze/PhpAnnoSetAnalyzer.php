@@ -173,7 +173,6 @@ class PhpAnnoSetAnalyzer {
 		$matches = array();
 		if (!preg_match('/' . preg_quote($aiVariableName) . '->c\s*\(\s*(.*)\s*\)\s*;/',
 				$phpStatement->getCode(), $matches) || count($matches) !== 2) {
-					test($phpStatement->getCode());
 			throw new PhpAnnotationSourceAnalyzingException('Invalid Class Annotation statement' . $phpStatement);
 		}
 		
