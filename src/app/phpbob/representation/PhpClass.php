@@ -57,7 +57,7 @@ class PhpClass extends PhpClassLikeAdapter {
 	public function __toString() {
 		$str = $this->getPrependingString() . $this->generateClassDefinition() . Phpbob::GROUP_STATEMENT_OPEN . PHP_EOL;
 
-		return $str .  $this->generateBody() . Phpbob::GROUP_STATEMENT_CLOSE;	
+		return $str .  $this->generateBody() .  Phpbob::GROUP_STATEMENT_CLOSE;	
 	}
 
 	private function generateClassDefinition() {

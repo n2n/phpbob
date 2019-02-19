@@ -81,7 +81,7 @@ class PhpParam extends PhpVariable {
 		}
 		
 		if ($this->splat) {
-			$string .= Phpbob::SPLAT_INDICATOR . ' ';
+			$string .= Phpbob::SPLAT_INDICATOR;
 		}
 		
 		if ($this->passedByReference) {
