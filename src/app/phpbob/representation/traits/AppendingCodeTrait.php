@@ -26,6 +26,6 @@ trait AppendingCodeTrait {
 			return '';
 		}
 		
-		return PhpbobUtils::removeLeadingEOLs(PhpbobUtils::removeTailingEOLs($this->appendingCode)) . PHP_EOL;
+		return PhpbobUtils::removeLeadingEOLs(PhpbobUtils::removeTailingWhiteSpaces($this->appendingCode)) . PHP_EOL;
 	}
 }

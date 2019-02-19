@@ -51,13 +51,9 @@ class PhpbobUtils {
 		return preg_replace('/^' . preg_quote(PHP_EOL) . '*/', '', (string) $string);
 	}
 
-	public static function removeTailingEOLs($string) {
-		return preg_replace('/' . preg_quote(PHP_EOL) . '*$/', '', (string) $string);
+	public static function removeTailingWhiteSpaces($string) {
+		return preg_replace('/\s*$/', '', (string) $string);
 	}
-	
-// 	public static function removeTrailingWhiteSpaces($string) {
-// 		return preg_replace('/\s*$/', '', (string) $string);
-// 	}
 	
 	public static function trimWhiteSpaces($string) {
 		return preg_replace('/(^\s*|^\s*)/', '', (string) $string);

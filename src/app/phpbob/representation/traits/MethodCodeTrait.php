@@ -1,7 +1,7 @@
 <?php
 namespace phpbob\representation\traits;
 
-use n2n\util\StringUtils;
+use phpbob\PhpbobUtils;
 
 trait MethodCodeTrait {
 	private $methodCode;
@@ -19,15 +19,8 @@ trait MethodCodeTrait {
 	
 	public function generateMethodCodeStr() {
 		if (empty($this->methodCode)) return '';
-		$methodCodeStr = $this->methodCode;
-		
-		if (!StringUtils::startsWith(PHP_EOL, $this->methodCode)) {
-			$methodCodeStr = PHP_EOL . $methodCodeStr;
-		}
-		
-		if (!StringUtils::endsWith(PHP_EOL, $this->methodCode)) {
-			$methodCodeStr = $methodCodeStr . PHP_EOL;
-		}
-		return $methodCodeStr;
+
+		return PHP_EOL . PhpbobUtils::removeTailingWhiteSpaces(
+				PhpbobUtils::removeLeadingEOLs($this->methodCode)) . PHP_EOL;
 	}
 }

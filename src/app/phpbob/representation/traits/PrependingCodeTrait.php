@@ -28,6 +28,6 @@ trait PrependingCodeTrait {
 
 		$this->prependingCode = PhpbobUtils::removeLeadingWhiteSpaces($this->prependingCode);
 		
-		return PhpbobUtils::removeTailingEOLs($this->prependingCode) . PHP_EOL;
+		return PhpbobUtils::removeTailingWhiteSpaces($this->prependingCode) . PHP_EOL;
 	}
 }
