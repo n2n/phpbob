@@ -91,7 +91,8 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 	 */
 	public function createPhpParam(string $name, string $value = null, 
 			PhpTypeDef $phpTypeDef = null, bool $splat = false) {
-		$phpParam = new PhpParam($this, $name, $value, $phpTypeDef, $splat);
+		$phpParam = new PhpParam($this, $name, $value, $phpTypeDef);
+		$phpParam->setSplat($splat);
 		$this->phpParams[$name] = $phpParam;
 		
 		return $phpParam;

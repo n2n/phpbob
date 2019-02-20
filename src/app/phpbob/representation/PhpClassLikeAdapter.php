@@ -8,9 +8,11 @@ use phpbob\Phpbob;
 use phpbob\representation\traits\PrependingCodeTrait;
 use n2n\util\StringUtils;
 use n2n\util\type\ArgUtils;
+use phpbob\representation\traits\AppendingCodeTrait;
 
 abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLike {
 	use PrependingCodeTrait;
+	use AppendingCodeTrait;
 	
 	private $phpAnnotationSet;
 	private $phpProperties = [];
@@ -217,7 +219,8 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpMethod
 	 */
-	public function updateOrCreatePhpSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null) {
+	public function updateOrCreatePhpSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null,
+			string $newMethodCode = null) {
 		if (!$this->hasPhpProperty($propertyName)) {
 			throw new IllegalStateException('No property with name \'' . $propertyName . '\' available.');
 		}
@@ -227,12 +230,18 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		$phpMethod = null;
 		if ($this->hasPhpMethod($methodName)) {
 			$phpMethod = $this->getPhpMethod($methodName);
+			$phpMethod->getFirstPhpParam()->setName($propertyName)->setValue($value)->setPhpTypeDef($phpTypeDef);
 		} else {
+			// the methodcode should only be created if no method code is available,
+			// otherwise custom getter methods are overwritten
 			$phpMethod = $this->createPhpMethod($methodName);
+			$phpMethod->setMethodCode("\t\t" . '$this->' . $propertyName . ' ' . Phpbob::ASSIGNMENT . ' $' . $propertyName . Phpbob::SINGLE_STATEMENT_STOP);
+			$phpMethod->createPhpParam($propertyName, $value, $phpTypeDef);
+		}
+		if (!empty($newMethodCode)) {
+			$phpMethod->setMethodCode($newMethodCode);
 		}
 		
-		$phpMethod->resetPhpParams()->createPhpParam($propertyName, $value, $phpTypeDef);
-		$phpMethod->setMethodCode("\t\t" . '$this->' . $propertyName . ' ' . Phpbob::ASSIGNMENT . ' $' . $propertyName . Phpbob::SINGLE_STATEMENT_STOP);
 			
 		return $phpMethod;
 	}
@@ -256,7 +265,8 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpMethod
 	 */
-	public function updateOrCreatePhpGetter(string $propertyName, PhpTypeDef $phpTypeDef = null) {
+	public function updateOrCreatePhpGetter(string $propertyName, PhpTypeDef $phpTypeDef = null, 
+			string $newMethodCode = null) {
 		if (!$this->hasPhpProperty($propertyName)) {
 			throw new IllegalStateException('No property with name \'' . $propertyName . '\' available.');
 		}
@@ -272,18 +282,25 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		if ($this->hasPhpMethod($methodName)) {
 			$phpMethod = $this->getPhpMethod($methodName);
 		} else {
+			// the methodcode should only be created if no method code is available, 
+			// otherwise custom getter methods are overwritten 
 			$phpMethod = $this->createPhpMethod($methodName);
+			$phpMethod->setMethodCode("\t\t" . 'return $this->' . $propertyName . Phpbob::SINGLE_STATEMENT_STOP);
 		}
 		
-		$phpMethod->resetPhpParams()->setMethodCode("\t\t" . 'return $this->' . $propertyName . Phpbob::SINGLE_STATEMENT_STOP);
+		if (!empty($newMethodCode)) {
+			$phpMethod->setMethodCode($newMethodCode);
+		}
 			
 		return $phpMethod;
 	}
 	
-	public function updateOrCreatePhpGetterAndSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null) {
+	public function updateOrCreatePhpGetterAndSetter(string $propertyName, 
+			PhpTypeDef $phpTypeDef = null, string $value = null, string $newGetterMethodCode = null,
+			string $newSetterMethodCode = null) {
 		
-		$this->updateOrCreatePhpGetter($propertyName, $phpTypeDef);
-		$this->updateOrCreatePhpSetter($propertyName, $phpTypeDef, $value);
+		$this->updateOrCreatePhpGetter($propertyName, $phpTypeDef, $newGetterMethodCode);
+		$this->updateOrCreatePhpSetter($propertyName, $phpTypeDef, $value, $newSetterMethodCode);
 		
 		return $this;
 	}
@@ -521,7 +538,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		}
 		
 		return $str . $this->generateTraitsStr() . $this->generateConstStr() . $this->generatePropertiesStr()  
-				. $this->generateMethodStr();
+				. $this->generateMethodStr() . $this->getAppendingString();
 	}
 	
 	protected function generateTraitsStr() {

@@ -191,6 +191,8 @@ class PhpFileBuilder {
 			
 			throw new PhpSourceAnalyzingException('Invalid PHP Statement: ' . $childPhpStatement);
 		}
+		
+		$phpClassLike->setAppendingCode($statementGroup->getEndCode());
 	}
 	
 	private function determinePrependingCode(PhpStatement $phpStatement) {
@@ -353,6 +355,11 @@ class PhpFileBuilder {
 					if (StringUtils::endsWith(Phpbob::SPLAT_INDICATOR, $parameterPart)) continue;
 					
 					$parameterPart = substr($parameterPart, strlen(Phpbob::SPLAT_INDICATOR));
+				}
+				
+				if (StringUtils::endsWith(Phpbob::SPLAT_INDICATOR, $parameterPart)) {
+					$splat = true;
+					$parameterPart = substr($parameterPart, 0, -strlen(Phpbob::SPLAT_INDICATOR));
 				}
 				
 				if (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $parameterPart) 

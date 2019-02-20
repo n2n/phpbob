@@ -105,4 +105,9 @@ interface PhpClassLike extends PhpType {
 	 * @param string $prependingCode
 	 */
 	public function setPrependingCode(string $prependingCode = null);
+	
+	/**
+	 * @param string $appendingCode
+	 */
+	public function setAppendingCode(string $appendingCode = null);
 }
