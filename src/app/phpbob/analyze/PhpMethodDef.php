@@ -117,7 +117,6 @@ class PhpMethodDef {
 					break;
 				case Phpbob::KEYWORD_STATIC:
 					$methodDef->setStatic(true);
-					$methodDef->setStatic(true);
 					break;
 				default:
 					$methodDef->setMethodName($part);

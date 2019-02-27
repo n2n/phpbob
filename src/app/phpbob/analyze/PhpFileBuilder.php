@@ -348,8 +348,16 @@ class PhpFileBuilder {
 			$typeName = null;
 			$value = null;
 			$splat = false;
+			$valueNullable = false;
 			
 			foreach ($parameterParts as $parameterPart) {
+				if (StringUtils::startsWith(Phpbob::OPTIONAL_INDICATOR, $parameterPart)) {
+					$valueNullable = true;
+					if (StringUtils::endsWith(Phpbob::OPTIONAL_INDICATOR, $parameterPart)) continue;
+					
+					$parameterPart = substr($parameterPart, strlen(Phpbob::OPTIONAL_INDICATOR));
+				}
+				
 				if (StringUtils::startsWith(Phpbob::SPLAT_INDICATOR, $parameterPart)) {
 					$splat = true;
 					if (StringUtils::endsWith(Phpbob::SPLAT_INDICATOR, $parameterPart)) continue;
@@ -383,6 +391,7 @@ class PhpFileBuilder {
 					$value, $this->buildTypeDef($typeName), $splat);
 			
 			$param->setPassedByReference(StringUtils::startsWith(Phpbob::VARIABLE_REFERENCE_PREFIX, $parameterName));
+			$param->setValueNullable($valueNullable);
 		}
 	}
 	
