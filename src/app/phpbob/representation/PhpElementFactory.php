@@ -386,6 +386,10 @@ class PhpElementFactory {
 	 * @return PhpUse
 	 */
 	public function determineTypeName(string $localName) {
+		if (StringUtils::startsWith(Phpbob::NAMESPACE_SEPERATOR, $localName)) {
+			return $localName;
+		}
+		
 		$thePhpUse = null;
 		$localNameParts = PhpbobUtils::explodeTypeName($localName);
 		$alias = null;

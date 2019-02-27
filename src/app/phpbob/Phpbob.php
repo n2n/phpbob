@@ -30,6 +30,7 @@ class Phpbob {
 	const KEYWORD_RETURN = 'return';
 	const KEYWORD_NULL = 'null';
 	const SPLAT_INDICATOR = '...';
+	const OPTIONAL_INDICATOR = '?';
 	
 	const SINGLE_STATEMENT_STOP = ';';
 	const GROUP_STATEMENT_OPEN = '{';

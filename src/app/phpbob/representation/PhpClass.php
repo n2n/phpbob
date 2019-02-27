@@ -63,7 +63,7 @@ class PhpClass extends PhpClassLikeAdapter {
 	private function generateClassDefinition() {
 		$extendsClause = '';
 		if (null !== $this->superClassTypeDef) {
-			$extendsClause .= ' ' . Phpbob::KEYWORD_EXTENDS . ' ' . $this->superClassTypeDef;
+			$extendsClause .= ' ' . Phpbob::KEYWORD_EXTENDS . ' ' . $this->superClassTypeDef->getLocalName();
 		}
 		
 		$implementsClause = '';
