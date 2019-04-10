@@ -97,7 +97,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	/**
 	 * @param PhpTypeDef
 	 */
-	public function determinePhpTypeDef(string $propertyName) {
+	public function determinePhpTypeDef(string $propertyName): ?PhpTypeDef {
 		if ($this->hasPhpGetter($propertyName) && 
 				null !== $phpTypeDef = $this->getPhpGetter($propertyName)->getReturnPhpTypeDef()) {
 			return $phpTypeDef;
@@ -137,7 +137,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @param string $propertyName
 	 * @return \phpbob\representation\PhpTypeDef|NULL
 	 */
-	public function determineArrayLikePhpTypeDef(string $propertyName) {
+	public function determineArrayLikePhpTypeDef(string $propertyName): ?PhpTypeDef {
 		if ($this->hasPhpGetter($propertyName)) {
 			foreach (explode(PHP_EOL, (string) $this->getPhpGetter($propertyName)->getPrependingCode()) as $line) {
 				$pureLine = preg_replace('/^\s*\*\s*/', '', $line);

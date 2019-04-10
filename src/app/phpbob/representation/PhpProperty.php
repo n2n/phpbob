@@ -61,6 +61,13 @@ class PhpProperty extends PhpVariable {
 	}
 	
 	/**
+	 * @return \phpbob\representation\PhpClassLike
+	 */
+	public function getPhpClassLike() {
+		return $this->phpClassLike;
+	}
+	
+	/**
 	 * @param string $typeName
 	 * @param string $alias
 	 * @param string $type
@@ -74,6 +81,20 @@ class PhpProperty extends PhpVariable {
 	
 	public function determineTypeName(string $localName) {
 		return $this->phpClassLike->determineTypeName($localName);
+	}
+	
+	/**
+	 * @return \phpbob\representation\PhpTypeDef
+	 */
+	public function determinePhpTypeDef() {
+		return $this->phpClassLike->determinePhpTypeDef($this->name);
+	}
+	
+	/**
+	 * @return \phpbob\representation\PhpTypeDef
+	 */
+	public function determineArrayLikePhpTypeDef() {
+		return $this->phpClassLike->determineArrayLikePhpTypeDef($this->name);
 	}
 
 	public function __toString() {

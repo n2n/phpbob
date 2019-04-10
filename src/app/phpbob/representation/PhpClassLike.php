@@ -110,4 +110,16 @@ interface PhpClassLike extends PhpType {
 	 * @param string $appendingCode
 	 */
 	public function setAppendingCode(string $appendingCode = null);
+	
+	/**
+	 * @param string $propertyName
+	 * @return PhpTypeDef|NULL
+	 */
+	public function determinePhpTypeDef(string $propertyName): ?PhpTypeDef;
+	
+	/**
+	 * @param string $propertyName
+	 * @return PhpTypeDef|NULL
+	 */
+	public function determineArrayLikePhpTypeDef(string $propertyName): ?PhpTypeDef;
 }
