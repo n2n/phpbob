@@ -6,6 +6,7 @@ use n2n\io\IoUtils;
 use n2n\core\TypeLoader;
 use n2n\util\type\ArgUtils;
 use phpbob\representation\PhpClass;
+use n2n\io\fs\FsPath;
 
 class PhpbobUtils {
 // 	public static function typeNameToPath($typeName) {
@@ -79,6 +80,12 @@ class PhpbobUtils {
 		ArgUtils::assertTrue($phpClass instanceof PhpClass);
 				
 		return $phpClass;
+	}
+	
+	public static function savePhpClass(PhpClass $phpClass, FsPath $fsPath = null) {
+		$fsPath = $fsPath ?? new FsPath(TypeLoader::getFilePathOfType($phpClass->getTypeName()));
+		
+		IoUtils::putContentsSafe($fsPath, $phpClass->getPhpFile()->getStringRepresentation());
 	}
 	
 // 	private static function isClassifier($s) {

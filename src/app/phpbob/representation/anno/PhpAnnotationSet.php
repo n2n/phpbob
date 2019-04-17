@@ -317,6 +317,10 @@ class PhpAnnotationSet {
 		return $this->phpClass->createPhpUse($typeName, $alias, $type);
 	}
 	
+	public function getPhpClass() {
+		return $this->phpClass;
+	}
+	
 // 	private function checkTypeNames(PhpAnno $phpAnno) {
 // 		foreach ($phpAnno->getParams() as $annoParam) {
 // 			$typeName = $annoParam->getTypeName();
