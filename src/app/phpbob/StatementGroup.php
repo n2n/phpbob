@@ -38,9 +38,10 @@ class StatementGroup extends PhpStatementAdapter {
 			return $this->getStatementsString();
 		}
 		
+		
 		return $this->startCode . Phpbob::GROUP_STATEMENT_OPEN . 
-				PhpbobUtils::removeTailingWhiteSpaces($this->getStatementsString()) 
-				. PHP_EOL . Phpbob::GROUP_STATEMENT_CLOSE;
+				PhpbobUtils::removeTailingWhiteSpaces($this->getStatementsString()) .
+				$this->endCode . Phpbob::GROUP_STATEMENT_CLOSE;
 	}
 	
 	public function getStatementsString() {
