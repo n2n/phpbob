@@ -81,6 +81,10 @@ class PhpAnnoAnalyzer {
 		$level = 0;
 		
 		$newClassString = preg_replace('/^' . Phpbob::KEYWORD_NEW . '\s+/', '', $newClassString);
+		//remove whitespaces before and after the brackets
+		$newClassString = preg_replace('/\s*(' . preg_quote(Phpbob::PARAMETER_GROUP_START) . '|' 
+				. preg_quote(Phpbob::PARAMETER_GROUP_END) . ')\s*/', '$1', $newClassString);
+		
 		foreach (str_split((string) $newClassString) as $char) {
 			switch ($char) {
 				case Phpbob::PARAMETER_GROUP_START:

@@ -45,4 +45,8 @@ class PhpAnnoParam {
 	public function setValue(string $value) {
 		$this->value = $value;
 	}
+	
+	public function getValue() {
+		return $this->value;
+	}
 }

@@ -85,7 +85,7 @@ class PhpParam extends PhpVariable {
 		}
 		
 		if ($this->passedByReference) {
-			$string .= Phpbob::VARIABLE_REFERENCE_PREFIX . ' ';
+			$string .= Phpbob::VARIABLE_REFERENCE_PREFIX;
 		}
 		
 		return $string . $this->getNameValueString(true);

@@ -71,9 +71,12 @@ abstract class PhpTypeAdapter implements PhpType {
 		return $phpConst;
 	}
 	
-	public function createPhpUse(string $typeName,
-			string $alias = null, string $type = null) {
+	public function createPhpUse(string $typeName, string $alias = null, string $type = null) {
 		return $this->determinePhpNamespaceElementCreator()->createPhpUse($typeName, $alias, $type);
+	}
+	
+	public function hasPhpUse(string $typeName) {
+		return $this->determinePhpNamespaceElementCreator()->hasPhpUse($typeName);
 	}
 	
 	/**
