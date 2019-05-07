@@ -88,6 +88,10 @@ class PhpbobUtils {
 		IoUtils::putContentsSafe($fsPath, $phpClass->getPhpFile()->getStringRepresentation());
 	}
 	
+	public static function isSimpleType(string $type) {
+		return in_array($type, Phpbob::getTypes());
+	}
+	
 // 	private static function isClassifier($s) {
 // 		return preg_match('/^(private|protected|public)$/i');
 // 	}

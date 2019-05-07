@@ -62,8 +62,8 @@ class Phpbob {
 		return array(self::CLASSIFIER_PRIVATE, self::CLASSIFIER_PROTECTED, self::CLASSIFIER_PUBLIC);
 	}
 	
-	public static function isSimpleType(string $type) {
-		return in_array($type, [self::TYPE_BOOLEAN, self::TYPE_INTEGER, self::TYPE_STRING, self::TYPE_FLOAT, self::TYPE_ARRAY, 
-				self::TYPE_CALLABLE, self::TYPE_ITERABLE, self::TYPE_OBJECT, self::TYPE_OBJECT]);
+	public static function getTypes() {
+		return [self::TYPE_BOOLEAN, self::TYPE_INTEGER, self::TYPE_STRING, self::TYPE_FLOAT, self::TYPE_ARRAY, 
+				self::TYPE_CALLABLE, self::TYPE_ITERABLE, self::TYPE_OBJECT, self::TYPE_OBJECT];
 	}
 }
