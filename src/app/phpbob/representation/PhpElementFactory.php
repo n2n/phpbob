@@ -390,6 +390,10 @@ class PhpElementFactory {
 			return $localName;
 		}
 		
+		if (Phpbob::isSimpleType($localName)) {
+			return $localName;
+		}
+		
 		$thePhpUse = null;
 		$localNameParts = PhpbobUtils::explodeTypeName($localName);
 		$alias = null;
