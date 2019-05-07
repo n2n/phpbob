@@ -47,13 +47,23 @@ class Phpbob {
 	const SINGLE_COMMENT_START = '//';
 	const PHP_FILE_EXTENSION = '.php';
 	
+	//@see: https://www.php.net/manual/de/functions.arguments.php#functions.arguments.type-declaration
 	const TYPE_BOOLEAN = 'bool';
 	const TYPE_INTEGER = 'int';
 	const TYPE_STRING = 'string';
 	const TYPE_FLOAT = 'float';
 	const TYPE_ARRAY = 'array';
+	const TYPE_CALLABLE = 'callable';
+	const TYPE_ITERABLE = 'iterable';
+	const TYPE_OBJECT = 'object';
+	const TYPE_SELF = 'self';
 	
 	public static function getClassifiers() {
 		return array(self::CLASSIFIER_PRIVATE, self::CLASSIFIER_PROTECTED, self::CLASSIFIER_PUBLIC);
+	}
+	
+	public static function isSimpleType(string $type) {
+		return in_array($type, [self::TYPE_BOOLEAN, self::TYPE_INTEGER, self::TYPE_STRING, self::TYPE_FLOAT, self::TYPE_ARRAY, 
+				self::TYPE_CALLABLE, self::TYPE_ITERABLE, self::TYPE_OBJECT, self::TYPE_OBJECT]);
 	}
 }
