@@ -390,7 +390,7 @@ class PhpElementFactory {
 			return $localName;
 		}
 		
-		if (Phpbob::isSimpleType($localName)) {
+		if (PhpbobUtils::isSimpleType($localName)) {
 			return $localName;
 		}
 		
