@@ -2,7 +2,7 @@
 namespace phpbob\representation\traits;
 
 trait NameChangeSubjectTrait {
-	protected $nameChangeClosures;
+	protected $nameChangeClosures = [];
 	protected $name;
 	
 	public function onNameChange(\Closure $closure) {
