@@ -131,7 +131,7 @@ class PhpFileBuilder {
 			switch (strtolower($codePart)) {
 				case Phpbob::KEYWORD_EXTENDS:
 					$inExtendsClause = true;
-					continue;
+					break;
 			}
 		}
 		
