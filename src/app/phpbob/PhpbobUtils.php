@@ -2,11 +2,11 @@
 namespace phpbob;
 
 use phpbob\analyze\PhpSourceAnalyzer;
-use n2n\io\IoUtils;
+use n2n\util\io\IoUtils;
 use n2n\core\TypeLoader;
 use n2n\util\type\ArgUtils;
 use phpbob\representation\PhpClass;
-use n2n\io\fs\FsPath;
+use n2n\util\io\fs\FsPath;
 
 class PhpbobUtils {
 // 	public static function typeNameToPath($typeName) {
