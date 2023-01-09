@@ -18,6 +18,10 @@ trait AppendingCodeTrait {
 	}
 	
 	public function hasAppendingCode() {
+		if (null === $this->appendingCode) {
+			return false;
+		}
+		
 		return !empty(trim($this->appendingCode));
 	}
 	

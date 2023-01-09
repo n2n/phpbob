@@ -18,6 +18,10 @@ trait PrependingCodeTrait {
 	}
 	
 	public function hasPrependingCode() {
+		if (null === $this->prependingCode) {
+			return false;
+		}
+		
 		return !empty(trim($this->prependingCode));
 	}
 	
