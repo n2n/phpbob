@@ -105,9 +105,9 @@ class PhpSourceAnalyzer {
 					}
 						
 					$currentGroup->setEndCode($content);
-					if ('' !== trim($content)) {
-						/*throw new PhpSourceAnalyzingException('Invalid PHP File');*/
-					}
+					//if ('' !== trim($content)) {
+					/*throw new PhpSourceAnalyzingException('Invalid PHP File');*/
+					//}
 					$content = null;
 			
 					$currentGroup = array_pop($groupStack);

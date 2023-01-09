@@ -134,6 +134,6 @@ class PhpMethodDef {
 	}
 	
 	private static function explodeByWhiteSpaces($string) {
-		return preg_split('/\s+/', $string, null, PREG_SPLIT_NO_EMPTY);
+		return preg_split('/\s+/', $string, -1, PREG_SPLIT_NO_EMPTY);
 	}
 }

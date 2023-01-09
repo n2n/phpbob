@@ -76,7 +76,7 @@ abstract class PhpStatementAdapter implements PhpStatement {
 		//replace tailing Comments
 		$line = $this->replaceTrailingComments($line);
 		
-		$lineParts = preg_split('/(\/\*|\*\/)/', $line, null, PREG_SPLIT_DELIM_CAPTURE);
+		$lineParts = preg_split('/(\/\*|\*\/)/', $line, -1, PREG_SPLIT_DELIM_CAPTURE);
 		if (count($lineParts) > 1) {
 			$lineStr = '';
 			
