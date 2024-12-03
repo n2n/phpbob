@@ -205,7 +205,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpMethod
 	 */
-	public function createPhpSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null) {
+	public function createPhpSetter(string $propertyName, ?PhpTypeDef $phpTypeDef = null, ?string $value = null) {
 		$methodName = self::determineSetterMethodName($propertyName);
 		if ($this->hasPhpMethod($methodName)) {
 			$this->removePhpMethod($methodName);
@@ -219,8 +219,8 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpMethod
 	 */
-	public function updateOrCreatePhpSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null,
-			string $newMethodCode = null) {
+	public function updateOrCreatePhpSetter(string $propertyName, ?PhpTypeDef $phpTypeDef = null, ?string $value = null,
+			?string $newMethodCode = null) {
 		if (!$this->hasPhpProperty($propertyName)) {
 			throw new IllegalStateException('No property with name \'' . $propertyName . '\' available.');
 		}
@@ -251,7 +251,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpMethod
 	 */
-	public function createPhpGetter(string $propertyName, PhpTypeDef $phpTypeDef = null) {
+	public function createPhpGetter(string $propertyName, ?PhpTypeDef $phpTypeDef = null) {
 		$methodName = self::determineGetterMethodName($propertyName, (null !== $phpTypeDef && $phpTypeDef->isBool()));
 		if ($this->hasPhpMethod($methodName)) {
 			$this->removePhpMethod($methodName);
@@ -265,8 +265,8 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpMethod
 	 */
-	public function updateOrCreatePhpGetter(string $propertyName, PhpTypeDef $phpTypeDef = null, 
-			string $newMethodCode = null) {
+	public function updateOrCreatePhpGetter(string $propertyName, ?PhpTypeDef $phpTypeDef = null,
+			?string $newMethodCode = null) {
 		if (!$this->hasPhpProperty($propertyName)) {
 			throw new IllegalStateException('No property with name \'' . $propertyName . '\' available.');
 		}
@@ -296,8 +296,8 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	}
 	
 	public function updateOrCreatePhpGetterAndSetter(string $propertyName, 
-			PhpTypeDef $phpTypeDef = null, string $value = null, string $newGetterMethodCode = null,
-			string $newSetterMethodCode = null) {
+			?PhpTypeDef $phpTypeDef = null, ?string $value = null, ?string $newGetterMethodCode = null,
+			?string $newSetterMethodCode = null) {
 		
 		$this->updateOrCreatePhpGetter($propertyName, $phpTypeDef, $newGetterMethodCode);
 		$this->updateOrCreatePhpSetter($propertyName, $phpTypeDef, $value, $newSetterMethodCode);
@@ -305,7 +305,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 		return $this;
 	}
 	
-	public function createPhpGetterAndSetter(string $propertyName, PhpTypeDef $phpTypeDef = null, string $value = null) {
+	public function createPhpGetterAndSetter(string $propertyName, ?PhpTypeDef $phpTypeDef = null, ?string $value = null) {
 		
 		$this->createPhpGetter($propertyName, $phpTypeDef);
 		$this->createPhpSetter($propertyName, $phpTypeDef, $value);
@@ -478,7 +478,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpTraitUse
 	 */
-	public function createPhpTraitUse(string $typeName, string $localName = null): PhpTraitUse {
+	public function createPhpTraitUse(string $typeName, ?string $localName = null): PhpTraitUse {
 		$this->checkPhpTraitUseTypeName($typeName);
 		
 		if (null === $localName) {

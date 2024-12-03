@@ -41,7 +41,7 @@ interface PhpType extends PhpNamespaceElement {
 	 * 
 	 * @return PhpUse
 	 */
-	public function createPhpUse(string $typeName, string $alias = null, string $type = null);
+	public function createPhpUse(string $typeName, ?string $alias = null, ?string $type = null);
 	
 	/**
 	 * @param string $typeName

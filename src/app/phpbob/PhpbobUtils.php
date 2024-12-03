@@ -70,7 +70,7 @@ class PhpbobUtils {
 	 * @param string $typeName
 	 * @return \phpbob\representation\PhpClass
 	 */
-	public static function createPhpClass(string $typeName/* , AnnotationSet $as = null */) {
+	public static function createPhpClass(string $typeName/* , ?AnnotationSet $as = null */) {
 		$analyzer = new PhpSourceAnalyzer();
 		
 		$phpFile = $analyzer->analyze(IoUtils::getContents(TypeLoader::getFilePathOfType($typeName)));
@@ -82,7 +82,7 @@ class PhpbobUtils {
 		return $phpClass;
 	}
 	
-	public static function savePhpClass(PhpClass $phpClass, FsPath $fsPath = null) {
+	public static function savePhpClass(PhpClass $phpClass, ?FsPath $fsPath = null) {
 		$fsPath = $fsPath ?? new FsPath(TypeLoader::getFilePathOfType($phpClass->getTypeName()));
 		
 		IoUtils::putContentsSafe($fsPath, $phpClass->getPhpFile()->getStringRepresentation());

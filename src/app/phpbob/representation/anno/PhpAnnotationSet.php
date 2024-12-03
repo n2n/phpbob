@@ -68,7 +68,7 @@ class PhpAnnotationSet {
 		return $this->phpMethodAnnoCollections;
 	}
 	
-	public function assignAnnotationSet(AnnotationSet $annotationSet = null) {
+	public function assignAnnotationSet(?AnnotationSet $annotationSet = null) {
 		$this->annotationSet = $annotationSet;
 	}
 	
@@ -313,7 +313,7 @@ class PhpAnnotationSet {
 	}
 	
 	public function createPhpUse(string $typeName,
-			string $alias = null, string $type = null) {
+			?string $alias = null, ?string $type = null) {
 		return $this->phpClass->createPhpUse($typeName, $alias, $type);
 	}
 	

@@ -11,7 +11,7 @@ trait MethodCodeTrait {
 		return $this->methodCode;
 	}
 	
-	public function setMethodCode(string $methodCode = null) {
+	public function setMethodCode(?string $methodCode = null) {
 		$this->methodCode = (string) $methodCode;
 		
 		return $this;

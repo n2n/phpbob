@@ -13,7 +13,7 @@ class PhpSourceAnalyzer {
 	 * @param AnnotationSet $as
 	 * @return PhpFile
 	 */
-	public function analyze($phpSource/* , AnnotationSet $as = null */) {
+	public function analyze($phpSource/* , ?AnnotationSet $as = null */) {
 		
 		$rootGroup = $this->createPhpStatement($phpSource);
 		

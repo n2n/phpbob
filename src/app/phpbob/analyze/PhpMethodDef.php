@@ -70,7 +70,7 @@ class PhpMethodDef {
 		$this->methodName = $methodName;
 	}
 
-	public function setReturnTypeName(string $returnTypeName = null) {
+	public function setReturnTypeName(?string $returnTypeName = null) {
 		$this->returnTypeName = $returnTypeName;
 	}
 
@@ -78,7 +78,7 @@ class PhpMethodDef {
 		$this->parameterSignature = $parameterSignature;
 	}
 
-	public function setMethodCode(string $methodCode = null) {
+	public function setMethodCode(?string $methodCode = null) {
 		$this->methodCode = $methodCode;
 	}
 

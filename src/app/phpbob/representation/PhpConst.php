@@ -15,7 +15,7 @@ class PhpConst implements PhpNamespaceElement {
 	private $phpType;
 	
 	public function __construct(PhpFile $phpFile, string $name, string $value, 
-			PhpNamespace $phpNameSpace = null, PhpType $phpType = null) {
+			?PhpNamespace $phpNameSpace = null, ?PhpType $phpType = null) {
 		$this->phpFile = $phpFile;
 		$this->name = $name;
 		$this->value = $value;

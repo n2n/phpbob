@@ -20,7 +20,7 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 	 * @param PhpTypeDef $returnPhpTypeDef
 	 * @return \phpbob\representation\PhpParamContainerAdapter
 	 */
-	public function setReturnPhpTypeDef(PhpTypeDef $returnPhpTypeDef = null) {
+	public function setReturnPhpTypeDef(?PhpTypeDef $returnPhpTypeDef = null) {
 		$this->returnPhpTypeDef = $returnPhpTypeDef;
 		
 		return $this;
@@ -89,8 +89,8 @@ abstract class PhpParamContainerAdapter implements PhpParamContainer {
 	 * 
 	 * Creates a PhpParam for this Container, if there is already a param with this name, it gets replaced
 	 */
-	public function createPhpParam(string $name, string $value = null, 
-			PhpTypeDef $phpTypeDef = null, bool $splat = false) {
+	public function createPhpParam(string $name, ?string $value = null, 
+			?PhpTypeDef $phpTypeDef = null, bool $splat = false) {
 		$phpParam = new PhpParam($this, $name, $value, $phpTypeDef);
 		$phpParam->setSplat($splat);
 		$this->phpParams[$name] = $phpParam;

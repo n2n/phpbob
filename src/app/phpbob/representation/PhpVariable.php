@@ -12,8 +12,8 @@ abstract class PhpVariable {
 	
 	protected $value;
 	
-	public function __construct(string $name, string $value = null, 
-			string $prependingCode = null) {
+	public function __construct(string $name, ?string $value = null,
+			?string $prependingCode = null) {
 		$this->prependingCode = $prependingCode;
 		$this->name = $name;
 		$this->value = $value;
@@ -23,7 +23,7 @@ abstract class PhpVariable {
 		return $this->value;
 	}
 
-	public function setValue(string $value = null) {
+	public function setValue(?string $value = null) {
 		$this->value = $value;
 		
 		return $this;

@@ -41,7 +41,7 @@ abstract class PhpNamespaceElementCreator {
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpFunction
 	 */
-	public function createPhpFunction(string $name, PhpTypeDef $returnPhpTypeDef = null) {
+	public function createPhpFunction(string $name, ?PhpTypeDef $returnPhpTypeDef = null) {
 		return $this->phpElementFactory->createPhpFunction($name, $returnPhpTypeDef);
 	}
 	
@@ -198,7 +198,7 @@ abstract class PhpNamespaceElementCreator {
 	 * @return \phpbob\representation\PhpUse|null
 	 */
 	public function createPhpUse(string $typeName,
-			string $alias = null, string $type = null) {
+			?string $alias = null, ?string $type = null) {
 		return $this->phpElementFactory->createPhpUse($typeName, $alias, $type);
 	}
 	

@@ -63,7 +63,7 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
 	 * @throws IllegalStateException
 	 * @return PhpAnno
 	 */
-	public function createPhpAnno(string $typeName, string $localName = null): PhpAnno {
+	public function createPhpAnno(string $typeName, ?string $localName = null): PhpAnno {
 		$this->checkPhpAnnoName($typeName);
 		
 		if ($localName === null) {
@@ -116,7 +116,7 @@ abstract class PhpAnnoCollectionAdapter implements PhpAnnoCollection {
  		return $phpTypeDefs;
  	}
  	
- 	public function appendPrependingCode(string $prependingCode = null) {
+ 	public function appendPrependingCode(?string $prependingCode = null) {
  		if (null !== $prependingCode) return null;
  		
  		$this->prependingCode .= $prependingCode;

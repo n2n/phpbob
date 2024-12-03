@@ -10,11 +10,11 @@ class PhpTypeDef {
 	private $typeName;
 	private $typeNameChangeClosures = [];
 	
-	public function __construct(string $localName, string $typeName = null) {
+	public function __construct(string $localName, ?string $typeName = null) {
 		$this->changeName($localName, $typeName);
 	}
 	
-	public function changeName(string $localName, string $typeName = null) {
+	public function changeName(string $localName, ?string $typeName = null) {
 		$this->valNameAssociationCorrect($localName, $typeName);
 		
 		$this->localName = $localName;
@@ -41,13 +41,13 @@ class PhpTypeDef {
 		$this->typeNameChangeClosures[] = $typeNameChangeClosure;
 	}
 	
-	private function triggerTypeNameChange(string $oldTypeName = null, string $newTypeName = null) {
+	private function triggerTypeNameChange(?string $oldTypeName = null, ?string $newTypeName = null) {
 		foreach ($this->typeNameChangeClosures as $typeNameChangeClosure) {
 			$typeNameChangeClosure($oldTypeName, $newTypeName);
 		}
 	}
 
-	public function valNameAssociationCorrect(string $localName, string $typeName = null) {
+	public function valNameAssociationCorrect(string $localName, ?string $typeName = null) {
 		if (null === $typeName || $localName === $typeName) return;
 		
 		$localNameParts = PhpbobUtils::explodeTypeName($localName);

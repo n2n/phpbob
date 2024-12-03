@@ -32,7 +32,7 @@ interface PhpAnnoCollection {
 	 * @throws IllegalStateException
 	 * @return PhpAnno
 	 */
-	public function createPhpAnno(string $typeName, string $localName = null): PhpAnno;
+	public function createPhpAnno(string $typeName, ?string $localName = null): PhpAnno;
 	
 	/**
 	 * @param string $typeName
@@ -55,7 +55,7 @@ interface PhpAnnoCollection {
 	/**
 	 * @param string $prependingCode
 	 */
-	public function appendPrependingCode(string $prependingCode = null);
+	public function appendPrependingCode(?string $prependingCode = null);
 	
 	/**
 	 * @param PhpAnno $phpAnno

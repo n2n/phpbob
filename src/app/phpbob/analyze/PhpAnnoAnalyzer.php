@@ -119,7 +119,7 @@ class PhpAnnoAnalyzer {
 		return new PhpAnnoDef($typeName, self::buildConstructorParams($constructorString));
 	}
 	
-	private static function buildConstructorParams(string $constructor = null) {
+	private static function buildConstructorParams(?string $constructor = null) {
 		if (null === $constructor) return [];
 		
 		$constructorParams = [];

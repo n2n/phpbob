@@ -94,7 +94,7 @@ interface PhpClassLike extends PhpType {
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpTraitUse
 	 */
-	public function createPhpTraitUse(string $typeName, string $localName = null): PhpTraitUse;
+	public function createPhpTraitUse(string $typeName, ?string $localName = null): PhpTraitUse;
 	
 	/**
 	 * @return PhpAnnotationSet
@@ -104,12 +104,12 @@ interface PhpClassLike extends PhpType {
 	/**
 	 * @param string $prependingCode
 	 */
-	public function setPrependingCode(string $prependingCode = null);
+	public function setPrependingCode(?string $prependingCode = null);
 	
 	/**
 	 * @param string $appendingCode
 	 */
-	public function setAppendingCode(string $appendingCode = null);
+	public function setAppendingCode(?string $appendingCode = null);
 	
 	/**
 	 * @param string $propertyName

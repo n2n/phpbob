@@ -21,7 +21,7 @@ class PhpAnnoSetAnalyzer {
 		$this->phpAnnotationSet = $phpClassLike->getPhpAnnotationSet();
 	}
 	
-	public function analyze(PhpStatement $phpStatement/*, AnnotationSet $as = null */) {
+	public function analyze(PhpStatement $phpStatement/*, ?AnnotationSet $as = null */) {
 		if (!($phpStatement instanceof StatementGroup && PhpbobAnalyzingUtils::isAnnotationStatement($phpStatement))) {
 			throw new PhpAnnotationSourceAnalyzingException('invalid annotation-statement:' . 
 					$phpStatement);
@@ -115,7 +115,7 @@ class PhpAnnoSetAnalyzer {
 // 				number of method annotations does not match.');
 // 	}
 	
-// 	private function processClassAnno(AnnotationSet $as, PhpClassAnno $classAnno = null) {
+// 	private function processClassAnno(AnnotationSet $as, ?PhpClassAnno $classAnno = null) {
 // 		if (null === $classAnno) {
 // 			if (count($as->getClassAnnotations()) === 0) return;
 // 		} else {

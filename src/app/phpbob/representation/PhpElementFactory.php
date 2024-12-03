@@ -26,7 +26,7 @@ class PhpElementFactory {
 	 */
 	private $phpUses = array();
 	
-	public function __construct(PhpFile $phpFile, PhpNamespace $phpNamespace = null) {
+	public function __construct(PhpFile $phpFile, ?PhpNamespace $phpNamespace = null) {
 		$this->phpFile = $phpFile;
 		$this->phpNamespace = $phpNamespace;
 	}
@@ -159,7 +159,7 @@ class PhpElementFactory {
 	 * @throws IllegalStateException
 	 * @return \phpbob\representation\PhpFunction
 	 */
-	public function createPhpFunction(string $name, PhpTypeDef $returnPhpTypeDef = null) {
+	public function createPhpFunction(string $name, ?PhpTypeDef $returnPhpTypeDef = null) {
 		$this->checkNamespaceOnly();
 		$this->checkPhpFunctionName($name);
 		
@@ -447,7 +447,7 @@ class PhpElementFactory {
 	 * @return \phpbob\representation\PhpUse
 	 */
 	public function createPhpUse(string $typeName, 
-			string $alias = null, string $type = null, bool $lenient = true) {
+			?string $alias = null, ?string $type = null, bool $lenient = true) {
 		if ($this->hasPhpUse($typeName)) {
 			if ($lenient) return $this->getPhpUse($typeName);
 			

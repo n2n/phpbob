@@ -6,7 +6,7 @@ class UnknownPhpCode implements PhpNamespaceElement {
 	private $phpNamespace;
 	private $code;
 	
-	public function __construct(PhpFile $phpFile, string $code, PhpNamespace $phpNamespace = null) {
+	public function __construct(PhpFile $phpFile, string $code, ?PhpNamespace $phpNamespace = null) {
 		$this->phpFile = $phpFile;
 		$this->phpNamespace = $phpNamespace;
 		$this->code = $code;

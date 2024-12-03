@@ -11,7 +11,7 @@ interface PhpParamContainer {
 	 * @param PhpTypeDef $returnPhpTypeDef
 	 * @return \phpbob\representation\PhpParamContainerAdapter
 	 */
-	public function setReturnPhpTypeDef(PhpTypeDef $returnPhpTypeDef = null);
+	public function setReturnPhpTypeDef(?PhpTypeDef $returnPhpTypeDef = null);
 	
 	/**
 	 * @return PhpParam []
@@ -43,8 +43,8 @@ interface PhpParamContainer {
 	 *
 	 * Creates a PhpParam for this Container, if there is already a param with this name, it gets replaced
 	 */
-	public function createPhpParam(string $name, string $value = null,
-			PhpTypeDef $phpTypeDef = null, bool $splat = false);
+	public function createPhpParam(string $name, ?string $value = null,
+			?PhpTypeDef $phpTypeDef = null, bool $splat = false);
 	
 	/**
 	 * @return string

@@ -22,7 +22,7 @@ class PhpMethod extends PhpParamContainerAdapter {
 
 	private $params = array();
 
-	public function __construct(PhpClassLike $phpClassLike, string $name, PhpTypeDef $returnPhpTypeDef = null) {
+	public function __construct(PhpClassLike $phpClassLike, string $name, ?PhpTypeDef $returnPhpTypeDef = null) {
 		$this->phpClassLike = $phpClassLike;
 		$this->name = $name;
 		$this->setReturnPhpTypeDef($returnPhpTypeDef);
@@ -41,7 +41,7 @@ class PhpMethod extends PhpParamContainerAdapter {
 		return $this->classifier;
 	}
 	
-	public function setClassifier(string $classifier = null) {
+	public function setClassifier(?string $classifier = null) {
 		if ($classifier === null) {
 			$classifier = Phpbob::CLASSIFIER_PUBLIC;
 		}

@@ -11,7 +11,7 @@ trait PrependingCodeTrait {
 		return $this->prependingCode;
 	}
 	
-	public function setPrependingCode(string $prependingCode = null) {
+	public function setPrependingCode(?string $prependingCode = null) {
 		$this->prependingCode = $prependingCode;
 		
 		return $this;

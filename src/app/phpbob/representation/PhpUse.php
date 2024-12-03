@@ -17,7 +17,7 @@ class PhpUse {
 	private $type;
 	private $alias;
 	
-	public function __construct(PhpFile $phpFile, string $typeName, PhpNamespace $phpNamespace = null) {
+	public function __construct(PhpFile $phpFile, string $typeName, ?PhpNamespace $phpNamespace = null) {
 		$this->phpFile = $phpFile;
 		$this->typeName = $typeName;
 		$this->phpNamespace = $phpNamespace;
@@ -35,7 +35,7 @@ class PhpUse {
 		return $this->type;
 	}
 
-	public function setType(string $type = null) {
+	public function setType(?string $type = null) {
 		ArgUtils::valEnum($type, self::getTypes(), null, true);
 		
 		$this->type = $type;
@@ -47,7 +47,7 @@ class PhpUse {
 		return $this->alias;
 	}
 
-	public function setAlias(string $alias = null) {
+	public function setAlias(?string $alias = null) {
 		if (null !== $alias && 
 				$this->determinePhpNamespaceElementCreator()->hasPhpUseAlias($alias)) {
 			throw new \InvalidArgumentException('alias with name ' . $alias . ' already defined.');

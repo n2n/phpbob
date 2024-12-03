@@ -15,7 +15,7 @@ abstract class PhpTypeAdapter implements PhpType {
 	
 	private $phpConsts = [];
 	
-	public function __construct(PhpFile $phpFile, string $name, PhpNamespace $phpNamespace = null) {
+	public function __construct(PhpFile $phpFile, string $name, ?PhpNamespace $phpNamespace = null) {
 		$this->phpFile = $phpFile;
 		$this->phpNamespace = $phpNamespace;
 		$this->name = $name;
@@ -71,7 +71,7 @@ abstract class PhpTypeAdapter implements PhpType {
 		return $phpConst;
 	}
 	
-	public function createPhpUse(string $typeName, string $alias = null, string $type = null) {
+	public function createPhpUse(string $typeName, ?string $alias = null, ?string $type = null) {
 		return $this->determinePhpNamespaceElementCreator()->createPhpUse($typeName, $alias, $type);
 	}
 	

@@ -42,7 +42,7 @@ class PhpClass extends PhpClassLikeAdapter {
 		return $this->superClassTypeDef;
 	}
 
-	public function setSuperClassTypeDef(PhpTypeDef $superClassTypeDef = null) {
+	public function setSuperClassTypeDef(?PhpTypeDef $superClassTypeDef = null) {
 		$this->superClassTypeDef = $superClassTypeDef;
 	}
 	

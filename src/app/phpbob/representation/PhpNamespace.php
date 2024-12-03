@@ -13,7 +13,7 @@ class PhpNamespace extends PhpNamespaceElementCreator implements PhpUseContainer
 	private $bracketedSyntax;
 	
 	public function __construct(PhpFile $phpFile, 
-			string $name, string $prependingCode = null, bool $bracketedSyntax = false) {
+			string $name, ?string $prependingCode = null, bool $bracketedSyntax = false) {
 		parent::__construct(new PhpElementFactory($phpFile, $this));
 		$this->phpFile = $phpFile;
 		$this->name = $name;

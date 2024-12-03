@@ -245,7 +245,7 @@ class PhpFileBuilder {
 		return $this->phpFile;
 	}
 	
-	private function buildTypeDef(string $localName = null) {
+	private function buildTypeDef(?string $localName = null) {
 		if (null === $localName) return null;
 		
 		return new PhpTypeDef($localName, $this->determineTypeName($localName));

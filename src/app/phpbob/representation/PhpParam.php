@@ -11,7 +11,7 @@ class PhpParam extends PhpVariable {
 	private $valueNullable = false;
 	
 	public function __construct(PhpParamContainer $phpParamContainer, string $name, 
-			string $value = null, PhpTypeDef $phpTypeDef = null) {
+			?string $value = null, ?PhpTypeDef $phpTypeDef = null) {
 		parent::__construct($name, $value);
 		$this->phpParamContainer = $phpParamContainer;
 		$this->phpTypeDef = $phpTypeDef;
@@ -21,7 +21,7 @@ class PhpParam extends PhpVariable {
 		return $this->phpTypeDef;
 	}
 
-	public function setPhpTypeDef(PhpTypeDef $phpTypeDef = null) {
+	public function setPhpTypeDef(?PhpTypeDef $phpTypeDef = null) {
 		$this->phpTypeDef = $phpTypeDef;
 	}
 	
