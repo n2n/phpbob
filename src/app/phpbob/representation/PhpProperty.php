@@ -11,13 +11,12 @@ class PhpProperty extends PhpVariable {
 	private $static;
 	
 	public function __construct(PhpClassLike $phpClassLike, string $classifier, 
-			string $name, ?string $value = null, ?string $prependingCode = null) {
+			string $name, string $value = null, string $prependingCode = null) {
 		parent::__construct($name, $value, $prependingCode);
 		$this->phpClassLike = $phpClassLike;
 		$this->classifier = $classifier;
 		
-		$that = $this;
-		$this->onNameChange(function($oldName, $newName) use ($that) {
+		$this->onNameChange(function($oldName, $newName) {
 			$this->getPhpPropertyAnnoCollection()->setPropertyName($newName);
 		});
 	}
@@ -73,7 +72,7 @@ class PhpProperty extends PhpVariable {
 	 * @param string $type
 	 * @return \phpbob\representation\PhpProperty
 	 */
-	public function createPhpUse(string $typeName, ?string $alias = null, ?string $type = null) {
+	public function createPhpUse(string $typeName, string $alias = null, string $type = null) {
 		$this->phpClassLike->createPhpUse($typeName, $alias, $type);
 		
 		return $this;
@@ -101,6 +100,14 @@ class PhpProperty extends PhpVariable {
 		$string = $this->getPrependingString() . "\t";
 		if (null !== $this->classifier) {
 			$string .= $this->classifier . ' ';
+		}
+		
+		if ($this->static) {
+			$string .= Phpbob::KEYWORD_STATIC . ' ';
+		}
+		
+		if (null !== $this->phpTypeDef) {
+			$string .= ($this->valueNullable ? '?' : '') . $this->phpTypeDef . ' ';
 		}
 		
 		return $string .  $this->getNameValueString() . Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL;

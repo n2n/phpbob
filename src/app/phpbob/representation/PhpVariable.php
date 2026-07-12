@@ -10,10 +10,12 @@ abstract class PhpVariable {
 	use PrependingCodeTrait;
 	use NameChangeSubjectTrait;
 	
+	protected $phpTypeDef;
 	protected $value;
+	protected $valueNullable = false;
 	
-	public function __construct(string $name, ?string $value = null,
-			?string $prependingCode = null) {
+	public function __construct(string $name, string $value = null, 
+			string $prependingCode = null) {
 		$this->prependingCode = $prependingCode;
 		$this->name = $name;
 		$this->value = $value;
@@ -23,8 +25,28 @@ abstract class PhpVariable {
 		return $this->value;
 	}
 
-	public function setValue(?string $value = null) {
+	public function setValue(string $value = null) {
 		$this->value = $value;
+		
+		return $this;
+	}
+	
+	public function getPhpTypeDef() {
+		return $this->phpTypeDef;
+	}
+	
+	public function setPhpTypeDef(PhpTypeDef $phpTypeDef = null) {
+		$this->phpTypeDef = $phpTypeDef;
+		
+		return $this;
+	}
+	
+	public function isValueNullable() {
+		return $this->valueNullable;
+	}
+	
+	public function setValueNullable(bool $valueNullable) {
+		$this->valueNullable = $valueNullable;
 		
 		return $this;
 	}

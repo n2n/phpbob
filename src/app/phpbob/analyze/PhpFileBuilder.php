@@ -277,9 +277,11 @@ class PhpFileBuilder {
 		$codeParts = self::determineCodeParts($phpStatement, true);
 		
 		$classifier = null;
+		$typeName = null;
 		$name = null;
 		$value = null;
 		$static = false;
+		$valueNullable = false;
 		
 		foreach ($codeParts as $codePart) {
 			if (null === $classifier) {
@@ -290,8 +292,16 @@ class PhpFileBuilder {
 			if (null === $name) {
 				if (strtolower($codePart) == Phpbob::KEYWORD_STATIC) {
 					$static = true;
-				} else {
+				} elseif (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $codePart))  {
 					$name = PhpbobAnalyzingUtils::purifyPropertyName($codePart);
+				} else {
+					if (StringUtils::startsWith(Phpbob::OPTIONAL_INDICATOR, $codePart)) {
+						$valueNullable = true;
+						if (StringUtils::endsWith(Phpbob::OPTIONAL_INDICATOR, $codePart)) continue;
+						
+						$codePart = substr($codePart, strlen(Phpbob::OPTIONAL_INDICATOR));
+					}
+					$typeName = $codePart;
 				}
 				continue;
 			}
@@ -305,6 +315,8 @@ class PhpFileBuilder {
 		}
 		
 		$phpClassLike->createPhpProperty($name, $classifier)->setValue($value)
+				->setValueNullable($valueNullable)
+				->setPhpTypeDef($this->buildTypeDef($typeName))
 				->setStatic($static)->setPrependingCode($this->createPrependingCode($phpStatement));
 	}
 	

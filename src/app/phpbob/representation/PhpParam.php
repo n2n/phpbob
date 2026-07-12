@@ -5,23 +5,13 @@ use phpbob\Phpbob;
 
 class PhpParam extends PhpVariable {
 	private $phpParamContainer;
-	private $phpTypeDef;
 	private $splat = false;
 	private $passedByReference = false;
-	private $valueNullable = false;
 	
 	public function __construct(PhpParamContainer $phpParamContainer, string $name, 
-			?string $value = null, ?PhpTypeDef $phpTypeDef = null) {
+			string $value = null, PhpTypeDef $phpTypeDef = null) {
 		parent::__construct($name, $value);
 		$this->phpParamContainer = $phpParamContainer;
-		$this->phpTypeDef = $phpTypeDef;
-	}
-	
-	public function getPhpTypeDef() {
-		return $this->phpTypeDef;
-	}
-
-	public function setPhpTypeDef(?PhpTypeDef $phpTypeDef = null) {
 		$this->phpTypeDef = $phpTypeDef;
 	}
 	
@@ -39,14 +29,6 @@ class PhpParam extends PhpVariable {
 
 	public function setSplat(bool $splat) {
 		$this->splat = $splat;
-	}
-	
-	public function isValueNullable() {
-		return $this->valueNullable;
-	}
-
-	public function setValueNullable(bool $valueNullable) {
-		$this->valueNullable = $valueNullable;
 	}
 
 	public function isPassedByReference() {
