@@ -122,7 +122,7 @@ class PhpFileBuilder {
 		$phpInterface->setPrependingCode($this->determinePrependingCode($phpStatement));
 		
 		$inExtendsClause = false;
-		foreach ($codeParts as $codePart) {			
+		foreach ($codeParts as $codePart) {
 			if ($inExtendsClause) {
 				$phpInterface->addInterfacePhpTypeDef($this->buildTypeDef($codePart));
 				continue;
@@ -144,21 +144,21 @@ class PhpFileBuilder {
 				continue;
 			}
 			
-			throw new PhpSourceAnalyzingException('Invalid interface structure detected: ' . 
+			throw new PhpSourceAnalyzingException('Invalid interface structure detected: ' .
 					$childPhpStatement);
 		}
 	}
 	
 	private function createPhpTrait(PhpStatement $phpStatement) {
 		ArgUtils::assertTrue($phpStatement instanceof StatementGroup && PhpbobAnalyzingUtils::isTraitStatement($phpStatement));
-				
+		
 		$codeParts = self::determineCodeParts($phpStatement);
 		//shift "trait"
 		array_shift($codeParts);
-				
+		
 		$traitName = array_shift($codeParts);
 		$phpTrait = $this->determinePhpNamespaceElementCreator()->createPhpTrait($traitName);
-				
+		
 		$this->applyClassLike($phpTrait, $phpStatement);
 	}
 	
@@ -245,7 +245,7 @@ class PhpFileBuilder {
 		return $this->phpFile;
 	}
 	
-	private function buildTypeDef(?string $localName = null, bool $required = false) {
+	private function buildTypeDef(?string $localName = null, bool $required = true) {
 		if (null === $localName) return null;
 		
 		return new PhpTypeDef($localName, $this->determineTypeName($localName), $required);
@@ -315,7 +315,7 @@ class PhpFileBuilder {
 		}
 		
 		$phpClassLike->createPhpProperty($name, $classifier)->setValue($value)
-			->setPhpTypeDef($this->buildTypeDef($typeName, !$typeOptional))
+				->setPhpTypeDef($this->buildTypeDef($typeName, !$typeOptional))
 				->setStatic($static)->setPrependingCode($this->createPrependingCode($phpStatement));
 	}
 	
@@ -330,7 +330,7 @@ class PhpFileBuilder {
 	}
 	
 	private function applyPhpMethod(PhpClassLike $phpClassLike, PhpStatement $phpStatement) {
-		$phpMethodDef = PhpMethodDef::fromPhpStatement($phpStatement); 
+		$phpMethodDef = PhpMethodDef::fromPhpStatement($phpStatement);
 		
 		$phpMethod = $phpClassLike->createPhpMethod($phpMethodDef->getMethodName())
 				->setFinal($phpMethodDef->isFinal())
@@ -351,7 +351,7 @@ class PhpFileBuilder {
 			$parameterParts = self::determineCodePartsForString(str_replace('=', '', $parameter));
 			
 			if (count($parameterParts) > 3) {
-				throw new \InvalidArgumentException('Invalid Number of Parameter Parts in Parameter: ' 
+				throw new \InvalidArgumentException('Invalid Number of Parameter Parts in Parameter: '
 						. $parameter . ' in Method :' . $phpParamContainer);
 			}
 			
@@ -359,11 +359,11 @@ class PhpFileBuilder {
 			$typeName = null;
 			$value = null;
 			$splat = false;
-			$valueNullable = false;
+			$typeOptional = false;
 			
 			foreach ($parameterParts as $parameterPart) {
 				if (StringUtils::startsWith(Phpbob::OPTIONAL_INDICATOR, $parameterPart)) {
-					$valueNullable = true;
+					$typeOptional = true;
 					if (StringUtils::endsWith(Phpbob::OPTIONAL_INDICATOR, $parameterPart)) continue;
 					
 					$parameterPart = substr($parameterPart, strlen(Phpbob::OPTIONAL_INDICATOR));
@@ -381,17 +381,17 @@ class PhpFileBuilder {
 					$parameterPart = substr($parameterPart, 0, -strlen(Phpbob::SPLAT_INDICATOR));
 				}
 				
-				if (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $parameterPart) 
+				if (StringUtils::startsWith(Phpbob::VARIABLE_PREFIX, $parameterPart)
 						|| StringUtils::startsWith(Phpbob::VARIABLE_REFERENCE_PREFIX . Phpbob::VARIABLE_PREFIX, $parameterPart)) {
-					$parameterName = $parameterPart;
-					continue;
-				}
-				
-				if (null === $parameterName) {
-					$typeName = $parameterPart;
-				} else {
-					$value = $parameterPart;
-				}
+							$parameterName = $parameterPart;
+							continue;
+						}
+						
+						if (null === $parameterName) {
+							$typeName = $parameterPart;
+						} else {
+							$value = $parameterPart;
+						}
 			}
 			
 			if (null === $parameterName) {
@@ -399,10 +399,9 @@ class PhpFileBuilder {
 			}
 			
 			$param = $phpParamContainer->createPhpParam(PhpbobAnalyzingUtils::purifyPropertyName($parameterName),
-					$value, $this->buildTypeDef($typeName), $splat);
+					$value, $this->buildTypeDef($typeName, !$typeOptional), $splat);
 			
 			$param->setPassedByReference(StringUtils::startsWith(Phpbob::VARIABLE_REFERENCE_PREFIX, $parameterName));
-			$param->setValueNullable($valueNullable);
 		}
 	}
 	
