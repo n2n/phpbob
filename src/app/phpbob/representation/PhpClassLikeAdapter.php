@@ -225,7 +225,7 @@ abstract class PhpClassLikeAdapter extends PhpTypeAdapter implements PhpClassLik
 	 * @return \phpbob\representation\PhpMethod
 	 */
 	public function updateOrCreatePhpSetter(string $propertyName, ?PhpTypeDef $phpTypeDef = null, ?string $value = null,
-			string $newMethodCode = null) {
+			?string $newMethodCode = null) {
 		if (!$this->hasPhpProperty($propertyName)) {
 			throw new IllegalStateException('No property with name \'' . $propertyName . '\' available.');
 		}

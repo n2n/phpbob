@@ -24,7 +24,7 @@ abstract class PhpVariable {
 		return $this->value;
 	}
 
-	public function setValue(string $value = null) {
+	public function setValue(?string $value = null) {
 		$this->value = $value;
 		
 		return $this;
@@ -34,7 +34,7 @@ abstract class PhpVariable {
 		return $this->phpTypeDef;
 	}
 	
-	public function setPhpTypeDef(PhpTypeDef $phpTypeDef = null) {
+	public function setPhpTypeDef(?PhpTypeDef $phpTypeDef = null) {
 		$this->phpTypeDef = $phpTypeDef;
 		
 		return $this;

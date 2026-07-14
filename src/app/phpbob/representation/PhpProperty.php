@@ -72,7 +72,7 @@ class PhpProperty extends PhpVariable {
 	 * @param string $type
 	 * @return \phpbob\representation\PhpProperty
 	 */
-	public function createPhpUse(string $typeName, string $alias = null, string $type = null) {
+	public function createPhpUse(string $typeName, ?string $alias = null, ?string $type = null) {
 		$this->phpClassLike->createPhpUse($typeName, $alias, $type);
 		
 		return $this;
