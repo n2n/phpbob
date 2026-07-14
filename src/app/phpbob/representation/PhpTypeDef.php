@@ -9,9 +9,11 @@ class PhpTypeDef {
 	private $localName;
 	private $typeName;
 	private $typeNameChangeClosures = [];
+	private $required = false;
 	
-	public function __construct(string $localName, ?string $typeName = null) {
+	public function __construct(string $localName, ?string $typeName = null, ?bool $required = false) {
 		$this->changeName($localName, $typeName);
+		$this->required = $required;
 	}
 	
 	public function changeName(string $localName, ?string $typeName = null) {
@@ -39,6 +41,14 @@ class PhpTypeDef {
 	
 	public function onTypeNameChange(\Closure $typeNameChangeClosure) {
 		$this->typeNameChangeClosures[] = $typeNameChangeClosure;
+	}
+	
+	public function setRequired(bool $required) {
+		$this->required = $required;
+	}
+	
+	public function isRequired() {
+		return $this->required;
 	}
 	
 	private function triggerTypeNameChange(?string $oldTypeName = null, ?string $newTypeName = null) {
@@ -109,6 +119,10 @@ class PhpTypeDef {
 	}
 	
 	public function __toString() {
+		if (!$this->isRequired()) {
+			return Phpbob::OPTIONAL_INDICATOR . $this->localName;  
+		}
+		
 		return $this->localName;
 	}
 	

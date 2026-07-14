@@ -245,10 +245,10 @@ class PhpFileBuilder {
 		return $this->phpFile;
 	}
 	
-	private function buildTypeDef(?string $localName = null) {
+	private function buildTypeDef(?string $localName = null, bool $required = false) {
 		if (null === $localName) return null;
 		
-		return new PhpTypeDef($localName, $this->determineTypeName($localName));
+		return new PhpTypeDef($localName, $this->determineTypeName($localName), $required);
 	}
 	
 	private function determineTypeName(string $localName) {
@@ -281,7 +281,7 @@ class PhpFileBuilder {
 		$name = null;
 		$value = null;
 		$static = false;
-		$valueNullable = false;
+		$typeOptional = false;
 		
 		foreach ($codeParts as $codePart) {
 			if (null === $classifier) {
@@ -296,7 +296,7 @@ class PhpFileBuilder {
 					$name = PhpbobAnalyzingUtils::purifyPropertyName($codePart);
 				} else {
 					if (StringUtils::startsWith(Phpbob::OPTIONAL_INDICATOR, $codePart)) {
-						$valueNullable = true;
+						$typeOptional = true;
 						if (StringUtils::endsWith(Phpbob::OPTIONAL_INDICATOR, $codePart)) continue;
 						
 						$codePart = substr($codePart, strlen(Phpbob::OPTIONAL_INDICATOR));
@@ -315,8 +315,7 @@ class PhpFileBuilder {
 		}
 		
 		$phpClassLike->createPhpProperty($name, $classifier)->setValue($value)
-				->setValueNullable($valueNullable)
-				->setPhpTypeDef($this->buildTypeDef($typeName))
+			->setPhpTypeDef($this->buildTypeDef($typeName, !$typeOptional))
 				->setStatic($static)->setPrependingCode($this->createPrependingCode($phpStatement));
 	}
 	

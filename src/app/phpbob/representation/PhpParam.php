@@ -9,7 +9,7 @@ class PhpParam extends PhpVariable {
 	private $passedByReference = false;
 	
 	public function __construct(PhpParamContainer $phpParamContainer, string $name, 
-			string $value = null, PhpTypeDef $phpTypeDef = null) {
+			?string $value = null, ?PhpTypeDef $phpTypeDef = null) {
 		parent::__construct($name, $value);
 		$this->phpParamContainer = $phpParamContainer;
 		$this->phpTypeDef = $phpTypeDef;
@@ -44,7 +44,7 @@ class PhpParam extends PhpVariable {
 	}
 	
 	public function isMandatory() {
-		return !($this->valueNullable || $this->hasValue());
+		return !$this->hasValue();
 	}
 
 	// 	public function isPassedByReference() {
@@ -59,7 +59,7 @@ class PhpParam extends PhpVariable {
 	public function __toString() {
 		$string = $this->getPrependingString();
 		if (null !== $this->phpTypeDef) {
-			$string .= ($this->valueNullable ? '?' : '') . $this->phpTypeDef . ' ';
+			$string .= $this->phpTypeDef . ' ';
 		}
 		
 		if ($this->splat) {

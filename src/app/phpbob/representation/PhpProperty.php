@@ -11,7 +11,7 @@ class PhpProperty extends PhpVariable {
 	private $static;
 	
 	public function __construct(PhpClassLike $phpClassLike, string $classifier, 
-			string $name, string $value = null, string $prependingCode = null) {
+			string $name, ?string $value = null, ?string $prependingCode = null) {
 		parent::__construct($name, $value, $prependingCode);
 		$this->phpClassLike = $phpClassLike;
 		$this->classifier = $classifier;
@@ -107,7 +107,7 @@ class PhpProperty extends PhpVariable {
 		}
 		
 		if (null !== $this->phpTypeDef) {
-			$string .= ($this->valueNullable ? '?' : '') . $this->phpTypeDef . ' ';
+			$string .= $this->phpTypeDef . ' ';
 		}
 		
 		return $string .  $this->getNameValueString() . Phpbob::SINGLE_STATEMENT_STOP . PHP_EOL;
