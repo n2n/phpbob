@@ -9,9 +9,9 @@ class PhpTypeDef {
 	private $localName;
 	private $typeName;
 	private $typeNameChangeClosures = [];
-	private $required = false;
+	private $required = true;
 	
-	public function __construct(string $localName, ?string $typeName = null, ?bool $required = false) {
+	public function __construct(string $localName, ?string $typeName = null, ?bool $required = true) {
 		$this->changeName($localName, $typeName);
 		$this->required = $required;
 	}
