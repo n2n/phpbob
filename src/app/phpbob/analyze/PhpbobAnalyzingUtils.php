@@ -38,10 +38,11 @@ class PhpbobAnalyzingUtils {
 	
 	public static function isPropertyStatement(PhpStatement $phpStatement) {
 		return $phpStatement instanceof SingleStatement
-				&& preg_match('/(' . preg_quote(Phpbob::CLASSIFIER_PRIVATE) .
+		&& preg_match('/(' . preg_quote(Phpbob::CLASSIFIER_PRIVATE) .
 				'|' . preg_quote(Phpbob::CLASSIFIER_PROTECTED) .
 				'|' . preg_quote(Phpbob::CLASSIFIER_PUBLIC) . ')\s+('
 				. preg_quote(Phpbob::KEYWORD_STATIC) . '\s+)?' .
+				'(\S+\s+)?' .
 				preg_quote(Phpbob::VARIABLE_PREFIX) . '/i', $phpStatement->getCode());
 	}
 	

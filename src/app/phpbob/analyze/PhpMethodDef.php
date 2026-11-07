@@ -6,6 +6,7 @@ use n2n\util\type\ArgUtils;
 use phpbob\Phpbob;
 use phpbob\SingleStatement;
 use phpbob\StatementGroup;
+use n2n\util\StringUtils;
 
 class PhpMethodDef {
 	
@@ -15,6 +16,7 @@ class PhpMethodDef {
 	private $static = false;
 	private $methodName;
 	private $returnTypeName;
+	private $returnTypeRequired = false;
 	private $parameterSignature;
 	private $methodCode;
 	
@@ -40,6 +42,10 @@ class PhpMethodDef {
 
 	public function getReturnTypeName() {
 		return $this->returnTypeName;
+	}
+
+	public function isReturnTypeRequired() {
+		return $this->returnTypeRequired;
 	}
 
 	public function getParameterSignature() {
@@ -74,6 +80,10 @@ class PhpMethodDef {
 		$this->returnTypeName = $returnTypeName;
 	}
 
+	public function setReturnTypeRequired(bool $returnTypeRequired = true) {
+		$this->returnTypeRequired = $returnTypeRequired;
+	}
+
 	public function setParameterSignature(string $parameterSignature) {
 		$this->parameterSignature = $parameterSignature;
 	}
@@ -95,7 +105,13 @@ class PhpMethodDef {
 		$methodDef->setParameterSignature(preg_replace('/\)((?!\)).)*$/', '', $parts[1]));
 		
 		if (count($parts) > 2) {
-			$methodDef->setReturnTypeName(preg_replace('/;$/', '', trim($parts[2])));
+			$returnType = preg_replace('/;$/', '', trim($parts[2]));
+			if (StringUtils::startsWith(Phpbob::OPTIONAL_INDICATOR, $returnType)) {
+				$methodDef->setReturnTypeRequired(true);
+				$returnType = mb_substr($returnType, 1);
+			}
+
+			$methodDef->setReturnTypeName($returnType);
 		}
 		
 		foreach (self::explodeByWhiteSpaces($signature) as $part) {

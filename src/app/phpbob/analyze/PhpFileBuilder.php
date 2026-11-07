@@ -339,7 +339,8 @@ class PhpFileBuilder {
 				->setClassifier($phpMethodDef->getClassifier())
 				->setMethodCode($phpMethodDef->getMethodCode())
 				->setPrependingCode($this->createPrependingCode($phpStatement))
-				->setReturnPhpTypeDef($this->buildTypeDef($phpMethodDef->getReturnTypeName()));
+				->setReturnPhpTypeDef($this->buildTypeDef($phpMethodDef->getReturnTypeName(),
+						$phpMethodDef->isReturnTypeRequired()));
 		
 		$this->applyMethodParameters($phpMethod, $phpMethodDef->getParameterSignature());
 	}
