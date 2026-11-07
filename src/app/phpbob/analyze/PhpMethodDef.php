@@ -16,7 +16,7 @@ class PhpMethodDef {
 	private $static = false;
 	private $methodName;
 	private $returnTypeName;
-	private $returnTypeRequired = false;
+	private $returnTypeRequired = true;
 	private $parameterSignature;
 	private $methodCode;
 	
@@ -107,7 +107,7 @@ class PhpMethodDef {
 		if (count($parts) > 2) {
 			$returnType = preg_replace('/;$/', '', trim($parts[2]));
 			if (StringUtils::startsWith(Phpbob::OPTIONAL_INDICATOR, $returnType)) {
-				$methodDef->setReturnTypeRequired(true);
+				$methodDef->setReturnTypeRequired(false);
 				$returnType = mb_substr($returnType, 1);
 			}
 
