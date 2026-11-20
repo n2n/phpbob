@@ -44,7 +44,7 @@ class PhpSourceAnalyzer {
 		
 		foreach (token_get_all($phpSource) as $token) {
 			if (!$startAnalyzing) {
-				if (!is_long($token[0])) continue;
+				if (!is_int($token[0])) continue;
 				if ($token[0] === T_CLOSE_TAG) {
 					throw new PhpSourceAnalyzingException('Too many PHP-end-tags (?>)');
 				}
@@ -65,7 +65,7 @@ class PhpSourceAnalyzer {
 				continue;
 			}
 			
-			if (is_long($token[0])) {
+			if (is_int($token[0])) {
 				$content .= $token[1];
 				continue;
 			}
